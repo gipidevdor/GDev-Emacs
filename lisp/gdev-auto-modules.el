@@ -16,6 +16,7 @@
 (declare-function gdev-modules--load "gdev-modules" (category module))
 (declare-function gdev-module--failure "gdev-modules" (category module))
 (declare-function gdev-module--configured-declaration "gdev-modules" (category module))
+(declare-function gdev-modules-suggest-language "gdev-modules" ())
 
 (defconst gdev-auto-modules-catalogue
   '((swift (("\\.swift\\'" . swift-mode)) ((swift-mode . "swift-mode") (swift-repl-mode . "swift-mode-repl")))
