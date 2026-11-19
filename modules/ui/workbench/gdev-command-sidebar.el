@@ -701,7 +701,7 @@ In forma compatta basta verificare l'esistenza di un'azione oltre LIMIT."
   (if-let* ((side (gdev-layout-command-sidebar-window)))
       (delete-window side)
     (unless (gdev-command-sidebar--show)
-      (message "Allarga la finestra per mostrare Comandi. C-c w T apre la ricerca."))))
+      (gdev-command-sidebar-find))))
 
 (defun gdev-command-sidebar-focus ()
   "Passa a Comandi, all'editor o alla ricerca se la finestra è stretta."

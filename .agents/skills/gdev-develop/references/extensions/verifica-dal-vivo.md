@@ -6,6 +6,11 @@ Usa questa procedura quando una correzione riguarda il disegno o un flusso
 che il batch non riproduce del tutto: riga di stato, margini, viste a
 larghezza variabile, sessioni di debug o server di linguaggio.
 
+Un'istanza separata può comunque prendere il fuoco e interrompere chi lavora.
+Se l'utente chiede di non aprire finestre, usa solo prove in batch e registra
+la verifica grafica come non eseguita. Non avviare né riavviare applicazioni
+per completare quella verifica.
+
 ## Applica la correzione in un'istanza aperta
 
 1. Valuta soltanto le definizioni cambiate, lette dal file:
@@ -58,6 +63,10 @@ larghezza variabile, sessioni di debug o server di linguaggio.
   di `init.el`, carica prima `early-init.el`, esegui `(require 'package)` e
   `(package-activate-all)`, poi carica `init.el`. Controlla anche l'output:
   un errore di `use-package` può non comparire in `gdev-failed-modules`.
+- Una prova `--eval` dopo il primo file della riga di comando non deve
+  eliminarlo prima che `command-line` ne abbia terminato la gestione.
+  Verifica lì modalità e comandi; per il rilascio usa un cambio di modalità
+  oppure una prova separata di chiusura del buffer.
 - `format-mode-line` restituisce una stringa vuota senza una finestra
   grafica. Verifica la struttura del formato con un percorritore che segua
   le regole di `mode-line-format`: una lista che inizia con un simbolo è un

@@ -48,6 +48,6 @@
   "Avvia marksman qui se tools/lsp è attivo e marksman è installato."
   (when (fboundp 'gdev-lsp-maybe-start)
     (gdev-lsp-maybe-start)))
-(add-hook 'markdown-mode-hook #'gdev-markdown-maybe-start-lsp)
+(gdev-module-add-hook 'markdown-mode-hook #'gdev-markdown-maybe-start-lsp)
 
 ;;; config.el ends here

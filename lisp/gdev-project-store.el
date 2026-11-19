@@ -36,7 +36,7 @@
                                    (source (and library (concat (file-name-sans-extension library) ".el")))
                                    (file (if (and source (file-regular-p source)) source library)))
                               (cons (intern name) (and file (gdev-evidence-file-sha256 file)))))
-                          '("gdev-project" "gdev-graph" "gdev-project-store" "gdev-procedures" "gdev-taxonomy" "gdev-project-templates" "gdev-project-report" "gdev-formal" "gdev-work"
+                          '("gdev-project" "gdev-graph" "gdev-modules" "gdev-auto-modules" "gdev-handlers" "gdev-language-modes" "gdev-launch" "gdev-xcode" "gdev-project-store" "gdev-procedures" "gdev-taxonomy" "gdev-project-templates" "gdev-project-report" "gdev-formal" "gdev-work"
                             "gdev-lavorazione" "gdev-assurance-db" "gdev-records" "gdev-process" "gdev-policy" "gdev-gates"
                             "gdev-assurance-git" "gdev-assessment" "gdev-evidence" "gdev-trace" "gdev-standard-assessment" "gdev-documents" "gdev-controls" "gdev-standards"))))
     `((project . ,(plist-get data :id)) (inputs . ,inputs)

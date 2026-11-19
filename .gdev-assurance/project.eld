@@ -288,6 +288,42 @@
                 "gdev-test-forks-consult-imenu-preserves-types-faces-and-targets"
                 "gdev-test-forks-consult-imenu-handles-deep-prefixes-with-a-bounded-stack"
                 "gdev-test-capability-dynamic-controls-preserve-first-seen-order")
+        :procedure "GDEV-VERIFY")
+   (:id "GDEV-P10" :version 1
+        :statement "I linguaggi distribuiti non dichiarati permanenti devono attivarsi quando un documento ne richiede la modalità. Le capacità temporanee sono condivise dai documenti e dalle operazioni; l'ultimo proprietario le rilascia. Errori, annullamenti e callback tardive non devono lasciare registrazioni attive né alterare le preferenze personali."
+        :origin "Richiesta dell’utente sull’attivazione e disattivazione automatica"
+        :rationale "Aprire un documento deve rendere disponibili colorazione e comandi senza modificare init.el"
+        :category functional :priority must :criticality high
+        :owner "Manutentori di GDev" :status accepted :applicability applicable
+        :acceptance "L'apertura del primo file Swift all'avvio attiva colori e comandi; chiusure annullate conservano il proprietario, processi attivi lo trattengono e il rilascio elimina capacità e callback possedute."
+        :method test
+        :sources ("lisp/gdev-auto-modules.el" "lisp/gdev-modules.el" "lisp/gdev-handlers.el"
+                  "lisp/gdev-language-modes.el" "lisp/gdev-cli.el" "modules/lang/swift/config.el")
+        :tests ("gdev-test-auto-modules-swift-files-activate-share-release-and-reopen"
+                "gdev-test-auto-modules-first-command-line-file-activates-in-ordinary-startup"
+                "gdev-test-auto-modules-close-cancellation-and-mode-change-preserve-state"
+                "gdev-test-auto-modules-compilation-outlives-document-and-output-buffer"
+                "gdev-test-auto-modules-work-scopes-release-on-error-and-quit"
+                "gdev-test-auto-modules-eglot-deferred-effects-expire-with-their-owner"
+                "gdev-test-auto-modules-owned-hooks-and-deferred-advice-expire"
+                "gdev-test-auto-modules-catalogue-providers-release-all-capability-registries")
+        :procedure "GDEV-VERIFY")
+   (:id "GDEV-P11" :version 1
+        :statement "Le operazioni di un progetto Xcode locale devono usare un profilo ricavato dai suoi metadati. Compilazione, test, avvio e debug condividono radice, schema e cartella di build del progetto; l'avvio dipendente da una compilazione procede solo dopo un esito positivo. Menu e riquadri usano il documento attivo anche se il fuoco è altrove."
+        :origin "Segnalazione dell’utente sulla compilazione e sul contesto frammentato"
+        :rationale "Evitare richieste di salvataggio del buffer o scelta manuale del programma per le operazioni già definite dal progetto"
+        :category usability :priority must :criticality high
+        :owner "Manutentori di GDev" :status accepted :applicability applicable
+        :acceptance "Il profilo macOS predefinito usa build/gdev; la compilazione dal riquadro non chiede nomi di file. I profili personali prevalgono, i prodotti restano nel progetto e un errore interrompe l'avvio."
+        :method test
+        :sources ("lisp/gdev-xcode.el" "lisp/gdev-launch.el" "modules/tools/build/config.el"
+                  "modules/ui/workbench/gdev-command-sidebar.el")
+        :tests ("gdev-test-xcode-profile-reads-product-and-keeps-products-in-project"
+                "gdev-test-xcode-build-from-pane-uses-document-project-without-save-dialogue"
+                "gdev-test-xcode-run-builds-first-and-does-not-launch-after-failure"
+                "gdev-test-xcode-private-profile-prevails-and-view-reads-have-no-io"
+                "gdev-test-xcode-rejects-products-and-directories-outside-project"
+                "gdev-test-command-sidebar-menu-opens-search-when-the-pane-cannot-fit")
         :procedure "GDEV-VERIFY"))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
@@ -466,7 +502,7 @@
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")

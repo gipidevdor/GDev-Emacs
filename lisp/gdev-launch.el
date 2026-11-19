@@ -17,6 +17,7 @@
 (require 'gdev-layout)
 (require 'gdev-workspace-roots)
 (require 'gdev-workspace-state)
+(require 'gdev-xcode)
 
 (declare-function gdev-python--interpreter "../modules/lang/python/config" (root))
 (declare-function gdev-debug-launch-profile "../modules/tools/debugger/config"
@@ -48,37 +49,65 @@ REMOTA è assoluta e LOCALE può essere relativa a RADICE.
 
 (defvar gdev-launch-arguments-history nil)
 
+(defvar gdev-launch--native-profiles (make-hash-table :test #'equal)
+  "Profili automatici locali per radice; non modifica le scelte personali.")
+
+(defun gdev-launch--configured-profiles (root)
+  "Leggi i profili personali di ROOT."
+  (let ((directory (gdev-launch--directory root)))
+    (cdr (seq-find (lambda (entry) (equal directory (gdev-launch--directory (car entry)))) gdev-launch-profiles))))
+
+(defun gdev-launch-refresh-native-profile (&optional directory)
+  "Rileggi i metadati del progetto di DIRECTORY durante un'azione o apertura.
+Le viste leggono l'indice in memoria, senza scansioni o processi esterni."
+  (let* ((directory (or directory default-directory))
+         (root (gdev-launch--directory
+                (or (gdev-workspace-root-for directory (gdev-workspace-roots))
+                    (gdev-project-root directory))))
+         (previous (gethash root gdev-launch--native-profiles))
+         (profile (and (not (gdev-launch--configured-profiles root)) (gdev-xcode-profile root))))
+    (if profile (puthash root (list profile) gdev-launch--native-profiles)
+      (remhash root gdev-launch--native-profiles))
+    (unless (equal previous (and profile (list profile)))
+      (run-hooks 'gdev-launch-selection-change-hook))
+    (and profile root)))
+
+(defun gdev-launch--file-opened ()
+  "Prepara il profilo del documento senza avviare programmi."
+  (condition-case nil (gdev-launch-refresh-native-profile) (error nil)))
+
+(add-hook 'find-file-hook #'gdev-launch--file-opened 85)
+
 (defun gdev-launch--directory (directory)
   "Rendi DIRECTORY assoluta con un separatore finale."
   (file-name-as-directory (expand-file-name directory)))
 
 (defun gdev-launch-profiles-for (root)
   "Restituisci i profili configurati per ROOT."
-  (when (and root gdev-launch-profiles)
-    (let ((directory (gdev-launch--directory root)))
-      (cdr (seq-find (lambda (entry)
-                       (equal directory (gdev-launch--directory (car entry))))
-                     gdev-launch-profiles)))))
+  (when root
+    (or (gdev-launch--configured-profiles root)
+        (gethash (gdev-launch--directory root) gdev-launch--native-profiles))))
 
 (defun gdev-launch-profile-root (&optional directory)
   "Trova la radice con profili più vicina a DIRECTORY o allo spazio."
-  (when gdev-launch-profiles
-    (let ((directory (or directory (gdev-default-directory))))
-      (or (gdev-workspace-root-for
-           directory (mapcar (lambda (entry) (gdev-launch--directory (car entry)))
-                             gdev-launch-profiles))
-          (when gdev-layout-mode
-            (let ((workspace (gdev-workspace-directory directory)))
-              (and (gdev-launch-profiles-for workspace) workspace)))))))
+  (let ((directory (or directory (gdev-default-directory))))
+    (or (gdev-workspace-root-for
+         directory (mapcar (lambda (entry) (gdev-launch--directory (car entry))) gdev-launch-profiles))
+        (gdev-workspace-root-for directory (hash-table-keys gdev-launch--native-profiles))
+        (when gdev-layout-mode
+          (let ((workspace (gdev-workspace-directory directory)))
+            (and (gdev-launch-profiles-for workspace) workspace))))))
 
 (defun gdev-launch-selected (root)
   "Restituisci la voce del profilo selezionato per ROOT."
-  (when (and root gdev-launch-profiles)
+  (when root
     (let ((choices (if gdev-layout-mode
                        (gdev-workspace-state-get 'gdev-launch-selections)
                      gdev-launch--standalone-selections)))
-      (when-let* ((name (alist-get root choices nil nil #'equal)))
-        (assoc name (gdev-launch-profiles-for root))))))
+      (or (when-let* ((name (alist-get root choices nil nil #'equal)))
+            (assoc name (gdev-launch-profiles-for root)))
+          (unless (gdev-launch--configured-profiles root)
+            (car (gethash (gdev-launch--directory root) gdev-launch--native-profiles)))))))
 
 (defun gdev-launch--strings-p (value)
   "Verifica che VALUE sia una lista di argomenti utilizzabili."
@@ -203,6 +232,8 @@ Con KEYS uguale a t accetta tutte le chiavi di tipo keyword."
   (interactive
    (list (when-let* ((editor (and gdev-layout-mode (gdev-layout-editor))))
            (with-current-buffer (window-buffer editor) (gdev-launch-profile-root)))))
+  (unless (and root (gdev-launch--configured-profiles root))
+    (gdev-launch-refresh-native-profile (or root (gdev-default-directory))))
   (let* ((root (or root (gdev-launch-profile-root)))
          (profiles (gdev-launch-profiles-for root))
          (automatic "Automatico"))
@@ -337,12 +368,19 @@ Con EXECUTABLE richiedi anche il permesso di esecuzione."
 (defun gdev-launch-dispatch (phase &optional ask-options)
   "Esegui PHASE del profilo attivo e restituisci un valore non nil.
 Con ASK-OPTIONS modifica gli argomenti per questa operazione."
+  (let ((current (gdev-launch-profile-root)))
+    (unless (and current (gdev-launch--configured-profiles current))
+      (gdev-launch-refresh-native-profile (gdev-default-directory))))
   (when-let* ((root (gdev-launch-profile-root))
               (profile (gdev-launch-selected root)))
     (let* ((options (gdev-launch--options profile root))
            (legacy-run (and (eq phase 'run) (plist-get options :legacy)))
            (command (plist-get options (alist-get phase gdev-launch--phases)))
            (debug (plist-get options :debug)))
+      (when (and (not (or command legacy-run))
+                 (not (gdev-launch--configured-profiles root))
+                 (gethash root gdev-launch--native-profiles))
+        (user-error "Lo schema «%s» non dichiara l'operazione %s" (car profile) phase))
       (when (or command legacy-run)
         (gdev-require-project-environment)
         (let* ((directory (gdev-launch--directory

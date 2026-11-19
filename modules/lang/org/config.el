@@ -39,6 +39,7 @@
 ;;; Code:
 
 (require 'gdev-lib)
+(require 'gdev-handlers)
 (require 'gdev-layout)
 (require 'gdev-ui)
 
@@ -167,9 +168,9 @@
   (require 'ox-beamer)
   (org-beamer-export-to-pdf t))
 
-(with-eval-after-load 'org-src
-  (advice-add 'org-src-switch-to-buffer :around #'gdev-org--edit-in-editor)
-  (add-hook 'org-src-mode-hook #'gdev-org--mark-source-document))
+(gdev-module-after-load 'org-src
+  (gdev-module-advice-add 'org-src-switch-to-buffer :around #'gdev-org--edit-in-editor)
+  (gdev-module-add-hook 'org-src-mode-hook #'gdev-org--mark-source-document))
 
 (defvar gdev-menu-local-events)
 
@@ -180,6 +181,6 @@
               gdev-layout-document-p t
               gdev-menu-local-events '(agenda)))
 
-(add-hook 'org-agenda-mode-hook #'gdev-org--agenda-view)
+(gdev-module-add-hook 'org-agenda-mode-hook #'gdev-org--agenda-view)
 
 ;;; config.el ends here

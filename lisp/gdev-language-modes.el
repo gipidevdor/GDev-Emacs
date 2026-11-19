@@ -12,6 +12,32 @@
 ;;; Code:
 
 (require 'gdev-lib)
+(require 'gdev-handlers)
+
+(defconst gdev-language--common-commands
+  '(("b" "Compila" gdev-build :build-root)
+    ("t" "Esegui i test" gdev-test-dwim :test)
+    ("r" "Esegui" gdev-run-dwim :run)
+    ("f" "Formatta" gdev-format-dwim :format)
+    ("e" "Valuta il codice" gdev-eval-dwim :eval)
+    ("z" "Apri interprete" gdev-open-repl :repl))
+  "Azioni comuni risolte dalle capacità effettive del documento.")
+
+(defun gdev-language-install-command-map ()
+  "Rendi disponibili menu, Comandi e C-c l per le capacità del documento.
+Conserva i prefissi personali. Una mappa locale leggera eredita le altre
+scorciatoie dalla modalità, senza copiare né modificare la sua mappa."
+  (when (and (current-local-map) (not (keymapp (key-binding (kbd "C-c l")))))
+    (let ((commands (make-sparse-keymap)) (local (make-sparse-keymap)) available)
+      (pcase-dolist (`(,key ,label ,command ,kind) gdev-language--common-commands)
+        (when (and (gdev-handler kind) (commandp command))
+          (setq available t)
+          (define-key commands (kbd key) (cons label command))))
+      (when available
+        (set-keymap-parent local (current-local-map))
+        (define-key local (kbd "C-c l") (cons "linguaggio" commands))
+        (use-local-map local)
+        (run-hooks 'gdev-tool-actions-change-hook)))))
 
 (autoload 'so-long-statistics-excessive-p "so-long")
 (autoload 'treesit-ready-p "treesit")

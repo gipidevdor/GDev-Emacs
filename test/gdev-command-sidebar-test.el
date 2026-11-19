@@ -154,6 +154,17 @@
         (dolist (buffer (list document activity tool side-buffer))
           (when (buffer-live-p buffer) (kill-buffer buffer)))))))
 
+(ert-deftest gdev-test-command-sidebar-menu-opens-search-when-the-pane-cannot-fit ()
+  "Il menu ha un esito utilizzabile anche quando il riquadro non entra."
+  (gdev-test--with-layout
+    (let ((editor (gdev-layout-editor)) (called 0))
+      (cl-letf (((symbol-function 'gdev-layout-commands-fit-p) (lambda () nil))
+                ((symbol-function 'gdev-command-sidebar-find) (lambda () (cl-incf called))))
+        (call-interactively #'gdev-command-sidebar-toggle)
+        (should (= 1 called))
+        (should (eq editor (selected-window)))
+        (should-not (gdev-workspace-state-get 'gdev-layout-commands-visibility))))))
+
 (ert-deftest gdev-test-command-sidebar-switches-categories-with-pointer-and-keys ()
   "Icone e frecce cambiano categoria, conservando contesto e selezione."
   (gdev-test--with-layout

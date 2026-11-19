@@ -53,13 +53,17 @@
 ;; Dalle abbreviazioni alla marcatura: ul>li*3>a  poi C-j.
 (use-package emmet-mode
   :ensure t
-  :hook ((web-mode html-mode css-base-mode) . emmet-mode)
+  :commands emmet-mode
   :custom (emmet-move-cursor-between-quotes t))
+(dolist (hook '(web-mode-hook html-mode-hook css-base-mode-hook))
+  (gdev-module-add-hook hook #'emmet-mode))
 
 ;; #3a7bd5 e rgb(...) appaiono nel loro colore.
 (use-package rainbow-mode
   :ensure t
-  :hook (css-base-mode web-mode))
+  :commands rainbow-mode)
+(dolist (hook '(css-base-mode-hook web-mode-hook))
+  (gdev-module-add-hook hook #'rainbow-mode))
 
 ;;;; CSS
 

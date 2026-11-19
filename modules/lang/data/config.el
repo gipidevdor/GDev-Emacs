@@ -65,8 +65,8 @@
   "Avvia taplo in quest'area di testo se tools/lsp è attivo e taplo è installato."
   (when (fboundp 'gdev-lsp-maybe-start)
     (gdev-lsp-maybe-start)))
-(add-hook 'toml-ts-mode-hook #'gdev-data-maybe-start-lsp)
-(add-hook 'conf-toml-mode-hook #'gdev-data-maybe-start-lsp)
+(gdev-module-add-hook 'toml-ts-mode-hook #'gdev-data-maybe-start-lsp)
+(gdev-module-add-hook 'conf-toml-mode-hook #'gdev-data-maybe-start-lsp)
 
 ;;;; yamllint tramite Flymake
 
@@ -118,7 +118,7 @@ Vale la configurazione .yamllint del progetto."
     (add-hook 'flymake-diagnostic-functions #'gdev-data-flymake-yamllint nil t)
     (flymake-mode 1)))
 
-(add-hook 'yaml-ts-mode-hook #'gdev-data-enable-yamllint)
+(gdev-module-add-hook 'yaml-ts-mode-hook #'gdev-data-enable-yamllint)
 
 (gdev-doctor-executable "yamllint" "brew install yamllint" 'note)
 (gdev-doctor-executable "taplo" "brew install taplo" 'note)

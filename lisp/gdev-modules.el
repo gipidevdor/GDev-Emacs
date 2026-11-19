@@ -49,6 +49,8 @@ Senza questo elenco un file privato rotto lascia solo un avviso su stderr.")
 (defvar gdev-modules--loading nil
   "Coppia (CATEGORY MODULE) del modulo in attivazione.")
 
+(defvar gdev-auto-modules--entries nil)
+
 (defun gdev-modules--add-private-load-path ()
   "Aggiungi le librerie dei moduli personali attivi dopo quelle distribuite."
   (dolist (entry gdev-modules)
@@ -134,10 +136,16 @@ Un modulo è un simbolo, o una lista (MODULE +FLAG...) che attiva opzioni.
 Ripetere un modulo aggiunge opzioni alla prima dichiarazione."
   `(gdev-modules--declare ',declarations))
 
-(defun gdev-module--declaration (category module)
-  "Restituisci la dichiarazione di MODULE in CATEGORY."
+(defun gdev-module--configured-declaration (category module)
+  "Restituisci la scelta privata di MODULE in CATEGORY."
   (cl-find-if (lambda (entry) (and (eq (car entry) category) (eq (cadr entry) module)))
               gdev-modules))
+
+(defun gdev-module--declaration (category module)
+  "Restituisci la dichiarazione permanente o temporanea di MODULE."
+  (or (gdev-module--configured-declaration category module)
+      (cl-find-if (lambda (entry) (and (eq (car entry) category) (eq (cadr entry) module)))
+                  gdev-auto-modules--entries)))
 
 (defun gdev-module--failure (category module)
   "Restituisci il fallimento registrato per MODULE in CATEGORY."
@@ -160,22 +168,10 @@ Durante l'avvio le dichiarazioni successive sono consultabili."
                    (not (gdev-module--failure category module)))))
     (or (null flag) (memq flag (cddr entry)))))
 
-(defconst gdev-modules--language-suffixes
-  '(("go" . go) ("rs" . rust) ("swift" . swift) ("zig" . zig)
-    ("java" . java) ("cs" . csharp))
-  "Estensioni dei linguaggi opzionali da suggerire all'apertura.")
-
 (defun gdev-modules-suggest-language ()
-  "Indica come abilitare il modulo GDev del file appena aperto."
-  (when-let* (((not noninteractive))
-              (file buffer-file-name)
-              (module (assoc-default (or (file-name-extension file) "")
-                                     gdev-modules--language-suffixes))
-              ((not (gdev-module-p :lang module))))
-    (message "Per questo file aggiungi %s a :lang in %s, poi esegui gdev sync."
-             module (abbreviate-file-name (gdev-user-file "init.el")))))
-
-(add-hook 'find-file-hook #'gdev-modules-suggest-language 95)
+  "Compatibilità: prepara il supporto automatico e sceglie il modo del file."
+  (gdev-auto-modules-initialize)
+  (when buffer-file-name (normal-mode)))
 
 (defun gdev-modules-missing-from-template ()
   "Elenca i moduli del modello assenti dalla configurazione corrente."
@@ -297,6 +293,7 @@ ricerca in una lista; l'installazione avviene solo se il pacchetto manca."
     (gdev-modules--load category module))
   (setq gdev-module-load-times (sort gdev-module-load-times :key #'cdr))
   (gdev-modules--load-private "config")
+  (gdev-auto-modules-initialize)
   (run-hooks 'gdev-after-init-hook))
 
 ;;;; Descrizione dei moduli
@@ -372,5 +369,6 @@ ricerca in una lista; l'installazione avviene solo se il pacchetto manca."
     (special-mode)
     (pop-to-buffer (current-buffer))))
 
+(require 'gdev-auto-modules)
 (provide 'gdev-modules)
 ;;; gdev-modules.el ends here

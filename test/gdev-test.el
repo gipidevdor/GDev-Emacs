@@ -4726,5 +4726,7 @@ installerebbero pacchetti dentro il repository."
 (load (gdev-config-file "test/gdev-project-test.el") nil t t)
 (load (gdev-config-file "test/gdev-ergonomics-test.el") nil t t)
 (load (gdev-config-file "test/gdev-graph-test.el") nil t t)
+(load (gdev-config-file "test/gdev-auto-modules-test.el") nil t t)
+(load (gdev-config-file "test/gdev-xcode-test.el") nil t t)
 
 ;;; gdev-test.el ends here

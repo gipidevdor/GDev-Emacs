@@ -131,7 +131,7 @@ buffer corrente: in batch l'output non comparirebbe sull'uscita standard."
   (mapcar #'car package-alist))
 
 (defun gdev-cli--compile-files (&optional include-bundled)
-  "Restituisce i sorgenti del nucleo e dei moduli attivi.
+  "Restituisce i sorgenti del nucleo e dei moduli attivi o automatici.
 Aggiunge quelli dei pacchetti inclusi se INCLUDE-BUNDLED è non nil."
   (append (cl-remove-if (lambda (file) (string-suffix-p "/gdev-cli.el" file))
                         (directory-files (gdev-config-file "lisp/") t "\\`gdev-.*\\.el\\'"))
@@ -139,6 +139,10 @@ Aggiunge quelli dei pacchetti inclusi se INCLUDE-BUNDLED è non nil."
             (gdev-module-shared-sources))
           (cl-loop for (category module . _) in gdev-modules
                    append (gdev-module-source-files category module))
+          (cl-loop for (module . _) in gdev-auto-modules-catalogue
+                   unless (gdev-module-p :lang module)
+                   when (file-regular-p (gdev-module-file :lang module ".el"))
+                   append (gdev-module-source-files :lang module))
           (when include-bundled
             (cl-loop for (name . _) in gdev-bundled-packages
                      when (memq name (bound-and-true-p package-activated-list))

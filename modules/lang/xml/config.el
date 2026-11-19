@@ -104,7 +104,7 @@
 
 (add-to-list 'auto-mode-alist
              '("\\.\\(?:xml\\|xsd\\|xsl\\|xslt\\|rng\\|svg\\|wsdl\\|xhtml\\|xaml\\)\\'" . nxml-mode))
-(add-hook 'nxml-mode-hook #'gdev-xml-setup)
+(gdev-module-add-hook 'nxml-mode-hook #'gdev-xml-setup)
 (gdev-localleader nxml-mode nxml-mode-map
   "c" "chiudi elemento" #'nxml-finish-element
   "d" "inserisci dichiarazione XML" #'nxml-insert-xml-declaration

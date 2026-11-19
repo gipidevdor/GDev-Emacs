@@ -26,6 +26,76 @@
 
 (defvar gdev--staging-registrations nil)
 (defvar gdev--registration-effects nil)
+(defvar gdev--registration-scope nil
+  "Attivazione temporanea corrente: stato e funzioni di rilascio.")
+
+(defun gdev-module-scope-live-p (scope)
+  "Indica se SCOPE è ancora attivo; nil indica una configurazione permanente."
+  (or (null scope) (car scope)))
+
+(defun gdev-register-module-cleanup (function)
+  "Esegui FUNCTION al rilascio dell'attivazione temporanea corrente."
+  (when gdev--registration-scope
+    (setcdr gdev--registration-scope (cons function (cdr gdev--registration-scope)))))
+
+(defun gdev-module-scope-close (scope)
+  "Rilascia SCOPE una sola volta, prima invalidando gli effetti differiti."
+  (when (and scope (car scope))
+    (setcar scope nil)
+    (let ((cleanup (cdr scope)) failure)
+      (setcdr scope nil)
+      (dolist (function cleanup)
+        (condition-case problem (funcall function)
+          ((error quit) (unless failure (setq failure problem)))))
+      (when failure (signal (car failure) (cdr failure))))))
+
+(defvar gdev-module--owned-effects (make-hash-table :test #'equal)
+  "Registrazioni condivise: chiave -> presenza iniziale e proprietari.")
+
+(defun gdev-module--own-effect (key existing install remove)
+  "Installa KEY con INSTALL e conserva REMOVE fino all'ultimo proprietario.
+EXISTING distingue una registrazione preesistente dall'effetto del modulo."
+  (funcall install)
+  (let ((record (gethash key gdev-module--owned-effects)))
+    (if (null gdev--registration-scope)
+        (when record (setcar record t))
+      (unless record
+        (setq record (list existing (make-hash-table :test #'eq)))
+        (puthash key record gdev-module--owned-effects))
+      (let ((scope gdev--registration-scope) (owners (cadr record)))
+        (unless (gethash scope owners)
+          (puthash scope t owners)
+          (gdev-register-module-cleanup
+           (lambda ()
+             (remhash scope owners)
+             (when (and (zerop (hash-table-count owners))
+                        (eq record (gethash key gdev-module--owned-effects)))
+               (remhash key gdev-module--owned-effects)
+               (unless (car record) (funcall remove))))))))))
+
+(defun gdev-module-add-hook (hook function &optional depth)
+  "Aggiungi FUNCTION a HOOK per la durata del modulo, con DEPTH.
+Le funzioni preesistenti restano di proprietà di chi le ha registrate."
+  (gdev-module--own-effect
+   (list 'hook hook function)
+   (and (boundp hook) (member function (default-value hook)))
+   (lambda () (add-hook hook function depth))
+   (lambda () (remove-hook hook function))))
+
+(defun gdev-module-advice-add (symbol where function)
+  "Collega FUNCTION a SYMBOL in WHERE per la durata del modulo."
+  (gdev-module--own-effect
+   (list 'advice symbol function) (advice-member-p function symbol)
+   (lambda () (unless (advice-member-p function symbol) (advice-add symbol where function)))
+   (lambda () (advice-remove symbol function))))
+
+(defmacro gdev-module-after-load (feature &rest body)
+  "Esegui BODY dopo FEATURE soltanto se il modulo è ancora attivo."
+  (declare (indent 1) (debug (form body)))
+  `(let ((scope gdev--registration-scope))
+     (with-eval-after-load ,feature
+       (when (gdev-module-scope-live-p scope)
+         (let ((gdev--registration-scope scope)) ,@body)))))
 
 (defun gdev-register-after-module (function)
   "Esegui FUNCTION dopo che il modulo in caricamento ha registrato le capacità.
@@ -184,11 +254,19 @@ CONTACT segue la sintassi di Eglot.  WHEN, una funzione senza argomenti,
 deve restituire non nil perché il server parta da solo; senza WHEN basta
 che il programma in CONTACT esista.  Vedi tools/lsp."
   (gdev-set-handler :eglot modes (list :contact contact :when when))
-  (gdev-register-after-module
-   (lambda ()
+  (let ((scope gdev--registration-scope))
+   (gdev-register-after-module
+    (lambda ()
      (with-eval-after-load 'eglot
        (defvar eglot-server-programs)
-       (add-to-list 'eglot-server-programs (cons (ensure-list modes) contact))))))
+       (when (gdev-module-scope-live-p scope)
+         (let ((entry (cons (ensure-list modes) contact)))
+           (unless (member entry eglot-server-programs)
+             (push entry eglot-server-programs)
+             (when scope
+               (setcdr scope
+                       (cons (lambda () (setq eglot-server-programs (delq entry eglot-server-programs)))
+                             (cdr scope))))))))))))
 
 ;;;; Verifiche dell'ambiente (gdev doctor)
 

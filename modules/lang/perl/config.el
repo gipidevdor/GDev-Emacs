@@ -122,7 +122,7 @@ solo perché è stato aperto: serve che la cartella sia autorizzata."
                     (list "perl" "-w" "-c" (concat "-I" (expand-file-name "lib" root))))
         (add-hook 'flymake-diagnostic-functions #'perl-flymake nil t)
         (flymake-mode 1)))))
-(add-hook 'cperl-mode-hook #'gdev-perl-syntax-check-fallback)
+(gdev-module-add-hook 'cperl-mode-hook #'gdev-perl-syntax-check-fallback)
 
 ;;;; Perl::Critic nel buffer, se il progetto ha un file di regole
 
@@ -187,8 +187,8 @@ quindi questa funzione gira anche da `eglot-managed-mode-hook'."
     (add-hook 'flymake-diagnostic-functions #'gdev-perl-flymake-perlcritic nil t)
     (flymake-mode 1)))
 
-(add-hook 'cperl-mode-hook #'gdev-perl-enable-perlcritic)
-(add-hook 'eglot-managed-mode-hook #'gdev-perl-enable-perlcritic)
+(gdev-module-add-hook 'cperl-mode-hook #'gdev-perl-enable-perlcritic)
+(gdev-module-add-hook 'eglot-managed-mode-hook #'gdev-perl-enable-perlcritic)
 
 (defun gdev-perl-critic-project ()
   "Esegue Perl::Critic su tutto il progetto; i risultati sono cliccabili."
@@ -321,7 +321,9 @@ risultati vanno nella cartella di stato."
   (apply #'gdev-set-docsets gdev-perl-modes gdev-perl-docsets))
 
 (gdev-set-documentation gdev-perl-modes #'gdev-perl-documentation)
-(add-hook 'gdev-after-init-hook #'gdev-perl--register-docsets)
+(if after-init-time
+    (gdev-perl--register-docsets)
+  (gdev-module-add-hook 'gdev-after-init-hook #'gdev-perl--register-docsets))
 
 ;;;; Tasti del linguaggio (localleader)
 

@@ -35,6 +35,15 @@ versionarla a parte e conservarla tra un aggiornamento e l'altro.
 ```
 
 Trovi l'elenco dei moduli nel [modello di configurazione](../templates/init.el).
+I linguaggi distribuiti si attivano anche all'apertura di un file che ne
+richiede la modalità: per esempio un `.swift` riceve colorazione e comandi
+senza aggiungere `swift` a `init.el`. Documenti dello stesso linguaggio e
+compilazioni in corso condividono l'attivazione. Alla chiusura dell'ultimo
+documento o termine dell'ultima operazione GDev ritira le capacità temporanee;
+le librerie rimangono nella cache di Emacs per le aperture successive.
+Un linguaggio dichiarato nel blocco `gdev!` resta una scelta permanente.
+Le associazioni personali tra file e modalità hanno la precedenza.
+
 Dopo aver modificato `init.el` o `packages.el`, esegui `gdev sync` e premi
 `C-c q R` per riavviare Emacs e ripristinare la sessione.
 
@@ -85,8 +94,8 @@ gdev --profile laboratorio install
 gdev --profile laboratorio emacs
 ```
 
-Una configurazione personale già esistente può attivare i nuovi moduli
-copiando le voci desiderate da [templates/init.el](../templates/init.el).
+Una configurazione personale già esistente può mantenere permanenti i moduli
+desiderati copiandone le voci da [templates/init.el](../templates/init.el).
 
 ## Tieni in ordine l'installazione
 

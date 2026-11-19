@@ -82,7 +82,7 @@
     (when-let* ((root (gdev-python--find-root directory)))
       (cons 'transient root))))
 
-(add-hook 'project-find-functions #'gdev-python--project-find 90)
+(gdev-module-add-hook 'project-find-functions #'gdev-python--project-find 90)
 
 (defun gdev-python-root (&optional directory)
   "Trova la cartella Python più vicina a DIRECTORY, entro il progetto."
@@ -161,7 +161,7 @@
              (equal python-shell-interpreter "python3"))
     (gdev-python--activate-venv (gdev-python-root))))
 
-(add-hook 'gdev-project-environment-functions #'gdev-python--project-environment)
+(gdev-module-add-hook 'gdev-project-environment-functions #'gdev-python--project-environment)
 
 (defconst gdev-python-servers
   '(("ty" "server") ("basedpyright-langserver" "--stdio")
@@ -555,9 +555,9 @@ già raccolti compare lo stesso, e la compilazione risulta comunque fallita."
     (add-hook 'flymake-diagnostic-functions #'gdev-python-flymake nil t)
     (flymake-mode 1)))
 
-(add-hook 'python-mode-hook #'gdev-python--enable-checks)
-(add-hook 'python-ts-mode-hook #'gdev-python--enable-checks)
-(add-hook 'eglot-managed-mode-hook #'gdev-python--enable-checks)
+(gdev-module-add-hook 'python-mode-hook #'gdev-python--enable-checks)
+(gdev-module-add-hook 'python-ts-mode-hook #'gdev-python--enable-checks)
+(gdev-module-add-hook 'eglot-managed-mode-hook #'gdev-python--enable-checks)
 
 (gdev-set-runner gdev-python-modes :run #'gdev-python-run-file :test #'gdev-python-test-file)
 (gdev-set-handler :test-project gdev-python-modes #'gdev-python-test-project)

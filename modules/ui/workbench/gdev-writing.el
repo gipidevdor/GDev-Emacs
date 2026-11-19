@@ -13,6 +13,7 @@
 ;;; Code:
 
 (require 'gdev-layout)
+(require 'gdev-handlers)
 (require 'gdev-writing-references)
 (require 'project)
 (require 'seq)
@@ -25,7 +26,8 @@
 
 (defun gdev-writing-register-project (type marker)
   "Registra il file MARKER per il tipo di progetto TYPE."
-  (setf (alist-get type gdev-writing--project-markers) marker)
+  (setq gdev-writing--project-markers
+        (gdev--registration-put type marker gdev-writing--project-markers))
   (add-hook 'project-find-functions #'gdev-writing-find-project))
 
 (defun gdev-writing-find-project (directory)

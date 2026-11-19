@@ -235,6 +235,7 @@ Il risultato è un simbolo, oppure nil."
   (let ((root (or root (gdev-project-root))))
     (cond ((gdev-project-file-exists-p root "CMakeLists.txt") 'cmake)
           ((gdev-project-file-exists-p root "meson.build") 'meson)
+          ((gdev-xcode-container root) 'xcode)
           ((gdev-project-file-exists-p root "Build.PL") 'perl-build)
           ((gdev-project-file-exists-p root "Makefile.PL") 'perl-make)
           ((gdev-project-file-exists-p root "deno.json" "deno.jsonc") 'deno)

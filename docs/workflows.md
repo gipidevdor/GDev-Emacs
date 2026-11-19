@@ -992,17 +992,37 @@ esplicite usano i comandi di SQLite nella cartella del sorgente.
 ## Go, Rust, Swift, Zig, Java e C#
 
 Apri un sorgente nel progetto. `F7` compila, `F6` esegue i test e `C-F5`
-avvia il programma. Per Go, Rust, Java e C# esegui `gdev sync` per preparare
+avvia il programma. Il linguaggio del file si attiva automaticamente se non
+è già dichiarato permanente. Le azioni sono disponibili anche in **Comandi**
+e nel menu del linguaggio; per i nuovi moduli `C-c l` raccoglie le capacità
+effettivamente disponibili. Quando la finestra non contiene il riquadro
+**Comandi**, il pulsante **Menu** apre la ricerca delle stesse azioni.
+Per Go, Rust, Java e C# esegui `gdev sync` per preparare
 anche le grammatiche Tree-sitter. `gdev doctor` elenca gli strumenti mancanti.
 
 | Linguaggio | Progetto e strumenti |
 | --- | --- |
 | Go | `go.mod`, `gopls` e Delve. L'avvio usa il pacchetto del documento corrente. |
 | Rust | `Cargo.toml` e `rust-analyzer`. Formatta tramite il server e apri il binario compilato con LLDB. |
-| Swift | `Package.swift`, formattatore Swift e SourceKit-LSP. Puoi avviare anche il file singolo. |
+| Swift | Progetti Xcode e `Package.swift`, formattatore Swift e SourceKit-LSP. Puoi avviare anche il file singolo. |
 | Zig | `build.zig` e ZLS. Imposta i passi `run` e `test` nel progetto, oppure usa un file singolo. |
 | Java | `pom.xml` o Gradle. Il debugger richiede JDT LS con `java-debug-server`. |
 | C# | `.csproj`, `.sln` o `.slnx`. `csharp-ls` offre navigazione e formato, NetCoreDbg il debug. |
+
+Nei progetti Xcode locali, GDev ricava schema, configurazione e prodotto
+dallo schema condiviso. `F7` usa `xcodebuild` e salva i prodotti in
+`build/gdev/Build/Products/CONFIGURAZIONE/`, senza chiedere dove salvare
+il buffer corrente. `C-F5` compila e avvia il prodotto soltanto se la
+compilazione riesce. Compilazione, test e debug usano lo stesso profilo
+anche quando richiesti da un riquadro laterale. I profili personali in
+`gdev-launch-profiles` hanno la precedenza.
+
+La destinazione predefinita è macOS. Per un'altra destinazione imposta
+`gdev-xcode-destination`; `gdev-xcode-build-directory` cambia la cartella
+dei prodotti, che deve restare nel progetto. Con più schemi, il profilo
+automatico sceglie quello con il nome del contenitore oppure l'unico
+disponibile. Per altre scelte definisci un profilo personale. Senza un
+prodotto eseguibile nello schema, GDev spiega l'operazione mancante.
 
 ## Interpreti dei comandi e formati di dati
 
