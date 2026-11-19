@@ -17,9 +17,8 @@
 (defvar latex-mode-hook)
 
 (defun gdev-test--load-latex ()
-  "Carica il modulo LaTeX se l'avvio di prova non lo ha ancora caricato."
-  (unless (fboundp 'gdev-latex-mode)
-    (load (gdev-module-file :lang 'latex ".el") nil t t)))
+  "Prepara le capacità del modulo, anche dopo un'attivazione temporanea."
+  (load (gdev-module-file :lang 'latex ".el") nil t t))
 
 (ert-deftest gdev-test-latex-project-template-and-fork ()
   "Il progetto visita il documento, usa il fork e protegge i file esistenti."

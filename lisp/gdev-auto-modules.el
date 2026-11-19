@@ -53,7 +53,8 @@
               ((gfm-mode . "markdown-mode") (markdown-mode . "markdown-mode")))
     (org nil ((org-mode . "org") (org-agenda-mode . "org-agenda")))
     (latex (("\\.tex\\'" . gdev-latex--file-mode))
-           ((gdev-latex--file-mode) (gdev-latex-mode) (latex-mode . "tex-mode"))))
+           ((gdev-latex--file-mode) (gdev-latex-mode) (latex-mode . "tex-mode")
+            (plain-tex-mode . "tex-mode"))))
   "Fornitori di linguaggio: modulo, associazioni file e modalità con libreria.
 Le associazioni sono ripieghi: quelle personali conservano la precedenza.")
 
@@ -61,6 +62,7 @@ Le associazioni sono ripieghi: quelle personali conservano la precedenza.")
   "Stato dell'applicazione: modulo -> concessioni e registri temporanei.")
 (defvar gdev-auto-modules--advice (make-hash-table :test #'eq))
 (defvar gdev-auto-modules--selecting nil)
+(defvar gdev-auto-modules--requested-mode nil)
 (defvar gdev-auto-modules--registration-owners (make-hash-table :test #'eq :weakness 'key)
   "Proprietari delle voci pubblicate, anche durante attivazioni annidate.")
 (defvar-local gdev-auto-modules--lease nil
@@ -232,7 +234,8 @@ OWNER predefinito è il buffer corrente. Le scelte private non cambiano."
         (setq gdev-auto-modules--lease nil))
       (setq gdev-auto-modules--lease (gdev-auto-modules-acquire :lang module))
       (unwind-protect
-          (prog1 (apply function arguments)
+          (prog1 (let ((replacement (alist-get gdev-auto-modules--requested-mode major-mode-remap-alist)))
+                   (apply (if (and (symbolp replacement) (fboundp replacement)) replacement function) arguments))
             (gdev-language-install-command-map)
             (setq complete t))
         (unless complete
@@ -246,8 +249,10 @@ OWNER predefinito è il buffer corrente. Le scelte private non cambiano."
       (when (or (fboundp (car mode)) (cdr mode))
         (unless (fboundp (car mode)) (autoload (car mode) (cdr mode) nil t))
         (unless (gethash (car mode) gdev-auto-modules--advice)
-          (let ((wrapper (lambda (function &rest args)
-                           (apply #'gdev-auto-modules--call-mode module function args))))
+          (let* ((requested (car mode))
+                 (wrapper (lambda (function &rest args)
+                            (let ((gdev-auto-modules--requested-mode requested))
+                              (apply #'gdev-auto-modules--call-mode module function args)))))
             (advice-add (car mode) :around wrapper)
             (puthash (car mode) wrapper gdev-auto-modules--advice)))))))
 

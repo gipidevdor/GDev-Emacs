@@ -326,6 +326,23 @@
         (remove-hook 'gdev-auto-test-hook #'ignore)
         (advice-remove 'gdev-auto-test--advice-target #'ignore)))))
 
+(ert-deftest gdev-test-auto-modules-first-file-applies-newly-registered-mode-remapping ()
+  "La scelta fatta prima dell'attivazione adotta il modo registrato dal modulo."
+  (gdev-auto-modules-initialize)
+  (gdev-auto-test--state
+    (let ((major-mode-remap-alist nil)
+          (auto-mode-alist (cl-remove-if (lambda (entry) (eq (cdr entry) 'gdev-latex--file-mode)) auto-mode-alist)))
+      (dolist (entry '(("primo.tex" "\\documentclass{article}\n" gdev-latex-mode latex)
+                       ("semplice.tex" "\\hbox{Plain TeX}\n\\bye\n" plain-tex-mode latex)
+                       ("primo.pl" "use strict;\n" cperl-mode perl)))
+        (with-temp-buffer
+          (setq buffer-file-name (expand-file-name (car entry) temporary-file-directory))
+          (insert (cadr entry))
+          (set-auto-mode)
+          (should (eq major-mode (nth 2 entry)))
+          (should (eq 'active (gdev-module-status :lang (nth 3 entry)))))
+        (should-not (gdev-module-status :lang (nth 3 entry)))))))
+
 (ert-deftest gdev-test-auto-modules-first-command-line-file-activates-in-ordinary-startup ()
   "L'avvio ordinario non dipende dall'ordine di altri file già visitati."
   (let* ((directory (make-temp-file "gdev-auto-cold-" t))

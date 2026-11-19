@@ -301,6 +301,7 @@
                   "lisp/gdev-language-modes.el" "lisp/gdev-cli.el" "modules/lang/swift/config.el")
         :tests ("gdev-test-auto-modules-swift-files-activate-share-release-and-reopen"
                 "gdev-test-auto-modules-first-command-line-file-activates-in-ordinary-startup"
+                "gdev-test-auto-modules-first-file-applies-newly-registered-mode-remapping"
                 "gdev-test-auto-modules-close-cancellation-and-mode-change-preserve-state"
                 "gdev-test-auto-modules-compilation-outlives-document-and-output-buffer"
                 "gdev-test-auto-modules-work-scopes-release-on-error-and-quit"
