@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:62e49dbd198a98ec1d0b0df140ccadcc712849a524e79c974bb2e598b46a2f5a -->
+<!-- Generato da GDev; non modificare. Fonti sha256:f439cfb14316f2f639302885b5bf5203d9b9c4b28f0482df29e3abdf840e8a67 -->
 
 # GDev-Emacs
 
@@ -26,6 +26,8 @@ Stato della definizione: DEFINED. Approvazione umana: NOT_VERIFIED. Nessuna cert
 | GDEV-Q05 | Tutti i casi di verifica collegati devono risultare superati sulla revisione corrente. | test | GDEV-VERIFY |
 | GDEV-Q06 | Tutti i casi di verifica collegati devono risultare superati sulla revisione corrente. | test | GDEV-VERIFY |
 | GDEV-Q07 | Le prove collegate devono verificare limiti strutturali e invarianza dei risultati; il catalogo distingue algoritmo, rendering e I/O. | test | GDEV-VERIFY |
+| GDEV-P10 | L'apertura del primo file Swift all'avvio attiva colori e comandi; chiusure annullate conservano il proprietario, processi attivi lo trattengono e il rilascio elimina capacità e callback possedute. | test | GDEV-VERIFY |
+| GDEV-P11 | Il profilo macOS predefinito usa build/gdev; la compilazione dal riquadro non chiede nomi di file. I profili personali prevalgono, i prodotti restano nel progetto e un errore interrompe l'avvio. | test | GDEV-VERIFY |
 
 ## Standard e copertura
 
@@ -54,8 +56,8 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | .gdev-assurance/procedures/reliability.lavorazione | a27c887bb8a0d031ceec8aad16d599de819bcef8c7d46d81cb59f144d12cd87d |
 | .gdev-assurance/procedures/report.lavorazione | 94e25f7ca453bd2e3ab0d8c521ee5533cbd9e61091b94182e1f19809586996ef |
 | .gdev-assurance/procedures/verify.lavorazione | bf32cbe2d2dadf344adeaf4618449a7af7fea78056d296f3e369ec9b0e5990a8 |
-| .gdev-assurance/project.eld | d33cb121e4b72257a72593035128d37bb3f13aff87b373b4ac313a4cf08b9777 |
-| .gdev-assurance/self-check.eld | 4de9e244bddb2e1d1f5b61cb4f644ebcee2e6a4fde8942903d56e29e0a9d3523 |
+| .gdev-assurance/project.eld | 8873b130d7768b8b89c7640644626d9cc599d30830d14af8d31770f35ac1d9ae |
+| .gdev-assurance/self-check.eld | 2dd564d4f09fb101407a50844e0e799d1bc65637e3d8a682eaec4db04c14c556 |
 | .gdev-assurance/snippets/configuration.tmpl | 4c215718ce36097f4c0babfd4b6953f76e4548a2d72a34e2a738182874ffc495 |
 | .gdev-assurance/snippets/documentation.tmpl | e7dad1613b67b1be991a666e5b111e9a6b1a0f318129143d491f1d2d09522695 |
 | .gdev-assurance/snippets/error.tmpl | 5ecd5cfdef12baf30ff6a21b9638bbd850c0f648ce00e1741bc7c4bae0ca2a7c |
@@ -68,7 +70,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | .gitignore | 95192534151a39de99da6f66dee72e82142ad7bb46c0fc3d4314574aafadf416 |
 | AGENTS.md | 420ae3128f250908e986c89b911cfef2e1e3993043b88df568f32e3463f957da |
 | LICENSE | 3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986 |
-| README.md | a70e4b7de5cbb8dd8e06c3645b5c50b597a74fa0d6c29d4b00a6057af3a95937 |
+| README.md | a69114bfcb371e6472d7ab144522eead63e1b5cd26ebb0aa49d02c3208441900 |
 | bin/gdev-taxonomy-import.py | e873866d1ec6acd6860ebb7eb647713182f771e2dcd064e8f35b87baae2edfbb |
 | docs/algoritmi-e-visualizzazione.md | 40b38a4e89a13db4c3cf8b8935274ef74ea66e8f9db24f928755874933c32bbd |
 | docs/architettura.md | a45b2b89d6c7e5681489eb509db6dbae13b0a657693b96826c3a7e649a03ca28 |
@@ -80,25 +82,34 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-assurance-db.el | f14337ac47b9320a79ce7f4a80367dc8aedfecca758d6aa74736d85922fc24ee |
 | lisp/gdev-assurance-git.el | a2c3e784e833132b9859731c1e42a07c9eb7e607ac0d190e78a977acced96f6d |
 | lisp/gdev-assurance.el | acaec7505762d77099019b8d6638563d4cb6830dbcda5c44eb111a0051abc9e2 |
+| lisp/gdev-auto-modules.el | 941c194ab9c6371207c4993d6fee317d3a969c37a523847decad88095d83ffa1 |
 | lisp/gdev-capability.el | aeee58454258091d21b8ed49c37b25195cf97bb79f88eec3159caf89b83689ba |
-| lisp/gdev-cli.el | f094f9295c3d7bf88573fe2b890062457e92a63c95d1b7ad4c3b2981f7906333 |
+| lisp/gdev-cli.el | 3f16fb5959069474f8a0a72d606f119caea06ad919f5cb49cfd6476356f4b013 |
 | lisp/gdev-commands.el | 6d115c4e4a91b407f2b433508f081553fac1c56348a5ee4db8bad6cb24833a6e |
 | lisp/gdev-documents.el | 440e155c94a6c4ec62312d451509d83741a20877bf772ddf925163cd4be10dfc |
 | lisp/gdev-evidence.el | 8b629159cedd0922c0b918f2e6c7f9ab5d20cfed8b1011099a08a124ebc661ba |
 | lisp/gdev-formal.el | d15b48693a57e2598e35140ccc4d8b3c16670e63986d575fbd803fda2a52546c |
 | lisp/gdev-graph.el | 6c2d6348c545020ee07d5324dcb1310d77da782989464b5d1d40e8f97bdef6fd |
+| lisp/gdev-handlers.el | 54cd9cf409d74985c6006e23df2b8f4a4b4fa3b657798f12d7aca2a6bf540d01 |
+| lisp/gdev-language-modes.el | ef6697764721789f2cccb5a301291756ff1b1ee56089ab78f82c1762433c9737 |
+| lisp/gdev-launch.el | c5c42915d85537757e5d04929a80e95177134f9581dcdce1c76fcc2fb7031b66 |
+| lisp/gdev-modules.el | b3cc9b1bea2843c6880d6a49263ba7055e9399037be8abf717dcdaf7523170d6 |
 | lisp/gdev-procedures.el | 8f7cd8e85185b894de536652435cdbf40fc5ae7da4f19d0f711bc9ed57e58cd1 |
 | lisp/gdev-process.el | 2dfb5439fef7c7faf6b9acaf4325079254a921e1f198a2f1469527fb842d0ab9 |
 | lisp/gdev-project-report.el | 534de66da534cfd83efa20baccf1ecab91661d9eb9189136d65dbe175cfef671 |
-| lisp/gdev-project-store.el | e2e62482778abb0faf0d64ca8ac88836f171c9d2979071a8947117fc294b4c37 |
+| lisp/gdev-project-store.el | 7261336c2d75602f73e92798c8ee5eab03772c89c489f533b2e2f12506b13dab |
 | lisp/gdev-project-templates.el | 1d17957f16dcb98462097d10e890a0457e90beb894c445c12a18402d2629536f |
 | lisp/gdev-project.el | 49440fc8670586c48febf3ee27a3346bdfb7c6df5be8cc025e6b494224a00738 |
 | lisp/gdev-standard-assessment.el | 9e27d2b77b378128b04bb98e0d016436e9c62d475c81d0019625c1f6a408068d |
 | lisp/gdev-taxonomy.el | d4ca803c34f92332b657aeb0c39e53c7deb3f780fafe2864f9b5ac494c322b94 |
 | lisp/gdev-trace.el | a9d3bc74713f0fd1ac71eb83460bb0bd1a7e180c4a7cc24ec9451bfe74deff92 |
 | lisp/gdev-workspace-state.el | 51814b04bc20efc7661665d9b8fbe1bc323f5e869ced81740c2166a47b513ab1 |
+| lisp/gdev-xcode.el | eb92cd5cc5e44147609ad96560161196b719aeb40c68f9044df66d3fd7a68ef4 |
 | modules/emacs/ibuffer/config.el | 1850b66d2cd7e635d30dbf8233d2952b05afaffc36f18a79279b056048f96b2f |
+| modules/lang/swift/config.el | 23ef9061db37fbcbf9c68eb509c30224df5ddfcb93e2b23f0728a519b373fe4e |
+| modules/tools/build/config.el | 4a5d7e3bfaa8937bbce713e2682eb741f091df77c0c52c66dec050f29cf69599 |
 | modules/ui/workbench/gdev-assurance-workbench.el | 26c1d8094938c77afc55e3232411df9eaa950a5c980c97eb341ec17f83af59c0 |
+| modules/ui/workbench/gdev-command-sidebar.el | e9a3d96f90845929b4b8425ba3d1abb08ece00ad47a616c95f40a6caee937bf8 |
 | modules/ui/workbench/gdev-context.el | 964fa213fb850b9c2894a9ee737bd58b3d4a369e55f91db0debe3c37cba9b466 |
 | modules/ui/workbench/gdev-lavorazione.el | 2ca88a12e08807d79a31b9cacd4adfd7bc1b339480d07f1c96bfc768cee17053 |
 | modules/ui/workbench/gdev-minimap.el | 4129141375e12e454a93c01332e66367ff3a2a2dcc801573edad4ae4cdb04add |
