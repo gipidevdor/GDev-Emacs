@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:b7dd8d33382c581b98e9f3e40ed91707c72220ae23d3dd10a61881d86bb4ba05 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:7bd67453fcf255f0ca2502cae90e51c8cd995a4c0f4483a508d837de769dedfa -->
 
 # Tracciabilità
 
@@ -143,6 +143,7 @@
 		 "gdev-test-assurance-ui-compact-navigation-and-filter-reset"
 		 "gdev-test-assurance-ui-page-focus-follows-visible-data"
 		 "gdev-test-assurance-ui-reader-handles-immediate-result-and-startup-error"
+         "gdev-test-assurance-ui-reader-drains-terminal-output-once"
 		 "gdev-test-project-workbench-reader-is-asynchronous-and-ignores-an-old-section"
 		 "gdev-test-cli-bench-refuses-invalid-counts-before-starting"
 		 "gdev-test-search-selection-updates-only-its-control-and-summary"

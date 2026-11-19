@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:b2cec7211c87e93ed6e2e0620ef1ef521a9024753624f76abad857336f83f4de -->
+<!-- Generato da GDev; non modificare. Fonti sha256:201ee26f3281c2fcf31e581b33267ab57f491ac6b58d80016b5382ced3a3a402 -->
 
 # Requisiti
 
@@ -207,6 +207,7 @@ La verifica di copertura dello stato condiviso richiede tutte le righe strumenta
 		 "gdev-test-assurance-ui-compact-navigation-and-filter-reset"
 		 "gdev-test-assurance-ui-page-focus-follows-visible-data"
 		 "gdev-test-assurance-ui-reader-handles-immediate-result-and-startup-error"
+         "gdev-test-assurance-ui-reader-drains-terminal-output-once"
 		 "gdev-test-project-workbench-reader-is-asynchronous-and-ignores-an-old-section"
 		 "gdev-test-cli-bench-refuses-invalid-counts-before-starting"
 		 "gdev-test-search-selection-updates-only-its-control-and-summary"

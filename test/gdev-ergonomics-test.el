@@ -126,7 +126,8 @@
 (ert-deftest gdev-test-assurance-ui-reader-handles-immediate-result-and-startup-error ()
   (gdev-test-assurance--with-root root
     (gdev-test-assurance-ui--view root
-      (let ((create (symbol-function 'make-process)) output diagnostics command)
+      (let ((native-comp-enable-subr-trampolines nil)
+            (create (symbol-function 'make-process)) output diagnostics command)
         (cl-letf (((symbol-function 'make-process)
                    (lambda (&rest arguments)
                      (setq output (plist-get arguments :buffer) diagnostics (plist-get arguments :stderr)
@@ -148,6 +149,38 @@
           (gdev-assurance--read-async))
         (should-not gdev-assurance--reader-process)
         (should (string-search "Impossibile leggere" gdev-assurance--error))))))
+
+(ert-deftest gdev-test-assurance-ui-reader-drains-terminal-output-once ()
+  "Il risultato già terminato viene consegnato dopo il pipe, anche con rientro."
+  (gdev-test-assurance--with-root root
+    (gdev-test-assurance-ui--view root
+      (let* ((native-comp-enable-subr-trampolines nil)
+             (process (make-process :name "gdev-reader-finished-test" :buffer nil
+                                    :command '("/usr/bin/true") :noquery t :sentinel #'ignore))
+             (accept (symbol-function 'accept-process-output))
+             output diagnostics delivered)
+        (while (process-live-p process) (accept-process-output process 0.01))
+        (cl-letf (((symbol-function 'make-process)
+                   (lambda (&rest arguments)
+                     (setq output (plist-get arguments :buffer) diagnostics (plist-get arguments :stderr))
+                     process))
+                  ((symbol-function 'accept-process-output)
+                   (lambda (&optional target &rest arguments)
+                     (if (not (eq target process)) (apply accept target arguments)
+                       (unless delivered
+                         (setq delivered t)
+                         (with-current-buffer output (insert "{\"status\":{\"archive\":true}}"))
+                         (funcall (process-sentinel process) process "finished\n")
+                         (should (buffer-live-p output))
+                         t)))))
+          (gdev-assurance--read-async))
+        (should delivered)
+        (should-not gdev-assurance--error)
+        (should (eq t (alist-get 'archive (alist-get 'status gdev-assurance--model))))
+        (should-not (buffer-live-p output))
+        (should-not (buffer-live-p diagnostics))
+        (funcall (process-sentinel process) process "finished\n")
+        (should-not gdev-assurance--error)))))
 
 (ert-deftest gdev-test-cli-bench-refuses-invalid-counts-before-starting ()
   "Un conteggio non valido non avvia Emacs e non lascia file temporanei."

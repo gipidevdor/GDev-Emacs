@@ -140,7 +140,15 @@
 
 (defun gdev-assurance--reader-finished (process view frame space request output diagnostics)
   "Consegna PROCESS soltanto a VIEW e REQUEST ancora correnti."
-  (when (memq (process-status process) '(exit signal failed))
+  (when (and (memq (process-status process) '(exit signal failed))
+             (not (process-get process 'gdev-assurance-delivered)))
+    ;; Lo stato finale può precedere l'ultimo blocco ancora nel pipe.
+    ;; Prenota la consegna prima di accettare output e sentinelle rientranti.
+    (process-put process 'gdev-assurance-delivered t)
+    (let ((process-adaptive-read-buffering nil))
+      (while (accept-process-output process 0))
+      (when-let* ((stderr (and (buffer-live-p diagnostics) (get-buffer-process diagnostics))))
+        (while (accept-process-output stderr 0))))
     (unwind-protect
         (when (and (buffer-live-p view) (frame-live-p frame) (gdev-workspace-state-find space frame))
           (with-current-buffer view

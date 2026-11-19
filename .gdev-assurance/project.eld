@@ -136,6 +136,7 @@
 		 "gdev-test-assurance-ui-compact-navigation-and-filter-reset"
 		 "gdev-test-assurance-ui-page-focus-follows-visible-data"
 		 "gdev-test-assurance-ui-reader-handles-immediate-result-and-startup-error"
+         "gdev-test-assurance-ui-reader-drains-terminal-output-once"
 		 "gdev-test-project-workbench-reader-is-asynchronous-and-ignores-an-old-section"
 		 "gdev-test-cli-bench-refuses-invalid-counts-before-starting"
 		 "gdev-test-search-selection-updates-only-its-control-and-summary"

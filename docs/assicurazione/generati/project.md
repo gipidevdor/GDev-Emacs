@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:f439cfb14316f2f639302885b5bf5203d9b9c4b28f0482df29e3abdf840e8a67 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:1084bca0ae62b97a7c80e54d16024d3bcadbccf2f33d535e4fdf0a4145a387d6 -->
 
 # GDev-Emacs
 
@@ -56,7 +56,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | .gdev-assurance/procedures/reliability.lavorazione | a27c887bb8a0d031ceec8aad16d599de819bcef8c7d46d81cb59f144d12cd87d |
 | .gdev-assurance/procedures/report.lavorazione | 94e25f7ca453bd2e3ab0d8c521ee5533cbd9e61091b94182e1f19809586996ef |
 | .gdev-assurance/procedures/verify.lavorazione | bf32cbe2d2dadf344adeaf4618449a7af7fea78056d296f3e369ec9b0e5990a8 |
-| .gdev-assurance/project.eld | 8873b130d7768b8b89c7640644626d9cc599d30830d14af8d31770f35ac1d9ae |
+| .gdev-assurance/project.eld | 17e0688b2fab4c480cc02a6d26fe5baf9e5abe2f3778d35ed3f7197ac0f77992 |
 | .gdev-assurance/self-check.eld | 2dd564d4f09fb101407a50844e0e799d1bc65637e3d8a682eaec4db04c14c556 |
 | .gdev-assurance/snippets/configuration.tmpl | 4c215718ce36097f4c0babfd4b6953f76e4548a2d72a34e2a738182874ffc495 |
 | .gdev-assurance/snippets/documentation.tmpl | e7dad1613b67b1be991a666e5b111e9a6b1a0f318129143d491f1d2d09522695 |
@@ -108,7 +108,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | modules/emacs/ibuffer/config.el | 1850b66d2cd7e635d30dbf8233d2952b05afaffc36f18a79279b056048f96b2f |
 | modules/lang/swift/config.el | 23ef9061db37fbcbf9c68eb509c30224df5ddfcb93e2b23f0728a519b373fe4e |
 | modules/tools/build/config.el | 4a5d7e3bfaa8937bbce713e2682eb741f091df77c0c52c66dec050f29cf69599 |
-| modules/ui/workbench/gdev-assurance-workbench.el | 26c1d8094938c77afc55e3232411df9eaa950a5c980c97eb341ec17f83af59c0 |
+| modules/ui/workbench/gdev-assurance-workbench.el | dddf24f84c99d1fbeafd3a3cbe751ca4d16b58d481e3cc8a8b967348dbb976fe |
 | modules/ui/workbench/gdev-command-sidebar.el | e9a3d96f90845929b4b8425ba3d1abb08ece00ad47a616c95f40a6caee937bf8 |
 | modules/ui/workbench/gdev-context.el | 964fa213fb850b9c2894a9ee737bd58b3d4a369e55f91db0debe3c37cba9b466 |
 | modules/ui/workbench/gdev-lavorazione.el | 2ca88a12e08807d79a31b9cacd4adfd7bc1b339480d07f1c96bfc768cee17053 |

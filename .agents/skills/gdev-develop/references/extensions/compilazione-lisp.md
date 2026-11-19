@@ -34,6 +34,14 @@ Per una prova sui sorgenti imposta quella variabile prima dei `require`;
 per il codice nativo usa una copia compilata aggiornata e l'avvio ordinario.
 Tieni distinti i due riscontri quando interpreti un errore di caricamento.
 
+Su macOS pubblica una cache nativa preparata altrove con una sostituzione
+atomica: copia ogni oggetto `.eln` in un file temporaneo nella cartella
+di destinazione, poi rinominalo sul nome finale. Non riscrivere l'inode
+di un oggetto firmato già caricato: la verifica delle pagine di macOS può
+terminare un nuovo processo con `Code Signature Invalid`. Conserva i tempi
+dei file e verifica il caricamento da quella cache in un processo batch
+separato. Una finestra già aperta mantiene il codice che aveva caricato.
+
 Per confrontare versioni maggiori o minori di Emacs, usa copie dei sorgenti
 prive di `.elc` e `.eln` compilati con l’altra versione. Anche un bytecode
 più recente del sorgente può cambiare la diagnosi. Compila ciascuna copia

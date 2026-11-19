@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:8acca656056550cb310ac6a518b12b849e088d01bdf1091a7c3bd7a0cdec63ac -->
+<!-- Generato da GDev; non modificare. Fonti sha256:6041bf5270f555baf615068a687092a736eb575762ca34c1f671509abeff310d -->
 
 # Analisi dei rischi
 
@@ -143,6 +143,7 @@
 		 "gdev-test-assurance-ui-compact-navigation-and-filter-reset"
 		 "gdev-test-assurance-ui-page-focus-follows-visible-data"
 		 "gdev-test-assurance-ui-reader-handles-immediate-result-and-startup-error"
+         "gdev-test-assurance-ui-reader-drains-terminal-output-once"
 		 "gdev-test-project-workbench-reader-is-asynchronous-and-ignores-an-old-section"
 		 "gdev-test-cli-bench-refuses-invalid-counts-before-starting"
 		 "gdev-test-search-selection-updates-only-its-control-and-summary"
