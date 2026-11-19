@@ -8,6 +8,8 @@ e `C-h d m` apre l'aiuto del modulo che scegli.
 L'[inventario e la verifica dei flussi](ergonomia.md) affiancano ai comandi
 le loro entrate e gli esiti da controllare.
 
+**Vai a** [Aprire un progetto](#progetti-e-spazi-di-lavoro) · [Compilare e fare debug](#esecuzione-compilazione-e-debug) · [Comporre una lavorazione](#lavorazioni) · [Usare Git](#hit-e-hithub) · [Scrivere un articolo](#scrivere-un-articolo)
+
 ## Menu contestuali
 
 Per seguire una modifica con standard, prove e audit, apri **Progetto ›
@@ -288,6 +290,15 @@ una voce per eseguirla o usa **Esegui tutti i test**. Dopo una prova puoi
 rieseguire i falliti o aprire il sorgente dalla stessa vista.
 Negli spazi con più pacchetti la vista segue il pacchetto del documento attivo.
 Quando cambi pacchetto, usa **Rileva test** per caricare il nuovo catalogo.
+
+#### Ispezionare le variabili
+
+Nel test dello scheduler EDF di AlacreOS, un passo in LLDB porta dalla riga 172 alla 173 di `kernel/edf.hpp`. Nella scheda **Variabili** puoi espandere il riferimento allo slot corrente. La console valuta le espressioni nel livello selezionato della pila.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/variabili-alacreos-scuro.webp">
+  <img src="assets/variabili-alacreos-chiaro.webp" width="1372" alt="La finestra nativa di Emacs su macOS mostra i campi dello slot corrente e la console di LLDB.">
+</picture>
 
 ### Eseguire e filtrare i test
 
