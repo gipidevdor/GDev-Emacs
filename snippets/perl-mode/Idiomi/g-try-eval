@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Cattura die con eval e conserva subito $@
+# key: g-try-eval
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il valore sentinella separa le eccezioni dai risultati falsi del lavoro.
+my \$ok = eval {
+    $0
+    1;
+};
+my \$error = \$@;
+die \$error unless \$ok;

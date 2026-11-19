@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Mutex e zero value — contatore pronto dopo la dichiarazione
+# key: g-zero-value-mutex
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import "sync"
+
+type ${2:Counter} struct {
+	mu sync.Mutex
+	n  uint64
+}
+
+func (counter *$2) Increment() uint64 {
+	// Il mutex ha uno zero value valido. Usa il puntatore per evitare copie.
+	counter.mu.Lock()
+	defer counter.mu.Unlock()
+	counter.n++
+	$0
+	return counter.n
+}

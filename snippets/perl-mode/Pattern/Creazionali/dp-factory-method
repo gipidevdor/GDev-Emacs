@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+use v5.36;
+
+package ${1:Exporter} {
+    sub render (\$self, \$text) {
+        return \$self->writer->(\$text);
+    }
+
+    sub writer (\$self) { die "Override writer in the exporter" }
+}
+
+package MarkdownExporter {
+    our @ISA = ('$1');
+    sub writer (\$self) { return sub (\$text) { "# \$text" } }
+}
+$0

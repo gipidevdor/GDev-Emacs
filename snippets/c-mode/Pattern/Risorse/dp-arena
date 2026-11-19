@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Arena — allocazioni di buffer e rilascio in blocco
+# key: dp-arena
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La memoria appartiene all'arena e non deve sopravvivere al suo rilascio.
+
+#include <stddef.h>
+
+struct ${1:arena} {
+    unsigned char *data;
+    size_t length;
+    size_t used;
+};
+
+/* Byte buffers only. The caller owns the backing memory. */
+void *arena_bytes(struct $1 *arena, size_t length)
+{
+    if (arena->used > arena->length || length > arena->length - arena->used) return NULL;
+    void *block = arena->data + arena->used;
+    arena->used += length;
+    return block;
+}
+
+void arena_reset(struct $1 *arena)
+{
+    arena->used = 0;
+}
+
+$0

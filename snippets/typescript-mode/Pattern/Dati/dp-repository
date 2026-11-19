@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Repository — contratto tipizzato e adattatore in memoria
+# key: dp-repository
+# group: Pattern.Dati
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il caso d'uso parla il contratto del dominio. Il repository traduce le operazioni verso lo storage.
+
+type ${1:Item} = Readonly<{ id: string; label: string }>;
+
+interface $1Repository {
+  get(id: string): $1 | undefined;
+  put(item: $1): void;
+}
+
+class Memory$1Repository implements $1Repository {
+  private readonly items = new Map<string, $1>();
+
+  get(id: string): $1 | undefined {
+    return this.items.get(id);
+  }
+
+  put(item: $1): void {
+    this.items.set(item.id, { ...item });
+  }
+}
+$0

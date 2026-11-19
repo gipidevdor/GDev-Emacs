@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Rimuovi duplicati preservando l'ordine d'ingresso
+# key: g-dedupe
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il post-incremento è falso alla prima occorrenza della chiave.
+my %seen;
+my @${1:unique} = grep { !\$seen{\$_}++ } ${2:@values};
+$0

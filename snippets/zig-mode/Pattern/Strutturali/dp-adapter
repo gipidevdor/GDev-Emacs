@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+const LegacySensor = struct {
+    pub fn fahrenheit(_: LegacySensor) f64 {
+        return 68.0;
+    }
+};
+
+pub const ${1:CelsiusAdapter} = struct {
+    sensor: LegacySensor,
+
+    pub fn celsius(self: @This()) f64 {
+        return (self.sensor.fahrenheit() - 32.0) * 5.0 / 9.0;
+    }
+};
+$0

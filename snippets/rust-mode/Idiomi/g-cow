@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Cow — copia il testo solo se occorre modificarlo
+# key: g-cow
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use std::borrow::Cow;
+
+pub fn ${1:normalize_line}(text: &str) -> Cow<'_, str> {
+    // Il caso comune restituisce un prestito direttamente dalla stringa.
+    if text.contains('\\r') {
+        return Cow::Owned(text.replace("\\r\\n", "\\n").replace('\\r', "\\n"));
+    }
+    $0
+    Cow::Borrowed(text)
+}

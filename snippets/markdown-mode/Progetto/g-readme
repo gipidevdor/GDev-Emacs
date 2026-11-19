@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: README — avvio, uso e verifiche
+# key: g-readme
+# group: Progetto
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# ${1:Nome del progetto}
+
+${2:Scopo del progetto.}
+
+## Avvio
+
+\`\`\`sh
+${3:make}
+\`\`\`
+
+## Uso
+
+$0
+
+## Verifiche
+
+\`\`\`sh
+${4:make test}
+\`\`\`

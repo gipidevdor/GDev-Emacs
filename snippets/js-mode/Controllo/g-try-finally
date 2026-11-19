@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Rilascio garantito con try e finally
+# key: g-try-finally
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const ${1:resource} = ${2:acquire()};
+try {
+  $0
+} finally {
+  $1.close();
+}

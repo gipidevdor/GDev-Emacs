@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Rende visibile il collegamento di salto quando ha il focus
+# key: g-skip-link
+# group: Accessibilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:skip-link} {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 1rem;
+  z-index: 1;
+  padding: 0.5rem 0.75rem;
+  color: CanvasText;
+  background: Canvas;
+  transform: translateY(-120%);
+}
+
+.$1:focus {
+  transform: translateY(0);
+  $0
+}

@@ -1,0 +1,44 @@
+# -*- mode: snippet -*-
+# name: Worker Pool — goroutine limitate con cancellazione e join
+# key: dp-worker-pool
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Limita il numero di lavori simultanei. Il chiamante deve poter attendere la fine dei worker.
+
+package ${1:example}
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+func ${2:Consume}[T any](
+	ctx context.Context, jobs <-chan T, count int, handle func(context.Context, T),
+) error {
+	if count < 1 {
+		return errors.New("worker count must be positive")
+	}
+	var workers sync.WaitGroup
+	workers.Add(count)
+	for worker := 0; worker < count; worker++ {
+		go func() {
+			defer workers.Done()
+			for ctx.Err() == nil {
+				select {
+				case <-ctx.Done():
+					return
+				case job, open := <-jobs:
+					if !open {
+						return
+					}
+					handle(ctx, job)
+				}
+			}
+		}()
+	}
+	workers.Wait()
+	return ctx.Err()
+}
+$0

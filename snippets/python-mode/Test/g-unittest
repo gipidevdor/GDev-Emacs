@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: TestCase unittest eseguibile direttamente
+# key: g-unittest
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import unittest
+
+
+class Test${1:Parser}(unittest.TestCase):
+    def test_${2:integer}(self) -> None:
+        self.assertEqual(${3:int("42")}, ${4:42})
+        $0
+
+
+if __name__ == "__main__":
+    unittest.main()

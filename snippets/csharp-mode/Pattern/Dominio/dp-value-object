@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Value Object — uguaglianza per valore e vincolo nel costruttore
+# key: dp-value-object
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Verifica l'invariante alla costruzione e confronta i contenuti per uguaglianza.
+
+using System;
+
+sealed record ${1:Money}
+{
+    public long Cents { get; }
+    public string Currency { get; }
+
+    public $1(long cents, string currency)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(currency);
+        ArgumentOutOfRangeException.ThrowIfNegative(cents);
+        Cents = cents;
+        Currency = currency.ToUpperInvariant();
+    }
+}
+$0

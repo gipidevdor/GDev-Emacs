@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Cache-Aside — cache tipizzata con TTL e invalidazione
+# key: dp-cache-aside
+# group: Pattern.Dati
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Carica soltanto alla prima lettura o alla scadenza e invalida dopo una scrittura riuscita.
+
+function ${1:createCache}<K, V>(load: (key: K) => V, ttlMs = ${2:30000}) {
+  const entries = new Map<K, { expiresAt: number; value: V }>();
+  return {
+    get(key: K): V {
+      const cached = entries.get(key);
+      if (cached && cached.expiresAt > performance.now()) return cached.value;
+      const value = load(key);
+      entries.set(key, { value, expiresAt: performance.now() + ttlMs });
+      return value;
+    },
+    invalidate(key: K): void {
+      entries.delete(key);
+    },
+  };
+}
+$0

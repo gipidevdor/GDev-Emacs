@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Verb — sezione API con base URL e intestazione ereditata
+# key: g-verb-api
+# group: HTTP.Verb
+# expand-env: ((yas-indent-line 'fixed))
+# --
+* ${1:API esempio} :verb:
+template https://${2:api.example.org}/${3:v1}
+Accept: application/json
+
+** ${4:Elenco elementi}
+get /${5:items}
+$0

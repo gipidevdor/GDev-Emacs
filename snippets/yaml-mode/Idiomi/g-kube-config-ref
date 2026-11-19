@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Kubernetes — singola variabile da ConfigMap
+# key: g-kube-config-ref
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il valore viene letto all'avvio del container.
+env:
+  - name: ${1:LOG_LEVEL}
+    valueFrom:
+      configMapKeyRef:
+        name: ${2:example-config}
+        key: $1
+    $0

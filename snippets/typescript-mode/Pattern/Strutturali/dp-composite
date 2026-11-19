@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+interface SizedNode {
+  size(): number;
+}
+
+const file = (bytes: number): SizedNode => ({ size: () => bytes });
+
+function ${1:folder}(children: readonly SizedNode[]): SizedNode {
+  const entries = [...children];
+  return { size: () => entries.reduce((sum, node) => sum + node.size(), 0) };
+}
+
+const ${2:root} = $1([file(24), $1([file(18)])]);
+$0

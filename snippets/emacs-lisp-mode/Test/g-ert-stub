@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: ERT — sostituzione temporanea della funzione chiamata
+# key: g-ert-stub
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(require 'cl-lib)
+(require 'ert)
+
+(ert-deftest ${1:example-test-stub} ()
+  (cl-letf (((symbol-function '${2:yes-or-no-p}) (lambda (&rest _) t)))
+    (should ($2 "Continue? "))
+    $0))

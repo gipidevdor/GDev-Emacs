@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Usa ctype con valori convertiti a unsigned char
+# key: g-ctype
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <ctype.h>
+#include <stddef.h>
+
+size_t ${1:count_digits}(const char *text)
+{
+    size_t count = 0;
+    for (; *text != '\\0'; ++text) {
+        // I byte negativi di char non appartengono al dominio di isdigit.
+        if (isdigit((unsigned char)*text)) ++count;
+    }
+    return count;
+}
+
+$0

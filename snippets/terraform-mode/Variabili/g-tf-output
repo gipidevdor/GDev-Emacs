@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Output con descrizione e riferimento al valore
+# key: g-tf-output
+# group: Variabili
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+output "${1:labels}" {
+  description = "${2:Labels used by the module}"
+  value       = ${3:["example"]}
+}
+$0

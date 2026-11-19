@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: return-comment
+# key: *@r
+# condition: (nth 4 (syntax-ppss))
+# Modificato da GDev il 15 novembre 2026 per la modalità JavaScript nativa.
+# --
+* @return {${type}}

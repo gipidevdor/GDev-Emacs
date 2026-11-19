@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: POD — nome, esempio e descrizione del modulo
+# key: g-pod
+# group: Documentazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+=head1 NAME
+
+${1:Example::Item} - ${2:Short description}
+
+=head1 SYNOPSIS
+
+    use $1;
+
+=head1 DESCRIPTION
+
+$0
+
+=cut

@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: ArrayList — append con allocatore e trasferimento dell'ownership (Zig 0.15)
+# key: g-array-list
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+pub fn ${1:collect}(allocator: std.mem.Allocator, input: []const u32) ![]u32 {
+    var values: std.ArrayList(u32) = .empty;
+    defer values.deinit(allocator);
+    for (input) |value| {
+        if (value != 0) try values.append(allocator, value);
+    }
+    // toOwnedSlice svuota la lista. Il chiamante deve liberare il buffer.
+    $0
+    return values.toOwnedSlice(allocator);
+}

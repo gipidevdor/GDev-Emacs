@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Conditions e Restarts — separa segnalazione e scelta del recupero
+# key: dp-conditions-restarts
+# group: Pattern.Affidabilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il codice che rileva il problema offre opzioni. Il chiamante sceglie quella adatta al contesto.
+
+(define-condition ${1:missing-setting} (error)
+  ((key :initarg :key :reader missing-setting-key))
+  (:report (lambda (condition stream)
+             (format stream "Missing setting ~S" (missing-setting-key condition)))))
+
+(defun read-setting (settings name)
+  (multiple-value-bind (value found-p) (gethash name settings)
+    (if found-p
+        value
+        (restart-case (error '$1 :key name)
+          (use-default (value)
+            :report "Supply a default value."
+            value)))))
+
+(defun read-with-default (settings key default)
+  (handler-bind (($1 (lambda (condition)
+                        (let ((restart (find-restart 'use-default condition)))
+                          (when restart (invoke-restart restart default))))))
+    (read-setting settings key)))
+$0

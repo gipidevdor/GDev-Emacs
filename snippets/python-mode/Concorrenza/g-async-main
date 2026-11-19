@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Punto di ingresso asyncio con timeout
+# key: g-async-main
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import asyncio
+
+
+async def main() -> None:
+    async with asyncio.timeout(${1:5}):
+        $0await asyncio.sleep(0)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

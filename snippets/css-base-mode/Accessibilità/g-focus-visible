@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Indicatore di focus da tastiera con colore di sistema
+# key: g-focus-visible
+# group: Accessibilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:interactive}:focus-visible {
+  outline: ${2:2px} solid Highlight;
+  outline-offset: 3px;
+  $0
+}

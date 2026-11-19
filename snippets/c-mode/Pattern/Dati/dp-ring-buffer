@@ -1,0 +1,37 @@
+# -*- mode: snippet -*-
+# name: Ring Buffer — coda circolare a capacità fissa
+# key: dp-ring-buffer
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Separa conteggio e indice di testa per distinguere coda piena e vuota dopo il giro.
+
+#include <stdbool.h>
+#include <stddef.h>
+
+enum { RING_CAPACITY = ${1:64} };
+struct ${2:ring} {
+    int data[RING_CAPACITY];
+    size_t head;
+    size_t count;
+};
+
+bool ring_push(struct $2 *queue, int value)
+{
+    if (queue->count == RING_CAPACITY) return false;
+    size_t tail = (queue->head + queue->count) % RING_CAPACITY;
+    queue->data[tail] = value;
+    ++queue->count;
+    return true;
+}
+
+bool ring_pop(struct $2 *queue, int *value)
+{
+    if (queue->count == 0) return false;
+    *value = queue->data[queue->head];
+    queue->head = (queue->head + 1) % RING_CAPACITY;
+    --queue->count;
+    return true;
+}
+
+$0

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Jinja/Django — ripete le voci di un elenco
+# key: g-jinja-loop
+# group: Modelli.Jinja e Django
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+{% for ${1:item} in ${2:items} %}
+  <li>{{ $1.${3:label} }}</li>
+{% endfor %}
+</ul>
+$0

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Inoltra gli argomenti preservando spazi e valori vuoti
+# key: g-argv
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# "\$@" espande ogni argomento come parola distinta, anche quando è vuoto.
+${1:command} "\$@"
+$0

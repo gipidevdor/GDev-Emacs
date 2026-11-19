@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Modulo Perl con versione, costruttore e accesso al dato
+# key: g-module
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:Example::Item};
+
+use v5.36;
+
+our \$VERSION = '0.001';
+
+sub new (\$class, %args) {
+    my \$name = \$args{name} // die 'name is required';
+    return bless { name => \$name }, \$class;
+}
+
+sub name (\$self) {
+    return \$self->{name};
+}
+
+$0
+1;

@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+using System;
+using System.Collections.Generic;
+
+interface ICommand
+{
+    void Execute();
+    void Undo();
+}
+
+sealed class ${1:AppendText}(List<string> target, string text) : ICommand
+{
+    public void Execute() => target.Add(text);
+
+    public void Undo()
+    {
+        if (target.Count == 0 || target[^1] != text)
+            throw new InvalidOperationException("Undo in reverse execution order");
+
+        target.RemoveAt(target.Count - 1);
+    }
+}
+$0

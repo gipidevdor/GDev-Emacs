@@ -1,0 +1,45 @@
+# -*- mode: snippet -*-
+# name: Abstract Factory — famiglie di prodotti
+# key: dp-abstract-factory
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Fornisci la fabbrica al chiamante per mantenere coerenti i prodotti della stessa famiglia.
+
+#include <memory>
+
+struct Button {
+    virtual ~Button() = default;
+    virtual void paint() const = 0;
+};
+
+struct Dialog {
+    virtual ~Dialog() = default;
+    virtual void open() = 0;
+};
+
+struct WidgetFactory {
+    virtual ~WidgetFactory() = default;
+    virtual std::unique_ptr<Button> button() const = 0;
+    virtual std::unique_ptr<Dialog> dialog() const = 0;
+};
+
+struct TextButton final : Button {
+    void paint() const override {}
+};
+
+struct TextDialog final : Dialog {
+    void open() override {}
+};
+
+struct ${1:TextWidgets} final : WidgetFactory {
+    std::unique_ptr<Button> button() const override {
+        return std::make_unique<TextButton>();
+    }
+
+    std::unique_ptr<Dialog> dialog() const override {
+        return std::make_unique<TextDialog>();
+    }
+};
+
+$0

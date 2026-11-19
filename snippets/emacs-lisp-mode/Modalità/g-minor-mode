@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Modalità minore con mappa e aggiunta locale del gancio
+# key: g-minor-mode
+# group: Modalità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defvar-keymap ${1:example}-mode-map
+  "C-c C-a" #'ignore)
+
+(defun $1--after-save ()
+  "Run after saving a document with Example mode enabled."
+  $0
+  (message "Saved %s" (buffer-name)))
+
+(define-minor-mode $1-mode
+  "Enable Example mode in this buffer."
+  :lighter " Ex"
+  :keymap $1-mode-map
+  (if $1-mode
+      (add-hook 'after-save-hook #'$1--after-save nil t)
+    (remove-hook 'after-save-hook #'$1--after-save t)))

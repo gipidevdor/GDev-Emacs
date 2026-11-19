@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — costruzione esplicita con callable
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+#include <functional>
+#include <string_view>
+#include <utility>
+
+class ${1:Greeter} {
+public:
+    using Send = std::function<void(std::string_view)>;
+
+    explicit $1(Send send) : send_{std::move(send)} {}
+
+    void greet() const { send_("${2:Hello}"); }
+
+private:
+    Send send_;
+};
+
+$0

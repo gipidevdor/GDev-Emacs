@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Svelte 5 — componente con proprietà e stato reattivo
+# key: g-svelte-component
+# group: Modelli.Vue e Svelte
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<script>
+  let { ${1:label} = "${2:Conteggio}" } = \$props();
+  let count = \$state(0);
+</script>
+
+<button type="button" onclick={() => count += 1}>
+  {$1}: {count}
+</button>
+$0

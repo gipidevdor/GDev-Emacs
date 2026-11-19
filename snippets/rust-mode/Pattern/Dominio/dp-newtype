@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Newtype — tipo di dominio indipendente dal tipo della rappresentazione
+# key: dp-newtype
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il tipo esterno esprime il vincolo anche quando il valore interno è un primitivo.
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ${1:UserId}(u64);
+
+impl TryFrom<u64> for $1 {
+    type Error = &'static str;
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        if value == 0 {
+            return Err("expected a non-zero identifier");
+        }
+        Ok(Self(value))
+    }
+}
+$0

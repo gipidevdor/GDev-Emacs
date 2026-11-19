@@ -1,0 +1,62 @@
+# -*- mode: snippet -*-
+# name: Bounded Queue — coda bloccante, backpressure e chiusura
+# key: dp-bounded-queue
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chiudi la coda per risvegliare lettori e scrittori, poi attendi che escano.
+
+#include <condition_variable>
+#include <cstddef>
+#include <mutex>
+#include <optional>
+#include <queue>
+#include <stdexcept>
+
+class ${1:BoundedQueue} {
+public:
+    explicit $1(std::size_t capacity) : capacity_{capacity} {
+        if (capacity == 0) throw std::invalid_argument("Empty capacity");
+    }
+
+    bool push(int value) {
+        std::unique_lock lock{mutex_};
+        space_.wait(lock, [this] { return closed_ || queue_.size() < capacity_; });
+        if (closed_) return false;
+        queue_.push(value);
+        lock.unlock();
+        items_.notify_one();
+        return true;
+    }
+
+    std::optional<int> pop() {
+        std::unique_lock lock{mutex_};
+        items_.wait(lock, [this] { return closed_ || !queue_.empty(); });
+        if (queue_.empty()) return std::nullopt;
+        const auto value = queue_.front();
+        queue_.pop();
+        lock.unlock();
+        space_.notify_one();
+        return value;
+    }
+
+    // Close, then join users before destroying the queue.
+    void close() {
+        {
+            const std::scoped_lock lock{mutex_};
+            closed_ = true;
+        }
+        space_.notify_all();
+        items_.notify_all();
+    }
+
+private:
+    const std::size_t capacity_;
+    std::mutex mutex_;
+    std::condition_variable items_;
+    std::condition_variable space_;
+    std::queue<int> queue_;
+    bool closed_ = false;
+};
+
+$0

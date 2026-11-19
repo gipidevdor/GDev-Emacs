@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Tangle Org in un file con shebang e modalità eseguibile
+# key: g-tangle
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# :shebang inserisce l'interprete nel file generato da org-babel-tangle.
+#+begin_src sh :tangle ${1:check.sh} :shebang "#!/bin/sh"
+$0:
+#+end_src

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Tabella inline per un valore compatto
+# key: g-inline-table
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# La voce inline è autosufficiente e si configura tutta nello stesso punto.
+${1:server} = { host = "localhost", port = ${2:8080} }
+$0

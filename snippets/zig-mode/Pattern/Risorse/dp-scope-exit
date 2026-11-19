@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Scope Guard — defer per riportare una risorsa allo stato iniziale
+# key: dp-scope-exit
+# group: Pattern.Risorse
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La guardia vive nello scope in cui lo stato deve essere ripristinato.
+
+pub fn ${1:whileBusy}(busy: *bool, work: anytype) !void {
+    const previous = busy.*;
+    defer busy.* = previous;
+    busy.* = true;
+    try work();
+    $0
+}

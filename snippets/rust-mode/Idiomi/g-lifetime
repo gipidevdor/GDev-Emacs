@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Lifetime — vista che mantiene esplicito lo scope del prestito
+# key: g-lifetime
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il risultato proviene da input. Non dipende dalla durata di separator.
+pub fn ${1:prefix}<'a>(input: &'a str, separator: &str) -> &'a str {
+    $0
+    input.split_once(separator).map_or(input, |(head, _)| head)
+}

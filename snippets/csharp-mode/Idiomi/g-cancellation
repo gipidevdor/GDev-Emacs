@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: CancellationTokenSource collegato con timeout e Dispose
+# key: g-cancellation
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+static class ${1:Requests}
+{
+    public static async Task<T> Run<T>(Func<CancellationToken, Task<T>> work, CancellationToken parent)
+    {
+        // I due segnali si combinano, e using rimuove la registrazione dal genitore.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(parent);
+        deadline.CancelAfter(TimeSpan.FromSeconds(${2:5}));
+        $0
+        return await work(deadline.Token);
+    }
+}

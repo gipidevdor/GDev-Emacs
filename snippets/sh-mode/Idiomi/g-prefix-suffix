@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Espansioni POSIX per prefisso e suffisso del percorso
+# key: g-prefix-suffix
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# ## elimina il prefisso più lungo, % il suffisso più corto.
+${1:filename}=\${${2:path}##*/}
+${3:stem}=\${$1%.*}
+$0

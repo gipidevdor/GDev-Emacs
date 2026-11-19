@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Ordinamento immutabile con copia dell'array
+# key: g-stable-sort
+# group: Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const ${1:sorted} = [...${2:items}].sort((left, right) => left.${3:name}.localeCompare(right.$3));
+$0

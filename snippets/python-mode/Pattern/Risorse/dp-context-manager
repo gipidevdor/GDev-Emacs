@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Context Manager — acquisizione e rilascio garantiti
+# key: dp-context-manager
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Acquisizione e rilascio formano un unico confine, attraversato anche in caso di eccezione.
+
+from collections.abc import Iterator
+from contextlib import contextmanager
+from pathlib import Path
+from typing import TextIO
+
+
+@contextmanager
+def ${1:open_report}(path: Path) -> Iterator[TextIO]:
+    stream = path.open("w", encoding="utf-8")
+    try:
+        yield stream
+    finally:
+        stream.close()
+
+
+$0

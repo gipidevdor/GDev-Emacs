@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Verb — richiesta JSON Merge Patch
+# key: g-verb-patch
+# group: HTTP.Verb
+# expand-env: ((yas-indent-line 'fixed))
+# --
+** ${1:Modifica etichetta}
+patch /${2:items}/${3:42}
+Content-Type: application/merge-patch+json
+
+{"label": "${4:Updated}"}
+$0

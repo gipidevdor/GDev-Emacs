@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: React — componente con proprietà inferite, valido anche in JSX
+# key: g-component
+# group: Componenti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+export function ${1:Panel}({ ${2:title} = "${3:Dettagli}" }) {
+  return (
+    <section>
+      <h2>{$2}</h2>
+      $0
+    </section>
+  );
+}

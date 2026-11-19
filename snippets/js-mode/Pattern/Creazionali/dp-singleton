@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Singleton — unica istanza
+# key: dp-singleton
+# group: Pattern.Creazionali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+// ES module instance. Inject the object where consumers need alternate settings.
+export const ${1:settings} = Object.freeze({ timeoutMs: ${2:5000} });
+$0

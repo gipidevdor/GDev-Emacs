@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Repository — contratto asincrono e adattatore in memoria
+# key: dp-repository
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il caso d'uso parla il contratto del dominio. Il repository traduce le operazioni verso lo storage.
+
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+
+sealed record Item(string Id, string Label);
+
+interface IItems
+{
+    ValueTask<Item?> Find(string id, CancellationToken cancellation);
+}
+
+sealed class ${1:MemoryItems} : IItems
+{
+    private readonly ConcurrentDictionary<string, Item> items = new();
+
+    public ValueTask<Item?> Find(string id, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        return ValueTask.FromResult(items.TryGetValue(id, out var item) ? item : null);
+    }
+
+    public void Save(Item item) => items[item.Id] = item;
+}
+$0

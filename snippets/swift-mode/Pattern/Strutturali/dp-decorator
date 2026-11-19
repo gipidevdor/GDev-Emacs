@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+import Foundation
+
+func ${1:timed}<Input, Output>(
+    _ operation: @escaping (Input) throws -> Output,
+    report: @escaping (Duration) -> Void
+) -> (Input) throws -> Output {
+    { input in
+        let start = ContinuousClock.now
+        defer { report(start.duration(to: .now)) }
+        return try operation(input)
+    }
+}
+$0

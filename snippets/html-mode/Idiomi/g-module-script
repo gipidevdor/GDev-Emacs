@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Script ESM con esecuzione dopo l'analisi del documento
+# key: g-module-script
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<!-- Uno script di tipo module è differito per impostazione predefinita. -->
+<script type="module" src="${1:/assets/main.js}"></script>$0

@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Pytest — fixture con cartella temporanea
+# key: g-pytest-fixture
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from pathlib import Path
+
+import pytest
+
+
+@pytest.fixture
+def ${1:sample_file}(tmp_path: Path) -> Path:
+    path = tmp_path / "${2:sample.txt}"
+    path.write_text("${3:example}\\n", encoding="utf-8")
+    return path
+
+
+$0

@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Test::More — sottotest con asserzioni e piano dinamico
+# key: g-test-more
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use Test::More;
+
+subtest '${1:configuration defaults}' => sub {
+    is(${2:2 + 2}, ${3:4}, 'expected value');
+    $0
+};
+
+done_testing;

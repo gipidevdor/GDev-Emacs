@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Defaultdict — accumula valori in gruppi indipendenti
+# key: g-defaultdict
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from collections import defaultdict
+
+# list crea un contenitore diverso per ogni chiave al primo accesso.
+${1:groups}: defaultdict[str, list[str]] = defaultdict(list)
+for key, value in ${2:[("a", "one"), ("b", "two")]}:
+    $1[key].append(value)
+$0

@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Memento — istantanea e ripristino
+# key: dp-memento
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Cattura i dati necessari al ripristino. Le modifiche successive devono lasciare intatta la cattura.
+
+(defstruct ${1:editor} (text "") (cursor 0))
+
+(defun snapshot (editor)
+  (cons (copy-seq ($1-text editor)) ($1-cursor editor)))
+
+(defun restore (editor saved)
+  (setf ($1-text editor) (copy-seq (car saved))
+        ($1-cursor editor) (cdr saved)))
+$0

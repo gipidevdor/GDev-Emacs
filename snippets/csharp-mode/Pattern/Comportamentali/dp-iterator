@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+using System.Collections;
+using System.Collections.Generic;
+
+sealed class ${1:Countdown}(int start) : IEnumerable<int>
+{
+    public IEnumerator<int> GetEnumerator()
+    {
+        for (var next = start; next > 0; --next) yield return next;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+$0

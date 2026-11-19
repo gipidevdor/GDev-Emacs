@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Coverage.py — misurazione dei rami in pyproject.toml
+# key: g-coverage
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[tool.coverage.run]
+source = ["${1:example}"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+$0

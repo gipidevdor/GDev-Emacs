@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Result — enum di stato e valore restituiti insieme
+# key: dp-result
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Rendi rappresentabile il fallimento insieme al successo, così il chiamante può gestire entrambi.
+
+#include <stdint.h>
+
+struct ${1:result} {
+    enum { RESULT_OK, RESULT_OVERFLOW } status;
+    uint64_t value;
+};
+
+struct $1 checked_add(uint64_t a, uint64_t b)
+{
+    if (UINT64_MAX - a < b) return (struct $1){ .status = RESULT_OVERFLOW };
+    return (struct $1){ .status = RESULT_OK, .value = a + b };
+}
+
+$0

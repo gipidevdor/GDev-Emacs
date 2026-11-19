@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Loop — filtra e raccogli senza mutare la sequenza
+# key: g-loop
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; COLLECT accumula i risultati in ordine di visita.
+(loop for ${1:value} in ${2:'(1 2 3 4)}
+      when (evenp $1)
+        collect (* $1 $1))$0

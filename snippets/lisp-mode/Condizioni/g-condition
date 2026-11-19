@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Condizione personalizzata con messaggio leggibile
+# key: g-condition
+# group: Condizioni
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(define-condition ${1:invalid-item} (error)
+  ((value :initarg :value :reader invalid-item-value))
+  (:report (lambda (condition stream)
+             (format stream "Invalid item: ~S" (invalid-item-value condition)))))
+$0

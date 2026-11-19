@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Annulla l'intero gruppo di modifiche in caso di errore
+# key: g-atomic-change
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Se una forma segnala errore, le modifiche precedenti del gruppo sono annullate.
+(atomic-change-group
+  ${1:(insert "Example")}
+  $0)

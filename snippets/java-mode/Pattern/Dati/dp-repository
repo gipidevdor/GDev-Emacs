@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Repository — porta del dominio e adattatore thread-safe in memoria
+# key: dp-repository
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il caso d'uso parla il contratto del dominio. Il repository traduce le operazioni verso lo storage.
+
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+interface ${1:Labels} {
+    Optional<String> find(String id);
+    void save(String id, String label);
+}
+
+final class Memory$1 implements $1 {
+    private final ConcurrentHashMap<String, String> items = new ConcurrentHashMap<>();
+
+    public Optional<String> find(String id) { return Optional.ofNullable(items.get(id)); }
+    public void save(String id, String label) { items.put(id, label); }
+}
+$0

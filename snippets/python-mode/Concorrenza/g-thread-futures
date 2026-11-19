@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: ThreadPoolExecutor con raccolta degli errori
+# key: g-thread-futures
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from concurrent.futures import ThreadPoolExecutor
+
+
+def ${1:process}(value: str) -> str:
+    return value.strip()
+
+
+with ThreadPoolExecutor(max_workers=${2:4}) as pool:
+    ${3:results} = list(pool.map($1, ${4:[" alpha ", " beta "]}))
+$0

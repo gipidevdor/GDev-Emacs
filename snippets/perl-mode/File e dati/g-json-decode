@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: JSON::PP — decodifica byte UTF-8 dal file
+# key: g-json-decode
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use autodie;
+use JSON::PP qw(decode_json);
+
+open my \$stream, '<:raw', "${1:data.json}";
+my \$${2:payload} = do { local \$/; decode_json(<\$stream> // '') };
+close \$stream;
+$0

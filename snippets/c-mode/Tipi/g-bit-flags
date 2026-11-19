@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Flag combinabili con maschera unsigned
+# key: g-bit-flags
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+enum {
+    ${1:OPTION}_VERBOSE = 1u << 0,
+    $1_DRY_RUN = 1u << 1,
+};
+
+unsigned ${2:options} = $1_VERBOSE;
+$0

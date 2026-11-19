@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Protocol strutturale con metodo tipizzato
+# key: g-protocol
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from typing import Protocol
+
+
+class ${1:Reader}(Protocol):
+    def ${2:read}(self, key: str) -> ${3:str}: ...
+
+
+$0

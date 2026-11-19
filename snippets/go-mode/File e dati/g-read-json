@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Decodifica JSON con campi sconosciuti rifiutati
+# key: g-read-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"encoding/json"
+	"errors"
+	"io"
+)
+
+type Item struct {
+	Label string \`json:"label"\`
+}
+
+func ${2:DecodeItem}(source io.Reader) (Item, error) {
+	reader := json.NewDecoder(source)
+	reader.DisallowUnknownFields()
+	var item Item
+	if err := reader.Decode(&item); err != nil {
+		return Item{}, err
+	}
+	if err := reader.Decode(new(json.RawMessage)); err != io.EOF {
+		return Item{}, errors.New("expected exactly one JSON value")
+	}
+	$0
+	return item, nil
+}

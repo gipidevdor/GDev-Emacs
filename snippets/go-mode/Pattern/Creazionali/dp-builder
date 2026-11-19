@@ -1,0 +1,34 @@
+# -*- mode: snippet -*-
+# name: Builder — opzioni funzionali con valori predefiniti
+# key: dp-builder
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+package ${1:example}
+
+import "errors"
+
+type Config struct {
+	address string
+	retries int
+}
+
+type Option func(*Config)
+
+func WithRetries(retries int) Option {
+	return func(config *Config) { config.retries = retries }
+}
+
+func NewConfig(address string, options ...Option) (Config, error) {
+	config := Config{address: address, retries: 3}
+	for _, option := range options {
+		option(&config)
+	}
+	if config.address == "" || config.retries < 0 {
+		return Config{}, errors.New("invalid address or retry count")
+	}
+	return config, nil
+}
+$0

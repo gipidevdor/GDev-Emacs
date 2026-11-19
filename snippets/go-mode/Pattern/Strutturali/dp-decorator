@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+package ${1:example}
+
+import (
+	"net/http"
+	"time"
+)
+
+func ${2:WithTiming}(next http.Handler, report func(time.Duration)) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		defer func() { report(time.Since(start)) }()
+		next.ServeHTTP(w, r)
+	})
+}
+$0

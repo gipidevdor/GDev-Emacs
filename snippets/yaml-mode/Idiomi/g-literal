@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Blocco YAML letterale per righe da preservare
+# key: g-literal
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# |- conserva le righe interne e rimuove il newline finale.
+${1:script}: |-
+  $0printf '%s\\n' ready

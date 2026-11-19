@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+use v5.36;
+
+sub ${1:dispatch} (\$request, @handlers) {
+    for my \$handle (@handlers) {
+        my \$answer = \$handle->(\$request);
+        return \$answer if defined \$answer;  # 0 and the empty string are results.
+    }
+    return undef;
+}
+$0

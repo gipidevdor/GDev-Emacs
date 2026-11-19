@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: HTTP::Tiny — richiesta JSON con timeout e verifica dello stato
+# key: g-http-tiny
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use HTTP::Tiny;
+use JSON::PP qw(decode_json);
+
+my \$client = HTTP::Tiny->new(timeout => ${1:5}, verify_SSL => 1);
+my \$response = \$client->get('https://${2:api.example.org}/items',
+                            { headers => { Accept => 'application/json' } });
+die "HTTP \$response->{status}: \$response->{reason}" unless \$response->{success};
+my \$${3:payload} = decode_json(\$response->{content});
+$0

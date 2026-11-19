@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Template Toolkit — ciclo e escaping HTML dei dati
+# key: g-tt-foreach
+# group: Modelli.Template Toolkit
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+[% FOREACH ${1:item} IN ${2:items} %]
+  <li>[% $1.label | html %]</li>
+[% END %]
+</ul>
+$0

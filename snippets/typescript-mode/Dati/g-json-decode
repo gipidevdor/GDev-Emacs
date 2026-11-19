@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Parsing JSON con decoder esplicito di unknown
+# key: g-json-decode
+# group: Dati
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+function ${1:decodeJson}<T>(text: string, decode: (input: unknown) => T): T {
+  const value: unknown = JSON.parse(text);
+  return decode(value);
+}
+$0

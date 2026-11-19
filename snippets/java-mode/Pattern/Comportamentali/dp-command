@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+import java.util.List;
+import java.util.Objects;
+
+final class ${1:AppendText} {
+    private final List<String> target;
+    private final String text;
+
+    $1(List<String> target, String text) { this.target = target; this.text = text; }
+
+    void execute() { target.add(text); }
+
+    void undo() {
+        if (target.isEmpty() || !Objects.equals(target.get(target.size() - 1), text)) {
+            throw new IllegalStateException("Undo in reverse execution order");
+        }
+        target.remove(target.size() - 1);
+    }
+}
+$0

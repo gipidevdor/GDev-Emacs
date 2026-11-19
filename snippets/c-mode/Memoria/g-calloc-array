@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Allocazione con controllo della dimensione e inizializzazione
+# key: g-calloc-array
+# group: Memoria
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdint.h>
+#include <stdlib.h>
+
+int *${1:allocate_values}(size_t count)
+{
+    if (count == 0 || count > SIZE_MAX / sizeof(int)) return NULL;
+    return calloc(count, sizeof(int));
+}
+
+$0

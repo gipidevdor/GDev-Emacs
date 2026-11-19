@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Dipendenze dagli header con -MMD e -MP
+# key: g-depfile
+# group: Target
+# expand-env: ((yas-indent-line 'fixed))
+# --
+%.o: %.c
+	\$(CC) \$(CPPFLAGS) \$(CFLAGS) -MMD -MP -c "\$<" -o "\$@"
+
+-include \$(${1:OBJECTS}:.o=.d)
+$0

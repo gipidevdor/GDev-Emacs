@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: ExitStack — chiude un numero dinamico di risorse
+# key: g-exit-stack
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from contextlib import ExitStack
+from pathlib import Path
+
+paths = [Path("${1:example.txt}")]
+# Se un'apertura fallisce, ExitStack chiude anche i file già aperti.
+with ExitStack() as stack:
+    streams = [stack.enter_context(path.open(encoding="utf-8")) for path in paths]
+    $0lines = [line for stream in streams for line in stream]

@@ -1,0 +1,45 @@
+# -*- mode: snippet -*-
+# name: Interpreter — valuta un albero di espressioni
+# key: dp-interpreter
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I nodi rappresentano la grammatica e valutano il proprio sottoalbero con il medesimo ambiente.
+
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+using Environment = std::map<std::string, double>;
+
+struct Expression {
+    virtual ~Expression() = default;
+    virtual double evaluate(const Environment& values) const = 0;
+};
+
+struct Variable final : Expression {
+    explicit Variable(std::string name) : name{std::move(name)} {}
+
+    double evaluate(const Environment& values) const override { return values.at(name); }
+
+    std::string name;
+};
+
+struct ${1:Add} final : Expression {
+    $1(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+        : left{std::move(left)}, right{std::move(right)} {
+        if (!this->left || !this->right) throw std::invalid_argument("Missing operand");
+    }
+
+    double evaluate(const Environment& values) const override {
+        return left->evaluate(values) + right->evaluate(values);
+    }
+
+private:
+    std::unique_ptr<Expression> left;
+    std::unique_ptr<Expression> right;
+};
+
+$0

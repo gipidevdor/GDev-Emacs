@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+struct ${1:Countdown}: Sequence {
+    struct Iterator: IteratorProtocol {
+        var nextValue: Int
+
+        mutating func next() -> Int? {
+            guard nextValue > 0 else { return nil }
+            defer { nextValue -= 1 }
+            return nextValue
+        }
+    }
+
+    let count: Int
+
+    func makeIterator() -> Iterator { Iterator(nextValue: count) }
+}
+$0

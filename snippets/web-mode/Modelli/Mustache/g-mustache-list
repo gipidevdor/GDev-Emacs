@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Mustache — sezione e sezione invertita
+# key: g-mustache-list
+# group: Modelli.Mustache
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+  {{#${1:items}}}
+    <li>{{${2:label}}}</li>
+  {{/$1}}
+  {{^$1}}
+    <li>${3:Nessun elemento.}</li>
+  {{/$1}}
+</ul>
+$0

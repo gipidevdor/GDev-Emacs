@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Importazione type-only con estensione TypeScript
+# key: g-import-type
+# group: Moduli
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import type { ${1:Payload} } from "./${2:payload.ts}";$0

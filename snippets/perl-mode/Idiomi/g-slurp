@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Leggi un intero file UTF-8 con local $/
+# key: g-slurp
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use autodie;
+
+sub ${1:slurp} (\$path) {
+    open my \$stream, '<:encoding(UTF-8)', \$path;
+    # local limita il cambio di separatore a questa lettura.
+    local \$/;
+    my \$text = <\$stream> // '';
+    close \$stream;
+    return \$text;
+}
+$0

@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+#include <string>
+#include <utility>
+#include <vector>
+
+struct ${1:Report} {
+    std::string title;
+    std::vector<std::string> sections;
+};
+
+class $1Builder {
+public:
+    explicit $1Builder(std::string title) : report_{std::move(title), {}} {}
+
+    $1Builder& add(std::string section) {
+        report_.sections.push_back(std::move(section));
+        return *this;
+    }
+
+    [[nodiscard]] $1 build() const { return report_; }
+
+private:
+    $1 report_;
+};
+
+$0

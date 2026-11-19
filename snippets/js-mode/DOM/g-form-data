@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Submit di un form e lettura dei campi con FormData
+# key: g-form-data
+# group: DOM
+# expand-env: ((yas-indent-line 'fixed))
+# --
+document.querySelector("${1:#profile}")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!(event.currentTarget instanceof HTMLFormElement)) return;
+
+  const values = new FormData(event.currentTarget);
+  const ${2:label} = String(values.get("${3:label}") ?? "").trim();
+  $0
+});

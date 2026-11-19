@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Ports and Adapters — caso d'uso isolato dall'archivio
+# key: dp-ports-and-adapters
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Definisci la porta dal punto di vista del dominio. Ogni adattatore la implementa al confine.
+
+from collections.abc import Mapping
+from typing import Protocol
+
+
+class ${1:PricePort}(Protocol):
+    def price(self, sku: str) -> int: ...
+
+
+def quote(sku: str, quantity: int, prices: $1) -> int:
+    if quantity <= 0:
+        raise ValueError("Quantity must be positive")
+    return quantity * prices.price(sku)
+
+
+class StaticPrices:
+    def __init__(self, prices: Mapping[str, int]) -> None:
+        self._prices = dict(prices)
+
+    def price(self, sku: str) -> int:
+        return self._prices[sku]
+
+
+$0

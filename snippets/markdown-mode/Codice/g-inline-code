@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Codice in linea attorno alla selezione
+# key: g-inline-code
+# group: Codice
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region t))
+# --
+\`$0\`

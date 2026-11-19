@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Scrittura atomica POSIX nella cartella di destinazione
+# key: g-atomic-write
+# group: Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(
+    destination=${1:./report.txt}
+    temporary=\$(mktemp "\$destination.XXXXXXXX") || exit 1
+    trap 'rm -f -- "\$temporary"' EXIT
+    trap 'exit 1' HUP INT TERM
+
+    printf '%s\\n' "${2:content}" > "\$temporary" || exit 1
+    mv -f -- "\$temporary" "\$destination"
+    $0
+)

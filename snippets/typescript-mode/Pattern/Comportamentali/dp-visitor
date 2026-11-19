@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Visitor — operazioni su più tipi
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+interface Visitor<T> {
+  circle(radius: number): T;
+  square(side: number): T;
+}
+
+interface Shape {
+  accept<T>(visitor: Visitor<T>): T;
+}
+
+const circle = (radius: number): Shape => ({
+  accept: (visitor) => visitor.circle(radius),
+});
+const square = (side: number): Shape => ({
+  accept: (visitor) => visitor.square(side),
+});
+
+const ${1:area}: Visitor<number> = {
+  circle: (radius) => Math.PI * radius ** 2,
+  square: (side) => side ** 2,
+};
+
+const ${2:size} = circle(3).accept($1);
+$0

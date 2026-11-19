@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Lettura POSIX di righe anche senza newline finale
+# key: g-while-read
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# IFS= e -r preservano spazi e backslash. L'ultimo test accetta una riga senza LF.
+while IFS= read -r ${1:line} || [ -n "\$$1" ]; do
+    $0printf '%s\\n' "\$$1"
+done < "${2:input.txt}"

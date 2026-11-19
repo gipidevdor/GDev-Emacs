@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Lookup eterogenea in mappa senza creare std::string temporanee
+# key: g-transparent-lookup
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <functional>
+#include <map>
+#include <string>
+#include <string_view>
+
+using ${1:Counts} = std::map<std::string, int, std::less<>>;
+
+int find_count(const $1& counts, std::string_view key) {
+    // std::less<> consente di confrontare la vista con la chiave già posseduta.
+    const auto found = counts.find(key);
+    return found == counts.end() ? 0 : found->second;
+}
+
+$0

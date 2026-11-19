@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Registry — risolve un'azione in base alla modalità principale
+# key: dp-adapter-registry
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il registro decide la risoluzione. Il comando mantiene intatto il contesto del chiamante.
+
+(defvar ${1:example-handlers} '((text-mode . count-words-region))
+  "Commands for known major modes.")
+
+(defun ${2:example-action} ()
+  "Call the first handler matching the current major mode."
+  (interactive)
+  (let ((entry (seq-find (lambda (entry) (derived-mode-p (car entry)))
+                         $1)))
+    (unless entry (user-error "No action for %s" major-mode))
+    (call-interactively (cdr entry))))
+$0

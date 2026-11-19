@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+from collections.abc import Callable, Iterable
+
+
+def ${1:dispatch}(
+    request: str, handlers: Iterable[Callable[[str], str | None]]
+) -> str:
+    for handler in handlers:
+        result = handler(request)
+        if result is not None:
+            return result
+    raise LookupError(f"No handler for {request!r}")
+
+
+$0

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Ciclo con indice size_t e limite esclusivo
+# key: g-for-size
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+for (size_t ${1:i} = 0; $1 < ${2:length}; ++$1) {
+    $0
+}

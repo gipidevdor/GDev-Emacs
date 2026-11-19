@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+struct ${1:Total} {
+    let discount: (Int) -> Int
+
+    func cents(for amount: Int) -> Int {
+        amount - discount(amount)
+    }
+}
+
+let promotional = $1(discount: { \$0 / 10 })
+$0

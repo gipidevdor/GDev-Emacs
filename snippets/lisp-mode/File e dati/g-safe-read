@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Leggi dati Lisp con *read-eval* disabilitato
+# key: g-safe-read
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defun ${1:read-one} (stream)
+  (let ((*read-eval* nil))
+    (read stream nil :end-of-input)))
+$0

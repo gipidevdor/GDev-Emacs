@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Canale limitato con backpressure e ricezione fino alla chiusura
+# key: g-channel
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use std::sync::mpsc::sync_channel;
+use std::thread;
+
+pub fn ${1:values}() -> thread::Result<Vec<u32>> {
+    let (send, receive) = sync_channel(${2:8});
+    let producer = thread::spawn(move || {
+        for value in 0..10 {
+            if send.send(value).is_err() {
+                break;
+            }
+        }
+    });
+    let values = receive.into_iter().collect();
+    producer.join()?;
+    $0
+    Ok(values)
+}

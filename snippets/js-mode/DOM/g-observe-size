@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: ResizeObserver — osserva la dimensione e scollega
+# key: g-observe-size
+# group: DOM
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const target = document.querySelector("${1:#panel}");
+const observer = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    $0console.debug(entry.contentRect.width);
+  }
+});
+if (target) observer.observe(target);
+// Call observer.disconnect() on disposal.

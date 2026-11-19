@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Sequenza TOML di record con lo stesso nome di tabella
+# key: g-array-of-tables
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ogni doppia coppia di parentesi aggiunge una voce all'array.
+[[${1:servers}]]
+host = "${2:localhost}"
+port = ${3:8080}
+$0

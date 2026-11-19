@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Deno.test — esempio con asserzione locale
+# key: g-deno-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+Deno.test("${1:checks a sum}", () => {
+  const actual = ${2:6 * 7};
+  if (actual !== ${3:42}) throw new Error(\`Unexpected result: \${actual}\`);
+  $0
+});

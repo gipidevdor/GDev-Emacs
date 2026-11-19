@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Await using — scrittura e chiusura asincrona della risorsa
+# key: g-await-using
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+static class ${1:Reports}
+{
+    public static async Task Write(string path, string content, CancellationToken cancellation)
+    {
+        // Il compilatore attende DisposeAsync anche se WriteAsync termina con errore.
+        await using var output = File.CreateText(path);
+        await output.WriteAsync(content.AsMemory(), cancellation);
+        $0
+    }
+}

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+pub fn ${1:dispatch}<T, R>(request: &T, handlers: &[impl Fn(&T) -> Option<R>]) -> Option<R> {
+    handlers.iter().find_map(|handle| handle(request))
+}
+$0

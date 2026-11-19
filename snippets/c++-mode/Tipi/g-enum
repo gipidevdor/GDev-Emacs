@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Enum class e conversione in string_view
+# key: g-enum
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <string_view>
+
+enum class ${1:Status} { pending, complete };
+
+constexpr std::string_view to_string($1 value) {
+    switch (value) {
+        case $1::pending: return "pending";
+        case $1::complete: return "complete";
+    }
+    return "unknown";
+}
+
+$0

@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Leggi un file riga per riga con handle lessicale
+# key: g-stream-lines
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use autodie;
+
+open my \$stream, '<:encoding(UTF-8)', ${1:\$path};
+# Il ciclo conserva una sola riga alla volta.
+while (my \$line = <\$stream>) {
+    chomp \$line;
+    $0
+}
+close \$stream;

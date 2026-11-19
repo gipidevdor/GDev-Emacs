@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Hash slice — seleziona i campi in un ordine determinato
+# key: g-hash-slice
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# La slice segue l'ordine delle chiavi richieste.
+my (\$${1:id}, \$${2:label}) = @${3:row}{qw(id label)};
+$0

@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Worker Pool — coda limitata e attesa del completamento
+# key: dp-worker-pool
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Limita il numero di lavori simultanei. Il chiamante deve poter attendere la fine dei worker.
+
+import asyncio
+from collections.abc import Awaitable, Callable, Iterable
+
+
+async def ${1:process_all}(
+    items: Iterable[str], handle: Callable[[str], Awaitable[None]], workers: int = ${2:4}
+) -> None:
+    if workers < 1:
+        raise ValueError("Expected at least one worker")
+    queue: asyncio.Queue[str | None] = asyncio.Queue(maxsize=workers * 2)
+
+    async def consume() -> None:
+        while (item := await queue.get()) is not None:
+            await handle(item)
+
+    async with asyncio.TaskGroup() as group:
+        for _ in range(workers):
+            group.create_task(consume())
+        for item in items:
+            await queue.put(item)
+        for _ in range(workers):
+            await queue.put(None)
+
+
+$0

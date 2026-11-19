@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Event Sourcing — aggiornamento e ricostruzione da eventi
+# key: dp-event-sourcing
+# group: Pattern.Sistemi distribuiti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ricostruisci lo stato riproducendo gli eventi. Verifica la versione quando aggiungi nuovi eventi.
+
+from collections.abc import Iterable
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ${1:StockChanged}:
+    delta: int
+
+
+def replay(events: Iterable[$1]) -> int:
+    return sum(event.delta for event in events)
+
+
+def withdraw(current: int, amount: int) -> $1:
+    if not 0 < amount <= current:
+        raise ValueError("Insufficient stock or invalid amount")
+    # Append using the version loaded with the stream.
+    return $1(-amount)
+
+
+$0

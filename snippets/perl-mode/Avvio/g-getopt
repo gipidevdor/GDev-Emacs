@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: CLI — opzioni lunghe e argomenti con Getopt::Long
+# key: g-getopt
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use Getopt::Long qw(GetOptionsFromArray);
+
+sub ${1:main} (@args) {
+    my \$verbose = 0;
+    GetOptionsFromArray(\\@args, 'verbose|v!' => \\\$verbose)
+        or die "Usage: \$0 [--verbose] INPUT\\n";
+    my \$input = shift @args // die "Missing INPUT\\n";
+    $0
+    return 0;
+}
+
+exit $1(@ARGV);

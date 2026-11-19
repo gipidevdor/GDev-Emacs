@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Singleton — unica istanza
+# key: dp-singleton
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+enum ${1:Settings} {
+    INSTANCE;
+
+    int timeoutSeconds() { return ${2:5}; }
+}
+$0

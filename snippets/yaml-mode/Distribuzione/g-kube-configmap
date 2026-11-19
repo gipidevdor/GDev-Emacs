@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Kubernetes — configurazione non sensibile come file e scalare
+# key: g-kube-configmap
+# group: Distribuzione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${1:example-config}
+data:
+  LOG_LEVEL: "${2:info}"
+  settings.ini: |
+    [app]
+    enabled = true
+    $0

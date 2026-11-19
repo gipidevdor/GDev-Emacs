@@ -1,0 +1,35 @@
+# -*- mode: snippet -*-
+# name: Interpreter — valuta un albero di espressioni
+# key: dp-interpreter
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# I nodi rappresentano la grammatica e valutano il proprio sottoalbero con il medesimo ambiente.
+
+from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Protocol
+
+
+class Expression(Protocol):
+    def evaluate(self, values: Mapping[str, int]) -> int: ...
+
+
+@dataclass(frozen=True)
+class Variable:
+    name: str
+
+    def evaluate(self, values: Mapping[str, int]) -> int:
+        return values[self.name]
+
+
+@dataclass(frozen=True)
+class ${1:Add}:
+    left: Expression
+    right: Expression
+
+    def evaluate(self, values: Mapping[str, int]) -> int:
+        return self.left.evaluate(values) + self.right.evaluate(values)
+
+
+$0

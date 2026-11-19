@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Contatore atomico con ordinamento rilassato (C11)
+# key: g-atomic
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdatomic.h>
+
+static atomic_uint ${1:counter} = 0;
+
+unsigned next_count(void)
+{
+    return atomic_fetch_add_explicit(&$1, 1, memory_order_relaxed);
+}
+
+$0

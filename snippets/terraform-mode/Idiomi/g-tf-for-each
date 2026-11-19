@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: For_each — chiavi leggibili e stabili per le istanze
+# key: g-tf-for-each
+# group: Idiomi
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+locals {
+  ${1:services} = {
+    api = 8080
+    web = 8081
+  }
+}
+
+# Le istanze mantengono la propria chiave al cambio d'ordine.
+resource "terraform_data" "${2:service}" {
+  for_each = local.$1
+
+  input = { name = each.key, port = each.value }
+  $0
+}

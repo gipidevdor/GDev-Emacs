@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Schema JSON — definizione locale riutilizzata via $ref
+# key: g-schema-ref
+# group: Idiomi
+# Nota — #/$defs punta a una definizione nello stesso documento. Cambia il nome nel primo campo per aggiornare anche il riferimento.
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "\$schema": "https://json-schema.org/draft/2020-12/schema",
+  "\$defs": {
+    "${1:recordId}": { "type": "string", "minLength": 1 }
+  },
+  "type": "array",
+  "items": { "\$ref": "#/\$defs/$1" }
+}$0

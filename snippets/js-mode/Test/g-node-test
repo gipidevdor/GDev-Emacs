@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Node.js — test con il runner integrato e assert strict
+# key: g-node-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import assert from "node:assert/strict";
+import { test } from "node:test";
+
+test("${1:returns a record}", () => {
+  assert.deepEqual(${2:\{ id: 42 \}}, ${3:\{ id: 42 \}});
+  $0
+});

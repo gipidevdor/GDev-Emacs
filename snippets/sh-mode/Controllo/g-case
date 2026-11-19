@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Diramazione POSIX con caso predefinito
+# key: g-case
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+case "\${1:-}" in
+    ${1:start})
+        $0:
+        ;;
+    *)
+        printf '%s\\n' "Usage: \$0 $1" >&2
+        exit 2
+        ;;
+esac

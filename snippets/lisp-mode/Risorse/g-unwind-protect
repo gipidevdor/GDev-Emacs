@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Pulizia garantita anche con uscita non locale
+# key: g-unwind-protect
+# group: Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(unwind-protect
+     ${1:(work)}
+  ${2:(cleanup)})$0

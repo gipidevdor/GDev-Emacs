@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+use v5.36;
+
+sub ${1:values_iterator} (@values) {
+    my \$index = 0;
+    return sub {
+        return () if \$index >= @values;
+        return (1, \$values[\$index++]);
+    };
+}
+
+my \$next = $1('alpha', undef, 'omega');
+while (my (\$present, \$value) = \$next->()) {
+    $0
+}

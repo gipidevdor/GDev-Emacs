@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+
+final class ${1:Subject} {
+    private final List<Consumer<String>> listeners = new CopyOnWriteArrayList<>();
+
+    AutoCloseable subscribe(Consumer<String> listener) {
+        Consumer<String> subscription = listener::accept;
+        listeners.add(subscription);
+        return () -> listeners.remove(subscription);
+    }
+
+    void publish(String value) {
+        for (var listener : listeners) listener.accept(value);
+    }
+}
+$0

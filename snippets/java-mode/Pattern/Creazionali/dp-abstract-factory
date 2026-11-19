@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Abstract Factory — famiglie di prodotti
+# key: dp-abstract-factory
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Fornisci la fabbrica al chiamante per mantenere coerenti i prodotti della stessa famiglia.
+
+interface Button { String paint(); }
+interface Dialog { String open(); }
+
+interface WidgetFactory {
+    Button button();
+    Dialog dialog();
+}
+
+final class ${1:TextWidgets} implements WidgetFactory {
+    public Button button() { return () -> "[OK]"; }
+    public Dialog dialog() { return () -> "Dialog"; }
+}
+$0

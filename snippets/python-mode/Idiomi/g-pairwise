@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Pairwise — percorri coppie adiacenti da un iterabile
+# key: g-pairwise
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from itertools import pairwise
+
+# Un elemento è condiviso tra la coppia corrente e quella successiva.
+for previous, current in pairwise(${1:[1, 5, 8]}):
+    $0print(current - previous)

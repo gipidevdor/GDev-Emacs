@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Middleware — catena di Request e Response tipizzata
+# key: dp-middleware
+# group: Pattern.Architettura
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Dai a ogni livello il gestore successivo e componi partendo da quello finale.
+
+type Handler = (request: Request) => Promise<Response>;
+type Middleware = (request: Request, next: Handler) => Promise<Response>;
+
+function ${1:compose}(layers: readonly Middleware[], endpoint: Handler): Handler {
+  return layers.reduceRight<Handler>(
+    (next, layer) => (request) => layer(request, next),
+    endpoint,
+  );
+}
+$0

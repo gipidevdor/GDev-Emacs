@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Mediator — coordinamento tra componenti
+# key: dp-mediator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# I componenti inviano cambiamenti al coordinatore, che decide quale stato propagare.
+
+from collections.abc import Callable
+
+
+class ${1:FormMediator}:
+    def __init__(self, update_submit: Callable[[bool], None]) -> None:
+        self._update_submit = update_submit
+        self._valid = False
+        self._busy = False
+
+    def validity_changed(self, valid: bool) -> None:
+        self._valid = valid
+        self._refresh()
+
+    def busy_changed(self, busy: bool) -> None:
+        self._busy = busy
+        self._refresh()
+
+    def _refresh(self) -> None:
+        self._update_submit(self._valid and not self._busy)
+
+
+$0

@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Check con asserzione non bloccante
+# key: g-tf-check
+# group: Test
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+locals {
+  http_port = 8080
+}
+
+check "${1:expected_port}" {
+  assert {
+    condition     = ${2:local.http_port > 1024}
+    error_message = "Expected an unprivileged port."
+  }
+  $0
+}

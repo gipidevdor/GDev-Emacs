@@ -1,0 +1,42 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+#include <memory>
+#include <string>
+#include <string_view>
+
+struct Writer {
+    virtual ~Writer() = default;
+    virtual std::string write(std::string_view text) const = 0;
+};
+
+class Exporter {
+public:
+    virtual ~Exporter() = default;
+
+    std::string render(std::string_view text) const {
+        return create_writer()->write(text);
+    }
+
+protected:
+    virtual std::unique_ptr<Writer> create_writer() const = 0;
+};
+
+struct MarkdownWriter final : Writer {
+    std::string write(std::string_view text) const override {
+        return "# " + std::string{text};
+    }
+};
+
+class ${1:MarkdownExporter} final : public Exporter {
+    std::unique_ptr<Writer> create_writer() const override {
+        return std::make_unique<MarkdownWriter>();
+    }
+};
+
+$0

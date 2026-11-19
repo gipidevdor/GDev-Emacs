@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Facade — ingresso unico a un sottosistema
+# key: dp-facade
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'ordine delle chiamate ai sottosistemi rimane in un unico punto.
+
+use v5.36;
+
+sub ${1:checkout} (\$quote, \$place) {
+    return sub (\$cart_id) {
+        my \$cost = \$quote->(\$cart_id);
+        return \$place->(\$cart_id, \$cost);
+    };
+}
+$0

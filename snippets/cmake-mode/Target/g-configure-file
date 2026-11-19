@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Intestazione configurata con sostituzione @ONLY
+# key: g-configure-file
+# group: Target
+# expand-env: ((yas-indent-line 'fixed))
+# --
+configure_file("${1:config.h.in}" "generated/${2:config.h}" @ONLY)
+target_include_directories(${3:app} PRIVATE "\${CMAKE_CURRENT_BINARY_DIR}/generated")
+$0

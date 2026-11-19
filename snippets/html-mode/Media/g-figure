@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Figura con didascalia e dimensioni riservate
+# key: g-figure
+# group: Media
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<figure>
+  <img src="${1:diagram.png}" alt="${2:Schema del flusso}" width="${3:640}" height="${4:360}">
+  <figcaption>${5:Come leggere lo schema.}</figcaption>
+</figure>$0

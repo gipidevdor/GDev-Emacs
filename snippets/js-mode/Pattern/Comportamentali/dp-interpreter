@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Interpreter — valuta un albero di espressioni
+# key: dp-interpreter
+# group: Pattern.Comportamentali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I nodi rappresentano la grammatica e valutano il proprio sottoalbero con il medesimo ambiente.
+
+const literal = (value) => ({ evaluate: () => value });
+const variable = (name) => ({
+  evaluate(values) {
+    if (!values.has(name)) throw new ReferenceError(name);
+    return values.get(name);
+  },
+});
+const ${1:add} = (left, right) => ({
+  evaluate: (values) => left.evaluate(values) + right.evaluate(values),
+});
+
+const ${2:expression} = $1(literal(2), variable("x"));
+$0

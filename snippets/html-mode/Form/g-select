@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Menu select con placeholder e label
+# key: g-select
+# group: Form
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<label for="${1:region}">${2:Regione}</label>
+<select id="$1" name="$1" required>
+  <option value="">Seleziona…</option>
+  <option value="${3:eu}">${4:Europa}</option>
+  $0
+</select>

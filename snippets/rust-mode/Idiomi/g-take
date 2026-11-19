@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Mem take — trasferisci il contenuto lasciando il valore predefinito
+# key: g-take
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+pub fn ${1:drain}(pending: &mut Vec<String>) -> Vec<String> {
+    // Il vettore restituito conserva l'allocazione originale.
+    $0
+    std::mem::take(pending)
+}

@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Test autonomo con asserzione C
+# key: g-assert-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <assert.h>
+
+int main(void)
+{
+    const int actual = ${1:6 * 7};
+    assert(actual == ${2:42});
+    $0
+    return 0;
+}

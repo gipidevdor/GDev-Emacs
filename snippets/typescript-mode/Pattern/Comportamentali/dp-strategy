@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+type Discount = (amount: number) => number;
+
+function ${1:total}(amount: number, discount: Discount): number {
+  return amount - discount(amount);
+}
+
+const ${2:tenPercent}: Discount = (amount) => Math.floor(amount / 10);
+const ${3:price} = $1(${4:1000}, $2);
+$0

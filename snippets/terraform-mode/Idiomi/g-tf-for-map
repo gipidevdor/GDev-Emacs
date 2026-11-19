@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: For expression — indicizza record per proprietà
+# key: g-tf-for-map
+# group: Idiomi
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+locals {
+  ${1:services} = [{ name = "api", port = 8080 }, { name = "web", port = 8081 }]
+  # I nomi devono essere univoci per diventare chiavi della mappa.
+  by_name = { for service in local.$1 : service.name => service }
+  $0
+}

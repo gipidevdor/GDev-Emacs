@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Guard let — esci dal caso mancante e conserva il binding
+# key: g-guard-let
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+func ${1:label}(for value: String?) -> String {
+    // Il valore dopo guard ha tipo String e resta nello scope della funzione.
+    guard let value, !value.isEmpty else { return "${2:Untitled}" }
+    $0
+    return value
+}

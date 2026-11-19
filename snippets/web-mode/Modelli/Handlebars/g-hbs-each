@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Handlebars — each con caso vuoto
+# key: g-hbs-each
+# group: Modelli.Handlebars
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+  {{#each ${1:items}}}
+    <li>{{${2:label}}}</li>
+  {{else}}
+    <li>${3:Nessun elemento.}</li>
+  {{/each}}
+</ul>
+$0

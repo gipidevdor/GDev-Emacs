@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Proxy — accesso indiretto a un oggetto
+# key: dp-proxy
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante passa per la stessa interfaccia. Il proxy controlla quando raggiungere il destinatario.
+
+interface Report {
+  render(): string;
+}
+
+function ${1:lazyReport}(load: () => Report): Report {
+  let report: Report | undefined;
+  return {
+    render() {
+      report ??= load();
+      return report.render();
+    },
+  };
+}
+$0

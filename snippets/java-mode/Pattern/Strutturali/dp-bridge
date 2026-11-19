@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Bridge — astrazione e implementazione indipendenti
+# key: dp-bridge
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'astrazione può evolvere indipendentemente dall'implementazione che riceve.
+
+interface Renderer { String heading(String title); }
+
+final class Markdown implements Renderer {
+    @Override
+    public String heading(String title) { return "# " + title; }
+}
+
+final class ${1:Report} {
+    private final String title;
+
+    $1(String title) { this.title = title; }
+
+    String render(Renderer renderer) { return renderer.heading(title); }
+}
+$0

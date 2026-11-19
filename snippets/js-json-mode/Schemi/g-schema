@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Schema JSON — oggetto, proprietà obbligatoria e tipi
+# key: g-schema
+# group: Schemi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "\$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "${1:Item}",
+  "type": "object",
+  "properties": {
+    "${2:id}": { "type": "string", "minLength": 1 },
+    "enabled": { "type": "boolean" }
+  },
+  "required": ["$2"],
+  "additionalProperties": false
+}$0

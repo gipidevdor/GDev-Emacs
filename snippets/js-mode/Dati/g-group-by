@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Raggruppamento di una collezione con Map
+# key: g-group-by
+# group: Dati
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+function ${1:groupBy}(items, keyOf) {
+  const groups = new Map();
+  for (const item of items) {
+    const key = keyOf(item);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+  return groups;
+}
+$0

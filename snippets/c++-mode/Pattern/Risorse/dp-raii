@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: RAII — risorsa FILE con rilascio automatico
+# key: dp-raii
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'oggetto locale possiede la risorsa finché resta nello scope, anche se l'operazione fallisce.
+
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+
+using File = std::unique_ptr<std::FILE, decltype(&std::fclose)>;
+
+[[nodiscard]] File ${1:open_readonly}(const char* path) {
+    File stream{std::fopen(path, "rb"), &std::fclose};
+    if (!stream) throw std::runtime_error("Cannot open file");
+    return stream;
+}
+
+$0

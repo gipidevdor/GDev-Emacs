@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: TryGetValue — un solo lookup con valore di riserva pigro
+# key: g-try-get-value
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System;
+using System.Collections.Generic;
+
+static class ${1:Lookup}
+{
+    public static string Get(IReadOnlyDictionary<string, string> values, string key, Func<string> missing)
+    {
+        // TryGetValue verifica presenza e recupera il valore con una sola ricerca.
+        $0
+        return values.TryGetValue(key, out var value) ? value : missing();
+    }
+}

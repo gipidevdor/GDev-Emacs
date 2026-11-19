@@ -1,0 +1,39 @@
+name: GDev assurance
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  signed-receipts:
+    # Attivare dopo aver fissato firmatari e controllo obbligatorio sul ramo.
+    if: vars.GDEV_ASSURANCE_ENFORCE == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Leggi il verificatore dalla revisione fidata
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.base.sha || github.event.before }}
+          path: trusted
+          persist-credentials: false
+      - name: Leggi gli oggetti proposti senza eseguire il progetto
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verifica tutte le ricevute dopo la linea di base
+        env:
+          SIGNERS: ${{ vars.GDEV_ASSURANCE_SIGNERS }}
+          REPOSITORY: ${{ github.repository }}
+          BASE: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 -c 'import os,pathlib; pathlib.Path(os.environ["RUNNER_TEMP"], "gdev-signers").write_text(os.environ["SIGNERS"])'
+          python3 trusted/bin/gdev-assurance-check --root candidate --signers "$RUNNER_TEMP/gdev-signers" --repository "$REPOSITORY" range "$BASE" "$HEAD"

@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+pub struct ${1:Steps} {
+    current: u32,
+    end: u32,
+}
+
+impl $1 {
+    pub fn new(end: u32) -> Self {
+        Self { current: 0, end }
+    }
+}
+
+impl Iterator for $1 {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<u32> {
+        if self.current >= self.end {
+            return None;
+        }
+        let value = self.current;
+        self.current += 1;
+        Some(value)
+    }
+}
+$0

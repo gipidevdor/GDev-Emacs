@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+function ${1:createSubject}() {
+  const listeners = new Set();
+  return {
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    publish(message) {
+      for (const listener of [...listeners]) listener(message);
+    },
+  };
+}
+$0

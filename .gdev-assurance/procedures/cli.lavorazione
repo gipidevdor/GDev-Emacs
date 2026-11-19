@@ -1,0 +1,12 @@
+{
+  "versione": 1,
+  "passi": [
+    {
+      "azione": "progetto-test-python",
+      "argomenti": {
+        "file": "test/gdev-cli-contract-test.py",
+        "argomenti": "[]"
+      }
+    }
+  ]
+}

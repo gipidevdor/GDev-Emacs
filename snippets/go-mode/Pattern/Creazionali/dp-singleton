@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Singleton — unica istanza
+# key: dp-singleton
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+package ${1:example}
+
+import "sync"
+
+type ${2:Settings} struct {
+	TimeoutSeconds int
+}
+
+// La funzione costruisce il valore una volta. Le copie non condividono stato mutabile.
+var DefaultSettings = sync.OnceValue(func() $2 {
+	return $2{TimeoutSeconds: 5}
+})
+$0

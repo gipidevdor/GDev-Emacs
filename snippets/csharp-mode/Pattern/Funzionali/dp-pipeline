@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Pipeline — LINQ pigro per normalizzare e filtrare
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+using System.Collections.Generic;
+using System.Linq;
+
+static class ${1:Records}
+{
+    public static IEnumerable<string> Trimmed(IEnumerable<string> items) =>
+        items.Select(item => item.Trim())
+             .Where(item => item.Length != 0 && !item.StartsWith('#'));
+}
+$0

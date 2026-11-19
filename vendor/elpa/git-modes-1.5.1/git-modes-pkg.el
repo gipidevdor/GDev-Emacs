@@ -1,0 +1,3 @@
+;; Generated package description from git-modes.el  -*- mode: lisp-data; no-byte-compile: t; lexical-binding:t -*-
+;; Modificato per GDev-Emacs il 2026-11-15: descrizione del pacchetto in italiano.
+(define-package "git-modes" "1.5.1" "Modifica dei file di configurazione Git" '((emacs "28.1") (compat "31.1")) :commit "f8a453725586c8225e47afca4c8cbc2c5585bf33" :authors '(("Sebastian Wiesner" . "lunaryorn@gmail.com") ("Rüdiger Sonderfeld" . "ruediger@c-plusplus.net") ("Jonas Bernoulli" . "emacs.git-modes@jonas.bernoulli.dev")) :maintainer '("Jonas Bernoulli" . "emacs.git-modes@jonas.bernoulli.dev") :keywords '("convenience" "vc" "git") :url "https://github.com/magit/git-modes")

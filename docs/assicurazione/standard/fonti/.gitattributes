@@ -1,0 +1,4 @@
+# Copie fedeli dei file originali: l'impronta SHA-256 nel registro deve
+# restare valida, quindi niente conversioni di fine riga né controllo degli
+# spazi (il CSV di ASVS termina con una riga vuota).
+* -text -whitespace

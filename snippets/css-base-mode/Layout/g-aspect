@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Media in riquadro proporzionato con object-fit
+# key: g-aspect
+# group: Layout
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:thumbnail} {
+  inline-size: 100%;
+  aspect-ratio: ${2:16 / 9};
+  object-fit: cover;
+  $0
+}

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Iterazione su chiave e valore con structured binding
+# key: g-structured-binding
+# group: Contenitori
+# expand-env: ((yas-indent-line 'fixed))
+# --
+for (const auto& [${1:key}, ${2:value}] : ${3:entries}) {
+    $0
+}

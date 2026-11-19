@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: SwiftUI — anteprima con un caso predefinito
+# key: g-preview
+# group: Interfaccia
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import SwiftUI
+
+#Preview("${1:Stato iniziale}") {
+    $0Text("${2:Example}")
+}

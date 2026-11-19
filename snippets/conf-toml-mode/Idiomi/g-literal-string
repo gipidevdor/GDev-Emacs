@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Stringa TOML letterale per regexp e backslash
+# key: g-literal-string
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le stringhe con apici singoli conservano i backslash così come sono.
+${1:pattern} = '${2:\\bitem-\\d+\\b}'
+$0

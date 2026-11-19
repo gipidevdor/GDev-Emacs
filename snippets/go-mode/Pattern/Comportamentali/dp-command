@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+package ${1:example}
+
+type ${2:Command} interface {
+	Execute() error
+	Undo() error
+}
+
+func Run(commands []$2) error {
+	for _, command := range commands {
+		if err := command.Execute(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+$0

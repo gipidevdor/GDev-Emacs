@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Miglioramento progressivo con @supports
+# key: g-supports
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+/* L'aspetto di base resta disponibile anche senza color-mix. */
+.${1:item} {
+  border-color: GrayText;
+}
+
+@supports (color: color-mix(in srgb, CanvasText, Canvas)) {
+  .$1 {
+    border-color: color-mix(in srgb, CanvasText ${2:35%}, Canvas);
+    $0
+  }
+}

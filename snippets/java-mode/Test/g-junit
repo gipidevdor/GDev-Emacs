@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: JUnit 5 — test con Arrange, Act e Assert
+# key: g-junit
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class ${1:ItemTest} {
+    @Test
+    void ${2:computesTotal}() {
+        var result = ${3:6 * 7};
+        assertEquals(${4:42}, result);
+        $0
+    }
+}

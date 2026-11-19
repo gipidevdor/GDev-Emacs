@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+
+final class ${1:Dispatcher} {
+    static Optional<String> handle(String request, List<Function<String, Optional<String>>> handlers) {
+        for (var handler : handlers) {
+            var result = handler.apply(request);
+            if (result.isPresent()) return result;
+        }
+        return Optional.empty();
+    }
+}
+$0

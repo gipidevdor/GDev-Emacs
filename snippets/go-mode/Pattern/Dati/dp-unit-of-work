@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Unit of Work — transazione database/sql legata al contesto
+# key: dp-unit-of-work
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Le operazioni devono usare la stessa connessione fino a commit o rollback.
+
+package ${1:example}
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+)
+
+func ${2:Transaction}(ctx context.Context, db *sql.DB, work func(*sql.Tx) error) (err error) {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if rollback := tx.Rollback(); rollback != nil && !errors.Is(rollback, sql.ErrTxDone) {
+			err = errors.Join(err, rollback)
+		}
+	}()
+	if err := work(tx); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+$0

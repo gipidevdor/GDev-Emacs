@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+use std::fmt::Write;
+
+pub trait Exporter {
+    type Writer: std::fmt::Write;
+
+    fn writer(&self) -> Self::Writer;
+
+    fn export(&self, message: &str) -> Result<Self::Writer, std::fmt::Error> {
+        let mut writer = self.writer();
+        writer.write_str(message)?;
+        Ok(writer)
+    }
+}
+
+pub struct ${1:TextExporter};
+
+impl Exporter for $1 {
+    type Writer = String;
+
+    fn writer(&self) -> Self::Writer {
+        String::new()
+    }
+}
+$0

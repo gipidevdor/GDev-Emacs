@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+#include <concepts>
+
+template <std::invocable<int> Discount>
+    requires std::convertible_to<std::invoke_result_t<Discount, int>, int>
+int ${1:total}(int amount, Discount discount) {
+    return amount - discount(amount);
+}
+
+constexpr auto ${2:ten_percent} = [](int amount) { return amount / 10; };
+$0

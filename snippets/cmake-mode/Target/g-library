@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Libreria con alias e interfacce di compilazione e installazione
+# key: g-library
+# group: Target
+# expand-env: ((yas-indent-line 'fixed))
+# --
+add_library(${1:core} "${2:src/core.cpp}")
+add_library(${3:Project}::$1 ALIAS $1)
+
+target_compile_features($1 PUBLIC cxx_std_20)
+target_include_directories($1
+  PUBLIC
+    "\$<BUILD_INTERFACE:\${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "\$<INSTALL_INTERFACE:include>"
+)
+$0

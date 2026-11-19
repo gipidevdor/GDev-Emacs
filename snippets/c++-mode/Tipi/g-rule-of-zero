@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Rule of Zero — il contenitore possiede le risorse
+# key: g-rule-of-zero
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <string>
+#include <vector>
+
+struct ${1:Playlist} {
+    std::string title;
+    std::vector<std::string> tracks;
+};
+
+$0

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Programma Swift con punto di ingresso e risultato
+# key: g-main
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+@main
+struct ${1:Application} {
+    static func main() throws {
+        $0
+        print("${2:Ready}")
+    }
+}

@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Catch2 v3 — scenario con due sezioni
+# key: g-catch2
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("${1:an empty collection can grow}", "[${2:collection}]") {
+    SECTION("initial state") {
+        REQUIRE(${3:2 + 2 == 4});
+    }
+    SECTION("after inserting") {
+        REQUIRE(${4:3 + 2 == 5});
+    }
+    $0
+}

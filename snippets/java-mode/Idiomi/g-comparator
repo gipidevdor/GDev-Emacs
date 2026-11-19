@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Comparatore per più chiavi senza sottrazione tra interi
+# key: g-comparator
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import java.util.Comparator;
+
+final class ${1:Items} {
+    // Il secondo comparatore si applica soltanto a stringhe di pari lunghezza.
+    static final Comparator<String> BY_LENGTH_THEN_NAME =
+        Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder());
+    $0
+}

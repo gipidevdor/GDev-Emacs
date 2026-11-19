@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Pytest — test parametrizzato con coppie ingresso e risultato
+# key: g-pytest
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import pytest
+
+
+@pytest.mark.parametrize(("value", "expected"), [(${1:"2", 2}), (" 7 ", 7)])
+def test_${2:parse_count}(value, expected):
+    assert ${3:int}(value) == expected
+    $0

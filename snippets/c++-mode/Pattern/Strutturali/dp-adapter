@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+struct LegacySensor {
+    [[nodiscard]] double fahrenheit() const noexcept { return 68.0; }
+};
+
+class ${1:CelsiusAdapter} {
+public:
+    explicit $1(LegacySensor sensor) : sensor_{sensor} {}
+
+    [[nodiscard]] double celsius() const noexcept {
+        return (sensor_.fahrenheit() - 32.0) * 5.0 / 9.0;
+    }
+
+private:
+    LegacySensor sensor_;
+};
+
+$0

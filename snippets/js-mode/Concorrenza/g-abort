@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: AbortController con timeout annullabile
+# key: g-abort
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const controller = new AbortController();
+const timer = setTimeout(() => controller.abort(), ${1:5000});
+try {
+  const response = await fetch("${2:https://example.org}", { signal: controller.signal });
+  $0
+} finally {
+  clearTimeout(timer);
+}

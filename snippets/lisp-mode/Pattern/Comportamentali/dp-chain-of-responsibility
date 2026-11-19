@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+(defun ${1:dispatch} (request handlers)
+  (dolist (handler handlers (values nil nil))
+    (multiple-value-bind (answer handled-p) (funcall handler request)
+      (when handled-p
+        (return (values answer t))))))
+$0

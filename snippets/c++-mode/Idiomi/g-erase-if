@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Erase_if — rimuovi elementi e ottieni il conteggio
+# key: g-erase-if
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <algorithm>
+#include <vector>
+
+// erase_if restituisce il numero effettivo di elementi cancellati.
+auto ${1:remove_negative}(std::vector<int>& values) {
+    return std::erase_if(values, [](int value) { return value < 0; });
+}
+
+$0

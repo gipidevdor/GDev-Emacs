@@ -1,0 +1,12 @@
+{
+  "versione": 1,
+  "passi": [
+    {
+      "azione": "progetto-test-ert",
+      "argomenti": {
+        "file": "test/gdev-test.el",
+        "selettore": "."
+      }
+    }
+  ]
+}

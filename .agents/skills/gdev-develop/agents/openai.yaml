@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+interface:
+  display_name: "Sviluppa GDev-Emacs"
+  short_description: "Evolvi e verifica il banco di lavoro GDev"

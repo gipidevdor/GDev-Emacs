@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Script Bash con pipefail e variabili obbligatorie
+# key: g-bash
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#!/usr/bin/env bash
+set -euo pipefail
+
+main() {
+    $0:
+}
+
+main "\$@"

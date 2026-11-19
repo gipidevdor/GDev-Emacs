@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Match con mapping e caso predefinito
+# key: g-match
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+match ${1:event}:
+    case {"type": "${2:created}", "id": identifier}:
+        print(identifier)
+    case _:
+        $0pass

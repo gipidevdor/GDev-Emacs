@@ -1,0 +1,3 @@
+;; Generated package description from marginalia.el  -*- mode: lisp-data; no-byte-compile: t; lexical-binding:t -*-
+;; Modificato per GDev-Emacs il 2026-11-15: descrizione del pacchetto in italiano.
+(define-package "marginalia" "2.13" "Dettagli accanto ai risultati di completamento" '((emacs "29.1") (compat "31")) :commit "42eafcfddbe88d92ed96521a00a5a90a49bac4dd" :authors '(("Omar Antolín Camarena" . "omar@matem.unam.mx") ("Daniel Mendler" . "mail@daniel-mendler.de")) :maintainer '(("Omar Antolín Camarena" . "omar@matem.unam.mx") ("Daniel Mendler" . "mail@daniel-mendler.de")) :keywords '("docs" "help" "matching" "completion") :url "https://github.com/minad/marginalia")

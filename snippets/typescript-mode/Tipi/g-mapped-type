@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Mapped type con proprietà facoltative in sola lettura
+# key: g-mapped-type
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type ${1:ReadonlyPatch}<T> = {
+  readonly [K in keyof T]?: T[K];
+};
+$0

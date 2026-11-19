@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Template Method — passi specializzabili
+# key: dp-template-method
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Mantieni fissa la sequenza dei passaggi e rendi sostituibili i passaggi specifici.
+
+from abc import ABC, abstractmethod
+
+
+class ${1:Importer}(ABC):
+    def run(self, source: str) -> list[str]:
+        return [line for line in self.parse(source) if line.strip()]
+
+    @abstractmethod
+    def parse(self, source: str) -> list[str]:
+        raise NotImplementedError
+
+
+class LineImporter($1):
+    def parse(self, source: str) -> list[str]:
+        return source.splitlines()
+
+
+$0

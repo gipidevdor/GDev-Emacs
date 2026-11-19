@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+interface IWriter { string Write(string text); }
+
+abstract class Exporter
+{
+    public string Render(string source) => CreateWriter().Write(source);
+    protected abstract IWriter CreateWriter();
+}
+
+sealed class ${1:MarkdownExporter} : Exporter
+{
+    protected override IWriter CreateWriter() => new MarkdownWriter();
+
+    private sealed class MarkdownWriter : IWriter
+    {
+        public string Write(string text) => \$"# {text}";
+    }
+}
+$0

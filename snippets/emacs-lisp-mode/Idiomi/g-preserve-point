@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Modifica mantenendo posizione e restringimento
+# key: g-preserve-point
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; I due salvataggi sono distinti e ripristinano lo stato anche su errore.
+(save-excursion
+  (save-restriction
+    (widen)
+    (goto-char (point-min))
+    $0))

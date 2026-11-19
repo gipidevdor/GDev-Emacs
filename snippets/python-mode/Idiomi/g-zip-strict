@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Zip strict — rileva liste con lunghezze diverse
+# key: g-zip-strict
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# strict=True solleva ValueError quando un iterabile finisce prima dell'altro.
+${1:prices} = dict(zip(${2:["pen", "book"]}, ${3:[180, 1200]}, strict=True))
+$0

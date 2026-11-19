@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+interface Message { String text(); }
+
+final class ${1:TaggedMessage} implements Message {
+    private final Message inner;
+
+    $1(Message inner) { this.inner = inner; }
+
+    @Override
+    public String text() { return "[${2:info}] " + inner.text(); }
+}
+$0

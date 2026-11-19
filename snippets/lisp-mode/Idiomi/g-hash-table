@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Mappa indicizzata con test di uguaglianza scelto
+# key: g-hash-table
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; EQUAL confronta il contenuto delle stringhe usate come chiavi.
+(let ((${1:items} (make-hash-table :test #'equal)))
+  (setf (gethash "${2:example}" $1) ${3:42})
+  $0
+  $1)

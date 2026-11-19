@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Structured Concurrency — gruppo di task con cancellazione
+# key: dp-task-group
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# I task figli appartengono allo scope del gruppo e devono terminare prima che lo scope esca.
+
+import asyncio
+from collections.abc import Awaitable, Callable
+
+
+async def ${1:load_pair}(load: Callable[[str], Awaitable[str]]) -> tuple[str, str]:
+    async with asyncio.TaskGroup() as tasks:
+        first = tasks.create_task(${2:asyncio.wait_for(load("summary"), timeout=5)})
+        second = tasks.create_task(asyncio.wait_for(load("details"), timeout=5))
+    return first.result(), second.result()
+
+
+$0

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Pipeline — Stream con trasformazione, filtro e raccolta
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+final class ${1:Records} {
+    static List<String> parse(String input) {
+        return input.lines()
+            .map(String::strip)
+            .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+            .collect(Collectors.toList());
+    }
+}
+$0

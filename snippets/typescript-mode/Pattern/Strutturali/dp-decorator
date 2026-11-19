@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+function ${1:timed}<This, Args extends unknown[], R>(
+  operation: (this: This, ...args: Args) => R,
+  report: (milliseconds: number) => void,
+): (this: This, ...args: Args) => R {
+  return function (this: This, ...args: Args): R {
+    const start = performance.now();
+    try {
+      return operation.apply(this, args);
+    } finally {
+      report(performance.now() - start);
+    }
+  };
+}
+$0

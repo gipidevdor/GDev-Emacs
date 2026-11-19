@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Typestate — impedisci di inviare una bozza prima della validazione
+# key: dp-typestate
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Consuma lo stato iniziale. Il tipo del valore risultante abilita la prossima operazione.
+
+pub struct Draft(pub String);
+pub struct Ready(String);
+
+pub fn ${1:prepare}(draft: Draft) -> Result<Ready, Draft> {
+    if draft.0.trim().is_empty() {
+        return Err(draft);
+    }
+    Ok(Ready(draft.0))
+}
+
+pub fn send(message: Ready) -> String {
+    message.0
+}
+$0

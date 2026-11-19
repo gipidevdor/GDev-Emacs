@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+interface ArticleState {
+  readonly label: string;
+  advance(): ArticleState;
+}
+
+const published: ArticleState = {
+  label: "Published",
+  advance() { throw new Error("Already published"); },
+};
+const review: ArticleState = { label: "In review", advance: () => published };
+const draft: ArticleState = { label: "Draft", advance: () => review };
+
+class ${1:Article} {
+  private state: ArticleState = draft;
+
+  get label(): string {
+    return this.state.label;
+  }
+
+  advance(): void {
+    this.state = this.state.advance();
+  }
+}
+$0

@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Categoria su una classe Foundation
+# key: g-category
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#import <Foundation/Foundation.h>
+
+@interface NSString (${1:Labels})
+- (NSString *)${2:trimmedLabel};
+@end
+
+@implementation NSString ($1)
+- (NSString *)$2
+{
+    $0
+    return [self stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+}
+@end

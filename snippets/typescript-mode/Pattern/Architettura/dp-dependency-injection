@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — adatta la dipendenza al punto di composizione
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+interface GreeterPorts {
+  send(message: string): void;
+}
+
+function ${1:createGreeter}({ send }: GreeterPorts): (name: string) => void {
+  return (name) => send(\`Hello, \${name}!\`);
+}
+
+const greet = $1({ send: console.info });
+$0

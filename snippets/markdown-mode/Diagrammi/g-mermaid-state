@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Mermaid — stati e transizione con etichetta
+# key: g-mermaid-state
+# group: Diagrammi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+\`\`\`mermaid
+stateDiagram-v2
+    [*] --> ${1:Ready}
+    $1 --> ${2:Finished}: ${3:complete}
+    $2 --> [*]
+    $0
+\`\`\`

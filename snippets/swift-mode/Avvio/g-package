@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: SwiftPM — libreria e relativo target di test
+# key: g-package
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// swift-tools-version: 6.0
+import PackageDescription
+
+let package = Package(
+    name: "${1:Example}",
+    products: [.library(name: "$1", targets: ["$1"])],
+    targets: [
+        .target(name: "$1"),
+        .testTarget(name: "$1Tests", dependencies: ["$1"]),
+    ]
+)
+$0

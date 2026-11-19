@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Errore su stderr con codice di uscita
+# key: g-die
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:die}() {
+    printf '%s\\n' "\$*" >&2
+    exit 1
+}
+
+command -v "${2:git}" > /dev/null 2>&1 || $1 "Missing command: $2"
+$0

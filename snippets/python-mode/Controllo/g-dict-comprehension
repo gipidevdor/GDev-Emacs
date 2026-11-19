@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Comprensione di dizionario filtrata
+# key: g-dict-comprehension
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:lookup} = {item.id: item for item in ${2:items} if item.active}$0

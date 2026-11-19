@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+interface Command {
+  execute(): void;
+  undo(): void;
+}
+
+function ${1:appendText}(target: string[], text: string): Command {
+  return {
+    execute() {
+      target.push(text);
+    },
+    undo() {
+      if (target.at(-1) !== text) throw new Error("Undo in reverse execution order");
+      target.pop();
+    },
+  };
+}
+$0

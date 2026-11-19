@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Functional Options — configurazione componibile, validata una sola volta
+# key: dp-functional-options
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Applica le opzioni in ordine e verifica l'insieme prima di pubblicare il valore.
+
+package ${1:example}
+
+import (
+	"errors"
+	"time"
+)
+
+type Client struct{ timeout time.Duration }
+type Option func(*Client)
+
+func WithTimeout(timeout time.Duration) Option {
+	return func(client *Client) { client.timeout = timeout }
+}
+
+func ${2:NewClient}(options ...Option) (*Client, error) {
+	client := &Client{timeout: 5 * time.Second}
+	for _, option := range options {
+		option(client)
+	}
+	if client.timeout <= 0 {
+		return nil, errors.New("timeout must be positive")
+	}
+	return client, nil
+}
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Esegui con system in forma lista e controlla la terminazione
+# key: g-subprocess
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+
+my @command = (${1:'git', 'status', '--short'});
+my \$status = system { \$command[0] } @command;
+die "Could not execute \$command[0]: \$!\\n" if \$status == -1;
+die "Terminated by signal " . (\$status & 127) . "\\n" if \$status & 127;
+die "Exit code " . (\$status >> 8) . "\\n" if \$status != 0;
+$0

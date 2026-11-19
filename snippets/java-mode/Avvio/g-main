@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Classe Java con metodo main
+# key: g-main
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+class ${1:Main} {
+    public static void main(String[] args) {
+        $0
+        System.out.println("${2:Ready}");
+    }
+}

@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Switch expression con proprietà dei record
+# key: g-pattern-match
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+sealed record ${1:Item}(string Name, bool Active);
+
+static class Descriptions
+{
+    // I casi più specifici vengono valutati per primi.
+    public static string Label($1? item) => item switch
+    {
+        { Active: true, Name: var name } => name,
+        null => "Missing",
+        _ => "Inactive",
+    };
+}
+$0

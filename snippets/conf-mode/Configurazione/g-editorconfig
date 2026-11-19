@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: EditorConfig — UTF-8, LF e rientro per estensione
+# key: g-editorconfig
+# group: Configurazione
+# condition: (and (not (derived-mode-p 'conf-toml-mode)) (not (and buffer-file-name (string-match-p "/\\.env\\(?:\\.\\|\\'\\)" buffer-file-name))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.${1:py}]
+indent_style = space
+indent_size = ${2:4}
+$0

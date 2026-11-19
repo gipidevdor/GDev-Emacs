@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Lavoro in parallelo con raccolta di ogni stato
+# key: g-background-wait
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:sleep 1} &
+first=\$!
+${2:sleep 2} &
+second=\$!
+
+status=0
+wait "\$first" || status=\$?
+wait "\$second" || status=\$?
+[ "\$status" -eq 0 ] || exit "\$status"
+$0

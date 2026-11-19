@@ -1,0 +1,34 @@
+# -*- mode: snippet -*-
+# name: Flyweight — condivisione di stato immutabile
+# key: dp-flyweight
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Condividi solo i dati intrinseci e immutabili. Tieni lo stato di ogni uso fuori dalla cache.
+
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+
+struct ${1:Font} {
+    std::string family;
+    int size;
+};
+
+// The pool owns a shared immutable representation for each distinct key.
+class FontPool {
+public:
+    std::shared_ptr<const $1> get(std::string family, int size) {
+        auto key = std::pair{std::move(family), size};
+        if (auto it = entries_.find(key); it != entries_.end()) return it->second;
+        auto font = std::make_shared<const $1>(key.first, key.second);
+        entries_.emplace(std::move(key), font);
+        return font;
+    }
+
+private:
+    std::map<std::pair<std::string, int>, std::shared_ptr<const $1>> entries_;
+};
+
+$0

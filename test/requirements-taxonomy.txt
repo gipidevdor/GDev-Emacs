@@ -1,0 +1,2 @@
+# Solo rigenerazione e verifica degli indici PDF; nessuna dipendenza runtime.
+pypdf==6.7.2

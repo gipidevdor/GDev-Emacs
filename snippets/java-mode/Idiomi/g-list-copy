@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: List.copyOf — snapshot senza riferimenti alla lista mutabile
+# key: g-list-copy
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import java.util.List;
+
+// List.copyOf protegge la struttura della lista. Gli elementi devono essere immutabili se condivisi.
+final class ${1:Names} {
+    private final List<String> values;
+
+    $1(List<String> values) { this.values = List.copyOf(values); }
+
+    List<String> values() { $0return values; }
+}

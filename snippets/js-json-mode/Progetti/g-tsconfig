@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: tsconfig.json — controllo strict con output disattivato
+# key: g-tsconfig
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "include": ["${1:src/**/*.ts}"]
+}$0

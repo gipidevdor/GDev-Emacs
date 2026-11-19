@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Ordinamento qsort con comparatore senza sottrazione
+# key: g-qsort
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdlib.h>
+
+static int compare_int(const void *left, const void *right)
+{
+    const int a = *(const int *)left;
+    const int b = *(const int *)right;
+    return (a > b) - (a < b);
+}
+
+void ${1:sort_ints}(int *values, size_t length)
+{
+    qsort(values, length, sizeof *values, compare_int);
+}
+
+$0

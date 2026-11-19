@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Template HTML inerte da clonare con JavaScript
+# key: g-template
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<!-- Il contenuto diventa attivo solo quando viene clonato e inserito. -->
+<template id="${1:item-template}">
+  <li class="${2:item}">$0</li>
+</template>

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Ridireziona STDOUT per una singola chiamata
+# key: g-private-handle
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+    # local ripristina il nome globale STDOUT quando esci dal blocco.
+    local *STDOUT;
+    open STDOUT, '>:encoding(UTF-8)', "${1:report.txt}" or die "open: \$!";
+    $0
+    close STDOUT or die "close: \$!";
+}

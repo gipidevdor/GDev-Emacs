@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Zig test — asserzione di un valore e di un errore
+# key: g-test
+# group: Test
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+test "${1:parses valid numbers}" {
+    try std.testing.expectEqual(@as(u32, 42), try std.fmt.parseInt(u32, "42", 10));
+    try std.testing.expectError(error.InvalidCharacter, std.fmt.parseInt(u32, "x", 10));
+    $0
+}

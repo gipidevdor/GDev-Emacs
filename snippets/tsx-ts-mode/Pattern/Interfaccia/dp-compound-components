@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Compound Components — sottocomponenti condividono il contesto di un menu
+# key: dp-compound-components
+# group: Pattern.Interfaccia
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il contenitore assegna il contesto ai figli senza dover passare la stessa proprietà a mano.
+
+import { createContext, useContext, useId } from "react";
+import type { ReactNode } from "react";
+
+const GroupId = createContext<string | null>(null);
+
+export function ${1:RadioGroup}({ label, children }: { label: string; children: ReactNode }) {
+  const group = useId();
+  return (
+    <GroupId.Provider value={group}>
+      <fieldset><legend>{label}</legend>{children}</fieldset>
+    </GroupId.Provider>
+  );
+}
+
+export function Choice({ value, children }: { value: string; children: ReactNode }) {
+  const group = useContext(GroupId);
+  if (group === null) throw new Error("Choice requires $1");
+  return <label><input type="radio" name={group} value={value} />{children}</label>;
+}
+$0

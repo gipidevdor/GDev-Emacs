@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+use v5.36;
+use Storable qw(dclone);
+
+my \$${1:standard} = { queue => 'default', limits => { timeout => 30 } };
+my \$${2:urgent} = dclone(\$$1);
+\$$2->{queue} = 'urgent';
+\$$2->{limits}{timeout} = 5;
+$0

@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+from collections.abc import Callable
+
+
+class ${1:Subject}:
+    def __init__(self) -> None:
+        self._listeners: list[Callable[[str], None]] = []
+
+    def subscribe(self, listener: Callable[[str], None]) -> Callable[[], None]:
+        self._listeners.append(listener)
+
+        def unsubscribe() -> None:
+            if listener in self._listeners:
+                self._listeners.remove(listener)
+
+        return unsubscribe
+
+    def publish(self, message: str) -> None:
+        for listener in tuple(self._listeners):
+            listener(message)
+
+
+$0

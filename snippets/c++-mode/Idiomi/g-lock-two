@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Scoped lock — acquisizione coordinata di due mutex
+# key: g-lock-two
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <functional>
+#include <mutex>
+
+void ${1:mutate_pair}(std::mutex& first, std::mutex& second,
+                     const std::function<void()>& update) {
+    // scoped_lock usa l'algoritmo senza deadlock per mutex distinti.
+    if (&first != &second) {
+        const std::scoped_lock lock{first, second};
+        update();
+    } else {
+        const std::scoped_lock lock{first};
+        update();
+    }
+    $0
+}

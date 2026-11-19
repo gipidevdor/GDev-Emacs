@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+(defun ${1:insert-label} (label)
+  "Insert LABEL at point as one undoable change."
+  (interactive "sLabel: ")
+  (atomic-change-group
+    (insert "[" label "]")
+    $0))

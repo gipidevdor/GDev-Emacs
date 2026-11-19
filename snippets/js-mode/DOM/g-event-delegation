@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Delega degli eventi DOM a un contenitore
+# key: g-event-delegation
+# group: DOM
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const ${1:list} = document.querySelector("${2:#items}");
+$1?.addEventListener("click", (event) => {
+  if (!(event.target instanceof HTMLElement)) return;
+  const action = event.target.closest("button[data-action]");
+  if (!(action instanceof HTMLButtonElement) || !$1.contains(action)) return;
+  $0
+});

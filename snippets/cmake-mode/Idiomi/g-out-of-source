@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Controllo esplicito di build separata dal sorgente
+# key: g-out-of-source
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Impedisce che CMakeCache.txt e gli artefatti finiscano tra i sorgenti.
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "Configure with cmake -S . -B ${1:build}")
+endif()
+$0

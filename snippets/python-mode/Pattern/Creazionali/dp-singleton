@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Singleton — istanza posseduta dal modulo
+# key: dp-singleton
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ${1:Settings}:
+    timeout_seconds: float = ${2:5.0}
+
+
+# The module owns the instance. Pass it explicitly to consumers that need overrides.
+${3:settings} = $1()
+$0

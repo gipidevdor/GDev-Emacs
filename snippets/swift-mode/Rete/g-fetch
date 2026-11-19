@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: URLSession — decodifica JSON con controllo del codice HTTP
+# key: g-fetch
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import Foundation
+
+enum NetworkError: Error { case unexpectedStatus }
+
+func ${1:fetch}<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
+    let (body, response) = try await URLSession.shared.data(from: url)
+    guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+        throw NetworkError.unexpectedStatus
+    }
+    $0
+    return try JSONDecoder().decode(type, from: body)
+}

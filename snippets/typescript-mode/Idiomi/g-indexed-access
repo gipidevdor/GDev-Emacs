@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Tipo di una proprietà tramite indexed access
+# key: g-indexed-access
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type ${1:RecordItem} = { id: string; tags: readonly string[] };
+// Il tipo si aggiorna quando cambia la proprietà tags.
+type ${2:Tag} = $1["tags"][number];
+$0

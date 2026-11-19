@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Combina annullamento chiamante e timeout della richiesta
+# key: g-promise-timeout
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La prima causa di annullamento diventa il motivo del segnale combinato.
+const controller = new AbortController();
+const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(${1:5000})]);
+const ${2:response} = await fetch("${3:https://example.org}", { signal });
+$0

@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+pub const ${1:Words} = struct {
+    source: []const u8,
+
+    pub fn next(self: *@This()) ?[]const u8 {
+        while (self.source.len > 0 and self.source[0] == ' ') {
+            self.source = self.source[1..];
+        }
+        if (self.source.len == 0) return null;
+        var end: usize = 0;
+        while (end < self.source.len and self.source[end] != ' ') : (end += 1) {}
+        const word = self.source[0..end];
+        self.source = self.source[end..];
+        return word;
+    }
+};
+$0

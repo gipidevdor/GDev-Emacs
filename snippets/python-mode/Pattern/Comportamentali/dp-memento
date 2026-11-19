@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Memento — istantanea e ripristino
+# key: dp-memento
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Cattura i dati necessari al ripristino. Le modifiche successive devono lasciare intatta la cattura.
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ${1:Snapshot}:
+    text: str
+    cursor: int
+
+
+class Editor:
+    def __init__(self) -> None:
+        self.text = ""
+        self.cursor = 0
+
+    def snapshot(self) -> $1:
+        return $1(self.text, self.cursor)
+
+    def restore(self, saved: $1) -> None:
+        self.text, self.cursor = saved.text, saved.cursor
+
+
+$0

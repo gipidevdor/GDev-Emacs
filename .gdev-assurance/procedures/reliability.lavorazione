@@ -1,0 +1,12 @@
+{
+  "versione": 1,
+  "passi": [
+    {
+      "azione": "progetto-test-python",
+      "argomenti": {
+        "file": "test/gdev-reliability-test.py",
+        "argomenti": "[\"--mutations\", \"--output\", \".gdev/assurance/reports/reliability.json\"]"
+      }
+    }
+  ]
+}

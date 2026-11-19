@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Proprietà calcolata in sola lettura
+# key: g-property
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+@property
+def ${1:area}(self) -> ${2:float}:
+    return ${3:self.width * self.height}$0

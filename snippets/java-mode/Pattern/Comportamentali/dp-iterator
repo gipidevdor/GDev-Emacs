@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+final class ${1:Countdown} implements Iterable<Integer> {
+    private final int start;
+
+    $1(int start) { this.start = start; }
+
+    @Override
+    public Iterator<Integer> iterator() {
+        return new Iterator<>() {
+            private int next = start;
+
+            public boolean hasNext() { return next > 0; }
+
+            public Integer next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return next--;
+            }
+        };
+    }
+}
+$0

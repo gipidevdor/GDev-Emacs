@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Abstract Factory — famiglie di prodotti
+# key: dp-abstract-factory
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Fornisci la fabbrica al chiamante per mantenere coerenti i prodotti della stessa famiglia.
+
+interface IButton { string Paint(); }
+interface IDialog { string Open(); }
+
+interface IWidgetFactory
+{
+    IButton Button();
+    IDialog Dialog();
+}
+
+sealed class ${1:TextWidgetFactory} : IWidgetFactory
+{
+    public IButton Button() => new TextButton();
+    public IDialog Dialog() => new TextDialog();
+
+    private sealed class TextButton : IButton { public string Paint() => "[OK]"; }
+    private sealed class TextDialog : IDialog { public string Open() => "Dialog"; }
+}
+$0

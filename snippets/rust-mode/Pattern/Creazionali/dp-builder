@@ -1,0 +1,37 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+#[derive(Debug)]
+pub struct ${1:Config} {
+    pub address: String,
+    pub retries: u8,
+}
+
+pub struct $1Builder {
+    address: String,
+    retries: u8,
+}
+
+impl $1Builder {
+    pub fn new(address: impl Into<String>) -> Self {
+        Self { address: address.into(), retries: 3 }
+    }
+
+    pub fn retries(mut self, retries: u8) -> Self {
+        self.retries = retries;
+        self
+    }
+
+    pub fn build(self) -> Result<$1, &'static str> {
+        if self.address.is_empty() {
+            return Err("address must not be empty");
+        }
+        Ok($1 { address: self.address, retries: self.retries })
+    }
+}
+$0

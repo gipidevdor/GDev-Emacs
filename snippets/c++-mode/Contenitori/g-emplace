@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Aggiornamento di una mappa con try_emplace
+# key: g-emplace
+# group: Contenitori
+# expand-env: ((yas-indent-line 'fixed))
+# --
+auto [${1:position}, inserted] = ${2:counts}.try_emplace(${3:key}, 0);
+++$1->second;
+$0

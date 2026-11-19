@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Zig .zon — campo paths per i file distribuiti
+# key: g-zon-paths
+# group: Progetto
+# condition: (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.paths = .{
+    "build.zig",
+    "build.zig.zon",
+    "${1:src}",
+    $0
+},

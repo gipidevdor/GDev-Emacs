@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Template Toolkit — condizione e ramo alternativo
+# key: g-tt-if
+# group: Modelli.Template Toolkit
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[% IF ${1:items.size} %]
+  $0
+[% ELSE %]
+  <p>${2:Nessun elemento.}</p>
+[% END %]

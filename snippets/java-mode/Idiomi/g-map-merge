@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Map merge — unisci la nuova quantità con quella esistente
+# key: g-map-merge
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import java.util.HashMap;
+import java.util.Map;
+
+final class ${1:Counts} {
+    static Map<String, Integer> counts(Iterable<String> values) {
+        var result = new HashMap<String, Integer>();
+        for (String value : values) {
+            // Quando la chiave manca, merge inserisce direttamente 1.
+            result.merge(value, 1, Integer::sum);
+        }
+        $0
+        return result;
+    }
+}

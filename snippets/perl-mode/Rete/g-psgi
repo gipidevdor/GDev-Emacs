@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: PSGI — applicazione con stato, intestazioni e corpo
+# key: g-psgi
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use JSON::PP qw(encode_json);
+
+my \$app = sub (\$env) {
+    return [404, ['Content-Type' => 'text/plain'], ['Not found']]
+        unless \$env->{REQUEST_METHOD} eq 'GET' && \$env->{PATH_INFO} eq '/${1:health}';
+    my \$body = encode_json({ status => 'ok' });
+    return [200, ['Content-Type' => 'application/json'], [\$body]];
+};
+
+$0
+no warnings 'void';
+\$app;

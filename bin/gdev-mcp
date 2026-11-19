@@ -1,0 +1,44 @@
+#!/bin/sh
+# gdev-mcp: espone GDev-Emacs agli agenti via MCP su stdin e stdout.
+# Copyright (C) 2026 Giacomo Picchiarelli
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Avvia un solo Emacs batch per tutta la sessione del client; il protocollo
+# è in lisp/gdev-mcp.el.  Con --socket SOCKET pilota l'istanza GDev di quel
+# server Emacs; altrimenti cerca l'istanza dello stesso checkout e della
+# stessa cartella di stato.  Imposta EMACS per scegliere l'eseguibile di
+# Emacs.
+
+set -eu
+
+# Segue i collegamenti simbolici fino alla copia di lavoro.
+self=$0
+while [ -L "$self" ]; do
+    target=$(readlink "$self")
+    case $target in
+        /*) self=$target ;;
+        *) self=$(dirname "$self")/$target ;;
+    esac
+done
+root=$(cd "$(dirname "$self")/.." && pwd -P)
+
+if [ -z "${EMACS:-}" ]; then
+    for candidate in \
+        /Applications/Emacs.app/Contents/MacOS/Emacs \
+        "$HOME/Applications/Emacs.app/Contents/MacOS/Emacs"; do
+        if [ -x "$candidate" ]; then
+            EMACS=$candidate
+            break
+        fi
+    done
+fi
+if [ -z "${EMACS:-}" ]; then
+    EMACS=$(command -v emacs || true)
+fi
+if [ -z "$EMACS" ]; then
+    echo "gdev-mcp: Emacs non trovato; installalo o imposta EMACS" >&2
+    exit 1
+fi
+
+exec "$EMACS" --batch -Q -l "$root/early-init.el" -L "$root/lisp" -l gdev-mcp \
+    -f gdev-mcp-main "$@"

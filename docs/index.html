@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="GDev-Emacs per macOS. Sviluppo, profilazione, Agenda Org e strumenti di scrittura con menu e guide in italiano.">
+  <meta property="og:title" content="GDev-Emacs · Il banco di lavoro">
+  <meta property="og:description" content="Un banco di lavoro su macOS per sviluppare, pianificare e scrivere in Emacs.">
+  <meta property="og:image" content="https://gipidevdor.github.io/GDev-Emacs/assets/banco-di-lavoro.webp">
+  <link rel="icon" href="assets/gdev-emacs.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/pages.css">
+  <script src="assets/pages.js" defer></script>
+  <title>GDev-Emacs · Il banco di lavoro</title>
+</head>
+<body>
+  <a class="skip" href="#contenuto">Salta al contenuto</a>
+  <header class="shell topbar">
+    <a class="brand" href="./"><img src="assets/gdev-emacs.svg" alt="" width="36" height="36">GDev-Emacs</a>
+    <nav aria-label="Navigazione principale">
+      <a href="#flussi">Flussi</a>
+      <a href="#comandi">Comandi</a>
+      <a href="#installa">Installa</a>
+      <a href="https://github.com/gipidevdor/GDev-Emacs">Sorgenti <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="contenuto" class="shell">
+    <section class="intro" aria-labelledby="titolo">
+      <div>
+        <p class="eyebrow">Emacs per macOS</p>
+        <h1 id="titolo">Il banco<br>di lavoro.</h1>
+      </div>
+      <div class="intro-copy">
+        <p>Una distribuzione personale per sviluppare, pianificare e scrivere in Emacs. Ogni progetto ritrova i suoi file, le sue finestre e i suoi strumenti. Menu e guide sono in italiano.</p>
+        <a class="text-link" href="#comandi">Apri i comandi <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+    <img class="hero" src="assets/banco-di-lavoro.webp" width="1536" height="640"
+         alt="Banco di lavoro in metallo brunito con due riquadri incassati, parentesi incise e un cursore ambra"
+         fetchpriority="high">
+
+    <section id="flussi" class="section" aria-labelledby="flussi-titolo">
+      <h2 id="flussi-titolo">Dal progetto alla consegna</h2>
+      <div class="flows">
+        <article>
+          <h3>Sviluppo e profilazione</h3>
+          <p>Compila i progetti C e C++ con CMake. Esegui i test e avvia il debug anche in Perl. In <strong>Debug dello spazio</strong> osservi CPU e memoria del processo e confronti i tempi dei comandi con Hyperfine.</p>
+          <p class="flow-links">
+            <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#c-e-c">C e C++ <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#perl">Perl <span aria-hidden="true">↗</span></a>
+          </p>
+        </article>
+        <article>
+          <h3>Agenda e attività Git</h3>
+          <p>L’Agenda di Org GDev ha viste per il giorno, i giorni lavorativi e la settimana. In un progetto Git puoi vedere i commit e le operazioni locali del periodo selezionato e aprire il repository in Hit.</p>
+          <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#note-ortografia-e-terminali">Usa l’Agenda <span aria-hidden="true">↗</span></a>
+        </article>
+        <article>
+          <h3>Scrittura e fonti</h3>
+          <p>Crea un progetto <strong>Articolo</strong> per pianificare il manoscritto, raccogliere fonti e conservare versioni da confrontare. La panoramica ti porta dalla stesura alla revisione e all’esportazione con Org.</p>
+          <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#scrivere-un-articolo">Scrivi un articolo <span aria-hidden="true">↗</span></a>
+        </article>
+        <article>
+          <h3>Terminali e macchine remote</h3>
+          <p>Scegli il profilo dell’interprete e affianca due terminali nella cartella del progetto. Le sessioni continuano quando nascondi il pannello. Puoi anche raggiungere una cartella via SSH.</p>
+          <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#macchine-remote-e-amministrazione-di-sistema">Lavora via SSH <span aria-hidden="true">↗</span></a>
+        </article>
+        <article>
+          <h3>Lavorazioni</h3>
+          <p>Trova i piani del progetto nel pannello. Componi e verifica i passi accanto al sorgente, poi esegui il piano con conferma. L’esito mostra i passi completati e la causa di un’interruzione.</p>
+          <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#lavorazioni">Apri la guida alle lavorazioni <span aria-hidden="true">↗</span></a>
+        </article>
+        <article>
+          <h3>Cronologia del file</h3>
+          <p>Consulta salvataggi locali e registrazioni Git. Confronta due versioni o una versione con il documento aperto. Puoi riportare una versione nell’editor e decidere quando salvarla.</p>
+          <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#cronologia-del-file">Consulta la cronologia <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+    </section>
+
+    <section id="comandi" class="section" aria-labelledby="comandi-titolo">
+      <div class="section-heading">
+        <div>
+          <h2 id="comandi-titolo">Comandi di ogni giorno</h2>
+          <p>Filtra per azione o tasto. Fissa i comandi che vuoi ritrovare in questo browser.</p>
+        </div>
+        <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/keymap.md">Mappa completa <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="command-tools" hidden>
+        <label for="comandi-filtro">Trova un comando</label>
+        <div class="toolbar">
+          <input id="comandi-filtro" type="search" placeholder="Es. debug, C-c w, ⌘P" autocomplete="off">
+          <button id="solo-fissati" type="button" aria-pressed="false">Solo fissati</button>
+        </div>
+      </div>
+      <ul id="lista-comandi" class="command-list">
+        <li data-id="apri"><span><strong>Vai a qualsiasi cosa…</strong><small>File, simbolo, riga o comando</small></span><kbd>⌘P</kbd></li>
+        <li data-id="cartella"><span><strong>Apri cartella…</strong><small>Apri uno spazio di lavoro</small></span><kbd>⇧⌘O</kbd></li>
+        <li data-id="cerca"><span><strong>Cerca nei file…</strong><small>Ricerca nello spazio di lavoro</small></span><kbd>⇧⌘F</kbd></li>
+        <li data-id="salva"><span><strong>Salva il documento</strong><small>Disponibile anche dal pannello</small></span><kbd>⌘S</kbd></li>
+        <li data-id="costruisci"><span><strong>Compila il progetto</strong><small>Per esempio in un progetto C o C++</small></span><kbd>F7</kbd></li>
+        <li data-id="test"><span><strong>Esegui i test</strong><small>Usa gli strumenti del linguaggio attivo</small></span><kbd>F6</kbd></li>
+        <li data-id="problemi"><span><strong>Problema successivo</strong><small>Vai al punto nel sorgente</small></span><kbd>F8</kbd></li>
+        <li data-id="debug"><span><strong>Debug dello spazio</strong><small>Sessione, profilazione, CPU e memoria</small></span><kbd>C-c d W</kbd></li>
+        <li data-id="misura"><span><strong>Misura i tempi…</strong><small>Confronta i comandi con Hyperfine</small></span><kbd>C-c P h</kbd></li>
+        <li data-id="hit"><span><strong>Apri Hit</strong><small>Stato e differenze di Git</small></span><kbd>C-c g g</kbd></li>
+        <li data-id="cronologia-file"><span><strong>Cronologia del file</strong><small>Salvataggi e revisioni Git</small></span><kbd>C-c f h</kbd></li>
+        <li data-id="hithub"><span><strong>Comandi di HitHub</strong><small>Richieste, segnalazioni e Actions</small></span><kbd>C-c g h</kbd></li>
+        <li data-id="agenda"><span><strong>Apri l’Agenda</strong><small>Impegni e attività Git del periodo</small></span><kbd>C-c n a</kbd></li>
+        <li data-id="articolo"><span><strong>Panoramica dell’articolo</strong><small>Da un documento del progetto Articolo</small></span><kbd>C-c j</kbd></li>
+        <li data-id="scrittura"><span><strong>Strumenti di scrittura</strong><small>Conteggio, vocabolario e ricerche</small></span><kbd>C-c w W</kbd></li>
+        <li data-id="terminale"><span><strong>Terminale del progetto</strong><small>Apri nella cartella principale</small></span><kbd>C-c o t</kbd></li>
+        <li data-id="terminale-profilo"><span><strong>Nuovo terminale con profilo…</strong><small>Scegli l’interprete dei comandi</small></span><kbd>C-c o p</kbd></li>
+        <li data-id="terminali-affiancati"><span><strong>Affianca un terminale</strong><small>Avvia una seconda sessione</small></span><kbd>C-c o s</kbd></li>
+        <li data-id="ssh"><span><strong>Apri cartella via SSH</strong><small>Lavora sui file remoti</small></span><kbd>C-c r o</kbd></li>
+        <li data-id="comandi"><span><strong>Comandi a destra</strong><small>Azioni della vista attiva</small></span><kbd>C-c w t</kbd></li>
+        <li data-id="lavorazioni"><span><strong>Lavorazioni</strong><small>Cerca, componi e verifica i piani</small></span><kbd>C-c w L</kbd></li>
+        <li data-id="sessione"><span><strong>Riprendi ultima sessione</strong><small>File, cursore e bozze conservate</small></span><kbd>C-c q l</kbd></li>
+      </ul>
+      <p id="esito-filtro" class="filter-status" role="status"></p>
+    </section>
+
+    <section id="installa" class="section install" aria-labelledby="installa-titolo">
+      <div>
+        <h2 id="installa-titolo">Prepara la postazione</h2>
+        <p>Su macOS servono <a href="https://brew.sh/">Homebrew</a> e gli strumenti da riga di comando di Apple (<code>xcode-select --install</code>). Il programma di installazione prepara Emacs e rende disponibile <code>gdev</code>.</p>
+        <p>Apri il primo progetto con <kbd>⇧⌘O</kbd>. Dopo un aggiornamento, <code>gdev compile --native</code> ricompila il nucleo e i moduli attivi in codice nativo.</p>
+        <a class="text-link" href="https://github.com/gipidevdor/GDev-Emacs#installa-e-apri-un-progetto">Requisiti e avvio <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar"><span>Terminale</span><button id="copia-installazione" type="button" hidden>Copia</button></div>
+        <pre><code id="passi-installazione">git clone https://github.com/gipidevdor/GDev-Emacs.git
+cd GDev-Emacs
+./bin/gdev-bootstrap-macos</code></pre>
+        <p id="esito-copia" class="copy-status" role="status"></p>
+      </div>
+    </section>
+
+    <section class="section reference" aria-labelledby="riferimenti-titolo">
+      <h2 id="riferimenti-titolo">Riferimenti</h2>
+      <ul>
+        <li><a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md"><strong>Flussi di lavoro</strong><span>Progetti, debug, Git e sessioni <span aria-hidden="true">↗</span></span></a></li>
+        <li><a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/emacs.md"><strong>Guida a Emacs</strong><span>Inizia dall'editor e dai suoi comandi <span aria-hidden="true">↗</span></span></a></li>
+        <li><a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/workflows.md#python"><strong>Linguaggi e dati</strong><span>Python, esplorazione PostgreSQL e convalida XML <span aria-hidden="true">↗</span></span></a></li>
+        <li><a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/interfaccia.md"><strong>Interfaccia</strong><span>Riquadri, gerarchia dei testi e comportamento delle viste <span aria-hidden="true">↗</span></span></a></li>
+        <li><a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/agenti.md"><strong>GDev-Emacs per agenti</strong><span>Skill, comandi e server MCP locale <span aria-hidden="true">↗</span></span></a></li>
+        <li><a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/docs/dipendenze.md"><strong>Fork e licenze</strong><span>Sorgenti, revisioni e attribuzioni <span aria-hidden="true">↗</span></span></a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <a href="./">GDev-Emacs</a>
+    <a href="https://github.com/gipidevdor/GDev-Emacs/blob/main/LICENSE">GPL-3.0-or-later</a>
+  </footer>
+</body>
+</html>

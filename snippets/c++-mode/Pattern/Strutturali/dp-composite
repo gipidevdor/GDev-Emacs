@@ -1,0 +1,45 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+#include <cstddef>
+#include <memory>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+struct Node {
+    virtual ~Node() = default;
+    [[nodiscard]] virtual std::size_t size() const = 0;
+};
+
+struct FileNode final : Node {
+    explicit FileNode(std::size_t bytes) : bytes{bytes} {}
+
+    [[nodiscard]] std::size_t size() const override { return bytes; }
+
+    std::size_t bytes;
+};
+
+class ${1:DirectoryNode} final : public Node {
+public:
+    void add(std::unique_ptr<Node> child) {
+        if (!child) throw std::invalid_argument("Missing child");
+        children_.push_back(std::move(child));
+    }
+
+    [[nodiscard]] std::size_t size() const override {
+        std::size_t total = 0;
+        for (const auto& child : children_) total += child->size();
+        return total;
+    }
+
+private:
+    std::vector<std::unique_ptr<Node>> children_;
+};
+
+$0

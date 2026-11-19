@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Node.js — leggi un JSON vicino al modulo ESM
+# key: g-node-read-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import { readFile } from "node:fs/promises";
+
+const url = new URL("./${1:package.json}", import.meta.url);
+const ${2:document} = JSON.parse(await readFile(url, "utf8"));
+$0

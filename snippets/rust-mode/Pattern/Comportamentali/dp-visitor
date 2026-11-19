@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Visitor — operazioni su più tipi
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+pub enum Shape {
+    Circle { radius: f64 },
+    Square { side: f64 },
+}
+
+pub trait ${1:Visitor} {
+    type Output;
+    fn visit_circle(&mut self, radius: f64) -> Self::Output;
+    fn visit_square(&mut self, side: f64) -> Self::Output;
+}
+
+impl Shape {
+    pub fn accept<V: $1>(&self, visitor: &mut V) -> V::Output {
+        match *self {
+            Self::Circle { radius } => visitor.visit_circle(radius),
+            Self::Square { side } => visitor.visit_square(side),
+        }
+    }
+}
+$0

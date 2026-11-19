@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Middleware — composizione di una catena asincrona
+# key: dp-middleware
+# group: Pattern.Architettura
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Dai a ogni livello il gestore successivo e componi partendo da quello finale.
+
+function ${1:compose}(middleware, handle) {
+  return middleware.reduceRight(
+    (next, layer) => (request) => layer(request, next),
+    handle,
+  );
+}
+
+const withTiming = async (request, next) => {
+  const start = performance.now();
+  try {
+    return await next(request);
+  } finally {
+    console.debug(\`Request: \${performance.now() - start}ms\`);
+  }
+};
+$0

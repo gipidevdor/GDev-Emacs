@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — tipo della porta scelto a comptime
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+pub fn ${1:Greeter}(comptime Sink: type) type {
+    return struct {
+        sink: Sink,
+
+        pub fn greet(self: *@This(), name: []const u8) !void {
+            try self.sink.write(name);
+        }
+    };
+}
+
+pub const IgnoreSink = struct {
+    pub fn write(_: *@This(), _: []const u8) error{}!void {}
+};
+$0

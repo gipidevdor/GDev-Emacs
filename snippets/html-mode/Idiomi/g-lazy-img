@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Immagine fuori vista caricata a richiesta
+# key: g-lazy-img
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<!-- width e height mantengono stabile l'ingombro prima del caricamento. -->
+<img src="${1:image.jpg}" width="${2:800}" height="${3:450}" alt="${4:Descrizione}" loading="lazy">
+$0

@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+(defun ${1:timed} (operation reporter)
+  (lambda (&rest arguments)
+    (let ((started (get-internal-real-time)))
+      (unwind-protect (apply operation arguments)
+        (funcall reporter (/ (- (get-internal-real-time) started)
+                             (float internal-time-units-per-second)))))))
+$0

@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Memento — istantanea e ripristino
+# key: dp-memento
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Cattura i dati necessari al ripristino. Le modifiche successive devono lasciare intatta la cattura.
+
+#include <cstddef>
+#include <string>
+#include <utility>
+
+class ${1:Editor} {
+public:
+    struct Snapshot {
+        std::string text;
+        std::size_t cursor;
+    };
+
+    [[nodiscard]] Snapshot snapshot() const { return {text_, cursor_}; }
+
+    void restore(Snapshot saved) {
+        text_ = std::move(saved.text);
+        cursor_ = saved.cursor <= text_.size() ? saved.cursor : text_.size();
+    }
+
+private:
+    std::string text_;
+    std::size_t cursor_ = 0;
+};
+
+$0

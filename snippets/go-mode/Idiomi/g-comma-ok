@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Comma OK — chiave mancante distinta dal valore zero
+# key: g-comma-ok
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+func ${2:GetOrDefault}(counts map[string]int, key string, fallback int) int {
+	// Il booleano distingue una chiave mancante da una chiave con valore zero.
+	if value, exists := counts[key]; exists {
+		return value
+	}
+	$0
+	return fallback
+}

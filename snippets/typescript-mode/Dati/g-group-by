@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Raggruppamento generico con Map
+# key: g-group-by
+# group: Dati
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+function ${1:groupBy}<T, K>(items: Iterable<T>, keyOf: (item: T) => K): Map<K, T[]> {
+  const groups = new Map<K, T[]>();
+  for (const item of items) {
+    const key = keyOf(item);
+    const group = groups.get(key);
+    if (group) group.push(item);
+    else groups.set(key, [item]);
+  }
+  return groups;
+}
+$0

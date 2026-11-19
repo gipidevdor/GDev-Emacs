@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Spaziatura verticale tra soli fratelli consecutivi
+# key: g-stack
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+/* La prima voce non riceve un margine, anche se cambia il contenuto. */
+.${1:stack} > * + * {
+  margin-block-start: var(--stack-gap, ${2:1rem});
+}
+$0

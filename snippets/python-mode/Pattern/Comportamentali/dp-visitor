@@ -1,0 +1,43 @@
+# -*- mode: snippet -*-
+# name: Visitor — operazioni su più tipi
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+from dataclasses import dataclass
+from typing import Protocol
+
+
+class ${1:ShapeVisitor}(Protocol):
+    def circle(self, shape: "Circle") -> float: ...
+    def square(self, shape: "Square") -> float: ...
+
+
+@dataclass(frozen=True)
+class Circle:
+    radius: float
+
+    def accept(self, visitor: $1) -> float:
+        return visitor.circle(self)
+
+
+@dataclass(frozen=True)
+class Square:
+    side: float
+
+    def accept(self, visitor: $1) -> float:
+        return visitor.square(self)
+
+
+class Area:
+    def circle(self, shape: Circle) -> float:
+        from math import pi
+        return pi * shape.radius ** 2
+
+    def square(self, shape: Square) -> float:
+        return shape.side ** 2
+
+
+$0

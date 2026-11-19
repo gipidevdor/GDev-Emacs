@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Formattazione con verifica di errore e troncamento
+# key: g-snprintf
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdbool.h>
+#include <stdio.h>
+
+bool ${1:format_label}(char *buffer, size_t capacity, unsigned id)
+{
+    int written = snprintf(buffer, capacity, "${2:item-%u}", id);
+    return written >= 0 && (size_t)written < capacity;
+}
+
+$0

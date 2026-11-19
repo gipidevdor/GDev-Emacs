@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Operazione Foundation con NSError propagato al chiamante
+# key: g-error-out
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#import <Foundation/Foundation.h>
+
+static NSData *${1:ReadData}(NSURL *url, NSError **error)
+{
+    $0
+    return [NSData dataWithContentsOfURL:url options:0 error:error];
+}

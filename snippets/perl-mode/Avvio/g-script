@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Programma Perl con main e argomenti espliciti
+# key: g-script
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#!/usr/bin/env perl
+use v5.36;
+
+sub main (@args) {
+    $0
+    return 0;
+}
+
+exit main(@ARGV);

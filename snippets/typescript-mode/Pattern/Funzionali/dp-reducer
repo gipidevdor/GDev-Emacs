@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Reducer — transizioni immutabili con unione discriminata
+# key: dp-reducer
+# group: Pattern.Funzionali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa coppia stato e azione produce lo stesso risultato senza mutare l'ingresso.
+
+type State = { readonly items: readonly string[] };
+type Action = { type: "add"; item: string } | { type: "clear" };
+
+function ${1:reducer}(state: State, action: Action): State {
+  switch (action.type) {
+    case "add":
+      return { items: [...state.items, action.item] };
+    case "clear":
+      return { items: [] };
+  }
+}
+$0

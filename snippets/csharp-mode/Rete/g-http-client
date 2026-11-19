@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: HttpClient iniettato con controllo dello stato e cancellazione
+# key: g-http-client
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+sealed class ${1:Client}(HttpClient http)
+{
+    public async Task<string> Read(Uri url, CancellationToken cancellation)
+    {
+        using var response = await http.GetAsync(url, cancellation);
+        response.EnsureSuccessStatusCode();
+        $0
+        return await response.Content.ReadAsStringAsync(cancellation);
+    }
+}

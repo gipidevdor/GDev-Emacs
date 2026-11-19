@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Mock con contratto, valore di ritorno e asserzione
+# key: g-mock
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from unittest.mock import create_autospec
+
+
+def ${1:send}(address: str, body: str) -> bool:
+    raise NotImplementedError
+
+
+def test_notification() -> None:
+    stub = create_autospec($1, return_value=True)
+    assert stub("reader@example.org", "Hello")
+    stub.assert_called_once_with("reader@example.org", "Hello")
+    $0

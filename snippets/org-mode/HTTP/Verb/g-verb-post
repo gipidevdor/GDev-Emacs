@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Verb — richiesta POST con corpo JSON
+# key: g-verb-post
+# group: HTTP.Verb
+# expand-env: ((yas-indent-line 'fixed))
+# --
+** ${1:Crea elemento}
+post /${2:items}
+Content-Type: application/json
+
+{"label": "${3:Example}"}
+$0

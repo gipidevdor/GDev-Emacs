@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Prerequisito order-only per la cartella di output
+# key: g-order-only
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Un cambio al timestamp della cartella non forza la ricostruzione.
+${1:build}/%.o: %.c | $1
+	\$(CC) \$(CPPFLAGS) \$(CFLAGS) -c "\$<" -o "\$@"
+
+$1:
+	mkdir -p -- "\$@"
+$0

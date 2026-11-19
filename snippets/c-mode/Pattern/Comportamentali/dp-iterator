@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+#include <stdbool.h>
+#include <stddef.h>
+
+struct ${1:int_iterator} {
+    const int *values;
+    size_t length;
+    size_t index;
+};
+
+bool iterator_next(struct $1 *it, int *value)
+{
+    if (it->index >= it->length) return false;
+    *value = it->values[it->index++];
+    return true;
+}
+
+$0

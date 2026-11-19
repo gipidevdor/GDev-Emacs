@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Test Terraform — asserzione durante il piano
+# key: g-tf-test
+# group: Test
+# condition: (or (not buffer-file-name) (string-suffix-p ".tftest.hcl" buffer-file-name t))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+run "${1:validate_default}" {
+  command = plan
+
+  assert {
+    condition     = ${2:output.port == 8080}
+    error_message = "Unexpected port."
+  }
+  $0
+}

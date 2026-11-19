@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: JSON::PP — serializza in UTF-8 con chiavi ordinate
+# key: g-json-encode
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use autodie;
+use JSON::PP;
+
+open my \$stream, '>:raw', "${1:data.json}";
+my \$encoder = JSON::PP->new->utf8->canonical->pretty;
+print {\$stream} \$encoder->encode(${2:\{ enabled => JSON::PP::true \}});
+close \$stream;
+$0

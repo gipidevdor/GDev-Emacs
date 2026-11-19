@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+pub const ${1:Status} = enum {
+    draft,
+    review,
+    published,
+
+    pub fn advance(self: @This()) error{AlreadyPublished}!@This() {
+        return switch (self) {
+            .draft => .review,
+            .review => .published,
+            .published => error.AlreadyPublished,
+        };
+    }
+};
+$0

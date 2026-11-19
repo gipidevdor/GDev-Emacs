@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Intestazione sticky con offset logico e superficie opaca
+# key: g-sticky
+# group: Layout
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:header} {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background: Canvas;
+  $0
+}

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Context con deadline e rilascio del timer
+# key: g-context-timeout
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"context"
+	"time"
+)
+
+func ${2:WithDeadline}(ctx context.Context, load func(context.Context) error) error {
+	// Il figlio eredita la cancellazione e non può estendere la deadline del genitore.
+	request, cancel := context.WithTimeout(ctx, ${3:5} * time.Second)
+	defer cancel()
+	$0
+	return load(request)
+}

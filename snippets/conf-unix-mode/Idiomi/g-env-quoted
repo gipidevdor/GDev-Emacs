@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Dotenv — valore con spazi tra virgolette
+# key: g-env-quoted
+# group: Idiomi
+# condition: (or (not buffer-file-name) (string-match-p "/\\.env\\(?:\\.\\|\\'\\)" buffer-file-name))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le virgolette tengono insieme il valore quando contiene spazi.
+${1:APP_TITLE}="${2:Example application}"
+$0

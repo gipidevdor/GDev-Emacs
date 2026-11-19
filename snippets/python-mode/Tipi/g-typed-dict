@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: TypedDict con campo facoltativo
+# key: g-typed-dict
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from typing import NotRequired, TypedDict
+
+
+class ${1:Payload}(TypedDict):
+    ${2:id}: str
+    ${3:label}: NotRequired[str]
+
+
+$0

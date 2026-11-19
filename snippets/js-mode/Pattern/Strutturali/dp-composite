@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+const file = (bytes) => ({ size: () => bytes });
+
+function ${1:folder}(children) {
+  const entries = [...children];
+  return {
+    size: () => entries.reduce((total, child) => total + child.size(), 0),
+  };
+}
+
+const ${2:root} = $1([file(24), $1([file(18)])]);
+$0

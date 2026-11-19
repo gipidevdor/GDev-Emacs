@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Usa // per conservare zero e stringa vuota
+# key: g-defined-or
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il valore predefinito si usa soltanto per undef.
+my \$${1:timeout} = ${2:\$settings->\{timeout\}} // ${3:30};$0

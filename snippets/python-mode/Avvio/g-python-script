@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Script Python usando l'interprete del PATH
+# key: g-python-script
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#!/usr/bin/env python3
+
+
+def ${1:main}() -> None:
+    $0pass
+
+
+if __name__ == "__main__":
+    $1()

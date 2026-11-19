@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Perfect forwarding — conserva la categoria di valore degli argomenti
+# key: g-forward
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <memory>
+#include <utility>
+
+// std::forward distingue i riferimenti a lvalue dagli argomenti da spostare.
+template <class T, class... Args>
+auto ${1:make_value}(Args&&... args) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
+
+$0

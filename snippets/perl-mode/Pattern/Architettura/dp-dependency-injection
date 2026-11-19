@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — porta di uscita come coderef
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+use v5.36;
+
+sub ${1:greeter} (\$send) {
+    return sub (\$name) { \$send->("Hello, \$name") };
+}
+
+my \$greet = $1(sub (\$message) { say \$message });
+$0

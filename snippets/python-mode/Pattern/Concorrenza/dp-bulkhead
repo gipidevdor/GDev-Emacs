@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Bulkhead — limiti separati per servizi concorrenti
+# key: dp-bulkhead
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Dai un limite esplicito alle risorse concorrenti per circoscrivere il lavoro ammesso.
+
+import asyncio
+from collections.abc import Awaitable, Callable
+
+
+class ${1:Bulkhead}:
+    def __init__(self, limits: dict[str, int]) -> None:
+        if any(limit < 1 for limit in limits.values()):
+            raise ValueError("Limits must be positive")
+        self._slots = {name: asyncio.Semaphore(limit) for name, limit in limits.items()}
+
+    async def run(
+        self, service: str, operation: Callable[[], Awaitable[str]], timeout: float = ${2:5.0}
+    ) -> str:
+        async with asyncio.timeout(timeout):
+            async with self._slots[service]:
+                return await operation()
+
+
+$0

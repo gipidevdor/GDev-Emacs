@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Copia slice prima di ordinare senza mutare il chiamante
+# key: g-slice-clone
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import "slices"
+
+func ${2:SortedCopy}(values []int) []int {
+	// Due slice possono condividere lo stesso array. Clona prima di ordinarlo.
+	result := slices.Clone(values)
+	slices.Sort(result)
+	$0
+	return result
+}

@@ -1,0 +1,48 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+from dataclasses import dataclass, field
+from typing import Protocol
+
+
+class ArticleState(Protocol):
+    label: str
+
+    def advance(self) -> "ArticleState": ...
+
+
+class Draft:
+    label = "Draft"
+
+    def advance(self) -> ArticleState:
+        return Review()
+
+
+class Review:
+    label = "In review"
+
+    def advance(self) -> ArticleState:
+        return Published()
+
+
+class Published:
+    label = "Published"
+
+    def advance(self) -> ArticleState:
+        raise ValueError("Article is already published")
+
+
+@dataclass
+class ${1:Article}:
+    state: ArticleState = field(default_factory=Draft)
+
+    def advance(self) -> None:
+        self.state = self.state.advance()
+
+
+$0

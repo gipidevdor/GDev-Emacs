@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Facade — ingresso unico a un sottosistema
+# key: dp-facade
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'ordine delle chiamate ai sottosistemi rimane in un unico punto.
+
+from collections.abc import Callable
+
+
+class ${1:OrderCheckout}:
+    def __init__(
+        self,
+        quote: Callable[[str], int],
+        place: Callable[[str, int], str],
+    ) -> None:
+        self._quote = quote
+        self._place = place
+
+    def checkout(self, cart_id: str) -> str:
+        return self._place(cart_id, self._quote(cart_id))
+
+
+$0

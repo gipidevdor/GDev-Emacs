@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Riferimento debole per i collegamenti verso il genitore
+# key: g-weak-ref
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use Scalar::Util qw(weaken);
+
+# Il figlio può puntare al genitore senza prolungarne la durata.
+${1:\$child}->{parent} = ${2:\$parent};
+weaken($1->{parent});
+$0

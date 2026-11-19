@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Unwind Protect — rilascia una risorsa temporanea
+# key: dp-context-manager
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Acquisizione e rilascio formano un unico confine, attraversato anche in caso di eccezione.
+
+(let ((buffer (generate-new-buffer " *${1:work}*")))
+  (unwind-protect
+      (with-current-buffer buffer
+        $0(buffer-string))
+    (kill-buffer buffer)))

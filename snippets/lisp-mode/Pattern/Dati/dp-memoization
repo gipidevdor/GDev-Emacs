@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Memoization — cache di valori falsi con gethash
+# key: dp-memoization
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Distingui la presenza di una chiave dal valore restituito dalla funzione.
+
+(defun ${1:memoize} (function)
+  (let ((cache (make-hash-table :test #'equal)))
+    (lambda (key)
+      (multiple-value-bind (value found-p) (gethash key cache)
+        (if found-p
+            value
+            (setf (gethash key cache) (funcall function key)))))))
+$0

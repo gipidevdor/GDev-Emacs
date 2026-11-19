@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Flyweight — condivisione di stato immutabile
+# key: dp-flyweight
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Condividi solo i dati intrinseci e immutabili. Tieni lo stato di ogni uso fuori dalla cache.
+
+from dataclasses import dataclass
+from functools import lru_cache
+
+
+@dataclass(frozen=True)
+class ${1:TextStyle}:
+    font: str
+    size: int
+
+
+@lru_cache(maxsize=${2:256})
+def text_style(font: str, size: int) -> $1:
+    return $1(font, size)
+
+
+@dataclass(frozen=True)
+class TextRun:
+    text: str
+    style: $1
+
+
+$0

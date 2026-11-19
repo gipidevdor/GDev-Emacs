@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Listener DOM e rimozione tramite AbortController
+# key: g-dom-event
+# group: DOM
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const controller = new AbortController();
+const ${1:button} = document.querySelector("${2:#save}");
+
+$1?.addEventListener("click", (event) => {
+  event.preventDefault();
+  $0
+}, { signal: controller.signal });
+
+// Call controller.abort() when the view is disposed.

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Enumerazione di stato con valori prefissati
+# key: g-enum
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+enum ${1:status} {
+    ${2:STATUS}_PENDING,
+    $2_COMPLETE,
+};
+
+$0

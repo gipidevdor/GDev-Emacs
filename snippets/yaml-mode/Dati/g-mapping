@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Mappa con valore stringa e booleano
+# key: g-mapping
+# group: Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:settings}:
+  ${2:label}: "${3:Example}"
+  enabled: true
+  $0

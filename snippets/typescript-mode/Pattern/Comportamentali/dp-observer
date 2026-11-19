@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+type Listener<T> = (value: T) => void;
+
+class ${1:Subject}<T> {
+  private readonly listeners = new Set<Listener<T>>();
+
+  subscribe(listener: Listener<T>): () => void {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
+
+  publish(value: T): void {
+    for (const listener of [...this.listeners]) listener(value);
+  }
+}
+$0

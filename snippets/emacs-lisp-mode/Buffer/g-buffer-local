@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Variabile locale al buffer e valore predefinito
+# key: g-buffer-local
+# group: Buffer
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defvar-local ${1:example-state} nil
+  "State associated with the current document.")
+$0

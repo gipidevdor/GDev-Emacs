@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Format — elementi separati da virgole
+# key: g-format
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; ~^ interrompe l'iterazione prima del separatore finale.
+(format nil "~{~A~^, ~}" ${1:'("alpha" "beta")})$0

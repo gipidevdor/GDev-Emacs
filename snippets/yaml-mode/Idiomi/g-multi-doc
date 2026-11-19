@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Più documenti YAML con separatori espliciti
+# key: g-multi-doc
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le ancore appartengono al singolo documento.
+---
+name: ${1:first}
+---
+name: ${2:second}
+$0

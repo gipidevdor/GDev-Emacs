@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+use v5.36;
+
+package ${1:CelsiusSensor} {
+    sub new (\$class, \$legacy) {
+        return bless { legacy => \$legacy }, \$class;
+    }
+
+    sub celsius (\$self) {
+        return (\$self->{legacy}->fahrenheit - 32) * 5 / 9;
+    }
+}
+$0

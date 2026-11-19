@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Ascolta un evento una sola volta con rimozione automatica
+# key: g-event-once
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// once rimuove il listener appena invocato, anche se il corpo segnala un errore.
+window.addEventListener("${1:pageshow}", () => {
+  $0
+}, { once: true });

@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: System.Text.Json — deserializzazione di record con controllo del null
+# key: g-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+sealed record ${1:Item}([property: JsonPropertyName("id")] string Id);
+
+static class Decoder
+{
+    public static $1 Decode(string json) =>
+        JsonSerializer.Deserialize<$1>(json) ?? throw new JsonException("Item required");
+}
+$0

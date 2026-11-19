@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Optional capture — tratta separatamente valore e assenza
+# key: g-optional
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+pub fn ${1:label}(value: ?[]const u8) []const u8 {
+    // Il binding catturato esiste solo nel ramo con un valore.
+    if (value) |text| {
+        $0
+        return text;
+    }
+    return "untitled";
+}

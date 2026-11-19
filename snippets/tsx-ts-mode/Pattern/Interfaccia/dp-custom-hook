@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Custom Hook — riuso della logica con cleanup
+# key: dp-custom-hook
+# group: Pattern.Interfaccia
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni insieme iscrizione e pulizia nello stesso effetto.
+
+import { useEffect, useState } from "react";
+
+export function ${1:useMediaQuery}(query: string): boolean {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [query]);
+  return matches;
+}
+$0

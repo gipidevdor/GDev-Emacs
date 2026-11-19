@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Decorator — avvolge una funzione conservandone la firma
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+from collections.abc import Callable
+from functools import wraps
+from time import perf_counter
+from typing import ParamSpec, TypeVar
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def ${1:timed}(report: Callable[[float], None]):
+    def decorate(function: Callable[P, R]) -> Callable[P, R]:
+        @wraps(function)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            start = perf_counter()
+            try:
+                return function(*args, **kwargs)
+            finally:
+                report(perf_counter() - start)
+        return wrapper
+    return decorate
+
+
+$0

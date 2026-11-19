@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Progetto CMake C++ con standard definito per il target
+# key: g-project
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+cmake_minimum_required(VERSION ${1:3.21})
+project(${2:example} VERSION ${3:0.1.0} LANGUAGES CXX)
+
+add_executable($2 "${4:main.cpp}")
+target_compile_features($2 PRIVATE cxx_std_${5:20})
+$0

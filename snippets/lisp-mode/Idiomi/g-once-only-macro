@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Macro con gensym e valutazione unica dell'espressione
+# key: g-once-only-macro
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il simbolo fresco evita di catturare variabili del chiamante.
+(defmacro ${1:when-present} ((binding form) &body body)
+  (let ((value (gensym "VALUE-")))
+    \`(let ((,value ,form))
+       (when ,value
+         (let ((,binding ,value))
+           ,@body)))))
+$0

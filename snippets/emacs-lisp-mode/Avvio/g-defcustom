@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Gruppo e opzione personalizzabile con tipo dichiarato
+# key: g-defcustom
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defgroup ${1:example} nil
+  "${2:Settings for Example.}"
+  :group 'convenience)
+
+(defcustom $1-enabled t
+  "When non-nil, enable the default behavior."
+  :type 'boolean
+  :group '$1)
+$0

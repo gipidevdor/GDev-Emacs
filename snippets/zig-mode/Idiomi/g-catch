@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Catch con distinzione dell'errore atteso
+# key: g-catch
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+pub fn ${1:parseOrZero}(text: []const u8) !u32 {
+    // Un testo non numerico vale zero. L'overflow resta un errore.
+    return std.fmt.parseInt(u32, text, 10) catch |err| switch (err) {
+        error.InvalidCharacter => 0,
+        error.Overflow => return err,
+    };
+}
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Bash — leggi output senza perdere lo stato del ciclo
+# key: g-process-substitution
+# group: Idiomi
+# condition: (or (eq major-mode 'bash-ts-mode) (eq (bound-and-true-p sh-shell) 'bash))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il while gira nella shell corrente. La sostituzione fornisce lo stream.
+count=0
+while IFS= read -r row; do
+    count=\$((count + 1))
+    $0
+done < <(${1:printf '%s\\n' foo bar})
+printf '%s\\n' "\$count"

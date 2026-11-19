@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: State — macchina a stati con tabella di transizioni
+# key: dp-state
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+#include <stdbool.h>
+#include <stddef.h>
+
+enum state { IDLE, RUNNING, DONE, STATE_COUNT };
+enum event { START, FINISH, EVENT_COUNT };
+
+bool ${1:transition}(enum state *state, enum event event)
+{
+    static const enum state next[STATE_COUNT][EVENT_COUNT] = {
+        [IDLE] = { [START] = RUNNING, [FINISH] = STATE_COUNT },
+        [RUNNING] = { [START] = STATE_COUNT, [FINISH] = DONE },
+        [DONE] = { [START] = STATE_COUNT, [FINISH] = STATE_COUNT },
+    };
+    if (state == NULL || (unsigned)*state >= STATE_COUNT || (unsigned)event >= EVENT_COUNT) {
+        return false;
+    }
+    enum state result = next[*state][event];
+    if (result == STATE_COUNT) return false;
+    *state = result;
+    return true;
+}
+
+$0

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Elimina un target scritto a metà se la ricetta fallisce
+# key: g-fail-delete
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Evita che la prossima build accetti un file incompleto come aggiornato.
+.DELETE_ON_ERROR:
+$0

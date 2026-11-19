@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Generico con dipendenza tra una chiave e il suo valore
+# key: g-generic-constraints
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// RecordType[Key] rende impossibile passare il valore di un'altra proprietà.
+function ${1:setField}<RecordType, Key extends keyof RecordType>(
+  record: RecordType,
+  key: Key,
+  value: RecordType[Key],
+): void {
+  record[key] = value;
+}
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Tronca una riga in un elemento flex
+# key: g-ellipsis
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+/* Lo zero consente all'elemento flex di restringersi prima del troncamento. */
+.${1:label} {
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+$0

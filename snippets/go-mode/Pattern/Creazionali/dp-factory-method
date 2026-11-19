@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+package ${1:example}
+
+import (
+	"io"
+	"strings"
+)
+
+type Source interface {
+	Open() io.ReadCloser
+}
+
+type Text struct{ Value string }
+
+func (text Text) Open() io.ReadCloser {
+	return io.NopCloser(strings.NewReader(text.Value))
+}
+$0

@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Dataclass replace — deriva un valore senza mutarlo
+# key: g-dataclass-replace
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from dataclasses import dataclass, replace
+
+
+@dataclass(frozen=True)
+class ${1:Job}:
+    retries: int = 0
+
+
+# replace usa il costruttore e riesegue gli eventuali controlli di __post_init__.
+standard = $1()
+${2:retry_job} = replace(standard, retries=${3:2})
+$0

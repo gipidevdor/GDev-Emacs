@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Codable — traduci le chiavi JSON senza modificare il modello
+# key: g-codable
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import Foundation
+
+struct ${1:Item}: Codable {
+    let displayName: String
+
+    enum CodingKeys: String, CodingKey {
+        case displayName = "display_name"
+    }
+}
+
+func decodeItem(_ data: Data) throws -> $1 {
+    $0
+    return try JSONDecoder().decode($1.self, from: data)
+}

@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Cleanup centralizzato — gestione dell'errore con goto
+# key: dp-cleanup
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Gli errori successivi all'acquisizione convergono nello stesso percorso di rilascio.
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int ${1:read_header}(const char *path)
+{
+    int status = -1;
+    FILE *input = fopen(path, "rb");
+    if (input == NULL) return -1;
+
+    unsigned char *header = malloc(${2:16});
+    if (header == NULL) goto cleanup;
+    if (fread(header, 1, $2, input) != $2) goto cleanup;
+
+    $0
+    status = 0;
+
+cleanup:
+    free(header);
+    if (fclose(input) != 0) status = -1;
+    return status;
+}

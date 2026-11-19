@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Programma Zig con main fallibile
+# key: g-main
+# group: Avvio
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+pub fn main() !void {
+    $0
+    std.debug.print("${1:Ready}\\n", .{});
+}

@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Schwartzian Transform — calcola la chiave una sola volta
+# key: g-sort-by-key
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'array intermedio tiene insieme valore originale e chiave di ordinamento.
+my @${1:ordered} = map { \$_->[0] }
+                 sort { \$a->[1] cmp \$b->[1] }
+                 map { [\$_, fc(\$_)] } ${2:@names};
+$0

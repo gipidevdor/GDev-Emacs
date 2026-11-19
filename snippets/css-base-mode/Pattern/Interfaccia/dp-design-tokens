@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Design Tokens — valori di sistema e alias semantici per i componenti
+# key: dp-design-tokens
+# group: Pattern.Interfaccia
+# expand-env: ((yas-indent-line 'fixed))
+# --
+/* Fai dipendere i componenti da ruoli semantici per applicare un cambio di tema in un solo posto. */
+
+:root {
+  --space-unit: ${1:0.25rem};
+  --radius-md: ${2:0.5rem};
+  --surface: Canvas;
+  --on-surface: CanvasText;
+}
+
+.${3:card} {
+  --card-padding: calc(var(--space-unit) * 4);
+  padding: var(--card-padding);
+  border-radius: var(--radius-md);
+  color: var(--on-surface);
+  background: var(--surface);
+  $0
+}

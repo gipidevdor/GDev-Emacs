@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Mediator — coordinamento tra componenti
+# key: dp-mediator
+# group: Pattern.Comportamentali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I componenti inviano cambiamenti al coordinatore, che decide quale stato propagare.
+
+function ${1:createFormMediator}(updateSubmit) {
+  let valid = false;
+  let busy = false;
+  const refresh = () => updateSubmit(valid && !busy);
+
+  return {
+    validityChanged(value) {
+      valid = value;
+      refresh();
+    },
+    busyChanged(value) {
+      busy = value;
+      refresh();
+    },
+  };
+}
+$0

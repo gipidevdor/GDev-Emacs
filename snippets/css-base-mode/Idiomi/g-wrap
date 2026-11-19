@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Righe lunghe a capo senza forzare la larghezza
+# key: g-wrap
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+/* anywhere abbassa la larghezza intrinseca minima dei token lunghi. */
+.${1:content} {
+  overflow-wrap: anywhere;
+  min-inline-size: 0;
+}
+$0

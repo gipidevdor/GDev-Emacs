@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Richiesta JSON con urllib e timeout
+# key: g-url-json
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import json
+from urllib.request import Request, urlopen
+
+request = Request("https://${1:api.example.com}/${2:items}", headers={"Accept": "application/json"})
+with urlopen(request, timeout=${3:5}) as response:
+    ${4:payload} = json.load(response)
+$0

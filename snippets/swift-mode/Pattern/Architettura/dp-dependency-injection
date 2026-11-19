@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — protocollo del consumatore e composizione
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+protocol Sender {
+    func send(_ message: String)
+}
+
+struct ${1:Greeter} {
+    let sender: any Sender
+
+    func run(name: String) {
+        sender.send("Hello, " + name)
+    }
+}
+
+struct ConsoleSender: Sender {
+    func send(_ message: String) { print(message) }
+}
+
+let greeter = $1(sender: ConsoleSender())
+$0

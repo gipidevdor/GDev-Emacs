@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Punto di ingresso ESM (Deno o Node recente)
+# key: g-module-main
+# group: Moduli
+# expand-env: ((yas-indent-line 'fixed))
+# --
+export async function ${1:main}() {
+  $0
+}
+
+if (import.meta.main) {
+  await $1();
+}

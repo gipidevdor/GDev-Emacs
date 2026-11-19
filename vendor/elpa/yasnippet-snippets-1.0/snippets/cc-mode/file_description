@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# Modificato per GDev-Emacs il 2026-11-17 - corretta la direttiva contributor
+#contributor: Henrique Jung <henriquenj@gmail.com>
+# name: File description
+# key: \file
+# group: doxygen
+# --
+/**
+ *   \file ${1:`(file-name-nondirectory(buffer-file-name))`}
+ *   \brief ${2:A Documented file.}
+ ${3:*
+ *  ${4:Detailed description}
+ *
+}*/

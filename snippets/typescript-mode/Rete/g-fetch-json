@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Fetch JSON con decoder da unknown, timeout e controllo HTTP
+# key: g-fetch-json
+# group: Rete
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+async function ${1:fetchJson}<T>(
+  url: URL,
+  decode: (input: unknown) => T,
+  signal = AbortSignal.timeout(${2:5000}),
+): Promise<T> {
+  const response = await fetch(url, {
+    headers: { Accept: "application/json" },
+    signal,
+  });
+  if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+  const payload: unknown = await response.json();
+  return decode(payload);
+}
+$0

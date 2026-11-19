@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Tfvars — valori tipizzati per un ambiente
+# key: g-tfvars
+# group: Variabili
+# condition: (or (not buffer-file-name) (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:environment} = "${2:development}"
+${3:ports} = [8080, 8081]
+$0

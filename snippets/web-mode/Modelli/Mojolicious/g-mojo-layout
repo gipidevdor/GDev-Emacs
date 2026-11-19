@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Mojolicious — layout e titolo della pagina
+# key: g-mojo-layout
+# group: Modelli.Mojolicious
+# expand-env: ((yas-indent-line 'fixed))
+# --
+% layout '${1:default}';
+% title '${2:Titolo}';
+<section>
+  <h1><%= title %></h1>
+  $0
+</section>

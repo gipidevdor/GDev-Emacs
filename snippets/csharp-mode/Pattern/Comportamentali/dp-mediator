@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Mediator — coordinamento tra componenti
+# key: dp-mediator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I componenti inviano cambiamenti al coordinatore, che decide quale stato propagare.
+
+using System;
+
+sealed class ${1:FormMediator}(Action<bool> updateSubmit)
+{
+    private bool valid;
+    private bool busy;
+
+    public void ValidityChanged(bool value) { valid = value; Refresh(); }
+    public void BusyChanged(bool value) { busy = value; Refresh(); }
+
+    private void Refresh() => updateSubmit(valid && !busy);
+}
+$0

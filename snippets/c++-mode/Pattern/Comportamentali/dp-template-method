@@ -1,0 +1,39 @@
+# -*- mode: snippet -*-
+# name: Template Method — passi specializzabili
+# key: dp-template-method
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Mantieni fissa la sequenza dei passaggi e rendi sostituibili i passaggi specifici.
+
+#include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
+
+class ${1:Importer} {
+public:
+    virtual ~$1() = default;
+
+    std::vector<std::string> run(const std::string& input) const {
+        auto items = parse(input);
+        std::erase_if(items, [](const auto& item) {
+            return item.find_first_not_of(" \\t\\r") == std::string::npos;
+        });
+        return items;
+    }
+
+protected:
+    virtual std::vector<std::string> parse(const std::string& input) const = 0;
+};
+
+class LineImporter final : public $1 {
+    std::vector<std::string> parse(const std::string& input) const override {
+        std::istringstream source{input};
+        std::vector<std::string> lines;
+        for (std::string line; std::getline(source, line);) lines.push_back(line);
+        return lines;
+    }
+};
+
+$0

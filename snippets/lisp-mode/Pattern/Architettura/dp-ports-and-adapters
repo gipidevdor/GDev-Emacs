@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Ports and Adapters — porta tramite funzione iniettata
+# key: dp-ports-and-adapters
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Definisci la porta dal punto di vista del dominio. Ogni adattatore la implementa al confine.
+
+(defun ${1:quote-cents} (sku quantity price-of)
+  (check-type quantity (integer 1 *))
+  (* quantity (funcall price-of sku)))
+
+(defun example-prices (sku)
+  (ecase sku
+    (:book 1200)
+    (:pen 180)))
+$0

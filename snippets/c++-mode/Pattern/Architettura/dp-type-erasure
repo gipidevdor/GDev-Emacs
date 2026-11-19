@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Type Erasure — interfaccia a valore per implementazioni eterogenee
+# key: dp-type-erasure
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva il comportamento richiesto senza propagare il tipo concreto ai consumatori.
+
+#include <functional>
+#include <string>
+#include <utility>
+
+class ${1:AnyLabel} {
+public:
+    template <class T>
+        requires requires(const T& item) { std::string{item.label()}; }
+    explicit $1(T value)
+        : label_{[item = std::move(value)] { return std::string{item.label()}; }} {}
+
+    [[nodiscard]] std::string label() const { return label_(); }
+
+private:
+    std::function<std::string()> label_;
+};
+
+$0

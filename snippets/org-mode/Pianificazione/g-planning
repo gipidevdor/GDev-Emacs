@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Attività TODO con scadenza e descrizione
+# key: g-planning
+# group: Pianificazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+* TODO ${1:Attività}
+  DEADLINE: <${2:2026-12-01}>
+  $0

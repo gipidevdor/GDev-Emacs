@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Processo asincrono con risultato e callback di uscita
+# key: g-process
+# group: Processi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defun ${1:example-process} ()
+  "Start a local subprocess and display its result on exit."
+  (let ((buffer (generate-new-buffer " *example-output*")))
+    (condition-case error
+        (make-process
+         :name "example"
+         :buffer buffer
+         :command (list "${2:git}" "${3:status}" "--short")
+         :noquery t
+         :sentinel
+         (lambda (process _event)
+           (when (memq (process-status process) '(exit signal))
+             (unwind-protect
+                 (when (buffer-live-p buffer)
+                   (with-current-buffer buffer
+                     $0(message "%s" (string-trim (buffer-string)))))
+               (when (buffer-live-p buffer) (kill-buffer buffer))))))
+      (error (kill-buffer buffer)
+             (signal (car error) (cdr error))))))

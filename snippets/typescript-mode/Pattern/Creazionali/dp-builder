@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+type Report = Readonly<{ title: string; sections: readonly string[] }>;
+
+class ${1:ReportBuilder} {
+  private readonly sections: string[] = [];
+
+  constructor(private readonly title: string) {}
+
+  add(section: string): this {
+    this.sections.push(section);
+    return this;
+  }
+
+  build(): Report {
+    return { title: this.title, sections: [...this.sections] };
+  }
+}
+$0

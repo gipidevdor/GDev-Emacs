@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Counter — frequenze e valori più comuni
+# key: g-counter
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from collections import Counter
+
+# Counter restituisce zero per un valore assente. most_common mantiene le prime occorrenze a parità.
+${1:counts} = Counter(${2:["alpha", "beta", "alpha"]})
+${3:top} = $1.most_common(${4:3})
+$0

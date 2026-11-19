@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Async Iterator — paginazione asincrona con cancellazione
+# key: dp-async-iterator
+# group: Pattern.Concorrenza
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni pagina viene richiesta quando serve. Il chiamante conserva il controllo della cancellazione.
+
+async function* ${1:iteratePages}(fetchPage, signal) {
+  let cursor = null;
+  do {
+    signal?.throwIfAborted();
+    const { items, next } = await fetchPage(cursor, signal);
+    yield* items;
+    cursor = next;
+  } while (cursor !== null);
+}
+$0

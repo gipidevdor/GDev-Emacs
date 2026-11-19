@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Test compilabile di un vincolo di tipo
+# key: g-type-test
+# group: Test
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type ${1:Status} = "pending" | "done";
+
+const valid: $1 = "done";
+// @ts-expect-error — Unknown status must be rejected by the type checker.
+const invalid: $1 = "unknown";
+$0

@@ -1,0 +1,35 @@
+# -*- mode: snippet -*-
+# name: Idempotent Consumer — deduplicazione nella transazione SQLite
+# key: dp-idempotent-consumer
+# group: Pattern.Sistemi distribuiti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Registra l'identificatore e applica l'effetto nella stessa transazione.
+
+import sqlite3
+from collections.abc import Callable
+
+INBOX_SCHEMA = """
+CREATE TABLE IF NOT EXISTS processed_event (
+    id TEXT PRIMARY KEY
+)
+"""
+
+
+def ${1:consume_once}(
+    db: sqlite3.Connection, event_id: str, apply: Callable[[sqlite3.Connection], None]
+) -> bool:
+    """Call outside a transaction; apply writes through db and does not commit."""
+    with db:
+        db.execute("BEGIN")
+        inserted = db.execute(
+            "INSERT INTO processed_event VALUES (?) ON CONFLICT(id) DO NOTHING",
+            (event_id,),
+        )
+        if inserted.rowcount == 0:
+            return False
+        apply(db)
+    return True
+
+
+$0

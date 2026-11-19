@@ -1,0 +1,35 @@
+# -*- mode: snippet -*-
+# name: Mediator — coordinamento tra componenti
+# key: dp-mediator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I componenti inviano cambiamenti al coordinatore, che decide quale stato propagare.
+
+#include <functional>
+#include <utility>
+
+class ${1:FormMediator} {
+public:
+    explicit $1(std::function<void(bool)> update_submit)
+        : update_submit_{std::move(update_submit)} {}
+
+    void validity_changed(bool valid) {
+        valid_ = valid;
+        refresh();
+    }
+
+    void busy_changed(bool busy) {
+        busy_ = busy;
+        refresh();
+    }
+
+private:
+    void refresh() { update_submit_(valid_ && !busy_); }
+
+    std::function<void(bool)> update_submit_;
+    bool valid_ = false;
+    bool busy_ = false;
+};
+
+$0

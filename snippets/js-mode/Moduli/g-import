@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Importazione ESM di un simbolo
+# key: g-import
+# group: Moduli
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import { ${1:handler} } from "./${2:handler.js}";$0

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+function ${1:timed}(operation, report = console.debug) {
+  return function (...args) {
+    const start = performance.now();
+    try {
+      return Reflect.apply(operation, this, args);
+    } finally {
+      report(performance.now() - start);
+    }
+  };
+}
+$0

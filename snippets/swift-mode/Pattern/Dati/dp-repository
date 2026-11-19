@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Repository — porta Sendable e adattatore actor
+# key: dp-repository
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il caso d'uso parla il contratto del dominio. Il repository traduce le operazioni verso lo storage.
+
+struct Item: Sendable {
+    let id: String
+    let label: String
+}
+
+protocol ItemRepository: Sendable {
+    func find(_ id: String) async -> Item?
+}
+
+actor ${1:MemoryItems}: ItemRepository {
+    private var items: [String: Item] = [:]
+
+    func find(_ id: String) -> Item? { items[id] }
+
+    func save(_ item: Item) {
+        items[item.id] = item
+    }
+}
+$0

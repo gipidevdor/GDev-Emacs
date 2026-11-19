@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Null Object — oggetto neutro con la stessa interfaccia
+# key: dp-null-object
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Un'implementazione neutra permette al consumatore di usare sempre lo stesso contratto.
+
+from typing import Protocol
+
+
+class Audit(Protocol):
+    def record(self, message: str) -> None: ...
+
+
+class ${1:NullAudit}:
+    def record(self, message: str) -> None:
+        pass
+
+
+$0

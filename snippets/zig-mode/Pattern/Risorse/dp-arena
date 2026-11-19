@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Arena — rilascia insieme tutte le allocazioni di un'operazione
+# key: dp-arena
+# group: Pattern.Risorse
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La memoria appartiene all'arena e non deve sopravvivere al suo rilascio.
+
+const std = @import("std");
+
+pub fn ${1:work}(backing: std.mem.Allocator) !void {
+    var arena = std.heap.ArenaAllocator.init(backing);
+    defer arena.deinit();
+
+    const allocator = arena.allocator();
+    const name = try allocator.dupe(u8, "example");
+    $0
+    std.log.info("{s}", .{name});
+}

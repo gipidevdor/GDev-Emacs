@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Classe CLOS con slot e initform lessicale
+# key: g-class
+# group: CLOS
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defclass ${1:item} ()
+  ((name :initarg :name :reader item-name)
+   (tags :initarg :tags :initform nil :accessor item-tags))
+  (:documentation "${2:A named item with tags.}"))
+
+$0

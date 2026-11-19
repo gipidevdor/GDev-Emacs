@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: scheletro di test (Test::More)
+# key: test
+# --
+use v5.36;
+use Test::More;
+
+use_ok('${1:Module::Name}');
+
+$0
+
+done_testing;

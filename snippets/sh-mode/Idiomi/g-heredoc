@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Here-document letterale senza espansioni
+# key: g-heredoc
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le virgolette sul delimitatore disabilitano le espansioni nel corpo.
+cat <<'${1:EOF}'
+$0
+$1

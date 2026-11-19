@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Pytest — verifica dell'eccezione e del messaggio
+# key: g-pytest-raises
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import pytest
+
+
+def test_${1:invalid_value}():
+    with pytest.raises(${2:ValueError}, match="${3:invalid literal}"):
+        ${4:int("not a number")}
+    $0

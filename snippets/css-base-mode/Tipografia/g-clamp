@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Tipografia fluida limitata con clamp
+# key: g-clamp
+# group: Tipografia
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:heading} {
+  font-size: clamp(${2:1.5rem}, ${3:1rem + 2vw}, ${4:3rem});
+  line-height: 1.2;
+  $0
+}

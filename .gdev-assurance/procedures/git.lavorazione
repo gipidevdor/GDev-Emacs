@@ -1,0 +1,12 @@
+{
+  "versione": 1,
+  "passi": [
+    {
+      "azione": "progetto-test-python",
+      "argomenti": {
+        "file": "test/gdev-assurance-git-test.py",
+        "argomenti": "[]"
+      }
+    }
+  ]
+}

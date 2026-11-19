@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Token Bucket — limite locale basato su tempo monotono
+# key: dp-rate-limiter
+# group: Pattern.Affidabilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Misura gli intervalli con un orologio monotono. Il limite qui appartiene a un singolo processo.
+
+from time import monotonic
+
+
+class ${1:TokenBucket}:
+    """Call from one event loop or protect take() with an external lock."""
+
+    def __init__(self, rate: float, capacity: int) -> None:
+        if rate <= 0 or capacity < 1:
+            raise ValueError("Rate and capacity must be positive")
+        self.rate = rate
+        self.capacity = capacity
+        self._tokens = float(capacity)
+        self._last = monotonic()
+
+    def take(self) -> bool:
+        now = monotonic()
+        self._tokens = min(self.capacity, self._tokens + (now - self._last) * self.rate)
+        self._last = now
+        if self._tokens < 1:
+            return False
+        self._tokens -= 1
+        return True
+
+
+$0

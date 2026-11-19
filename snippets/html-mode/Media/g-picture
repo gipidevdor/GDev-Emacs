@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Picture — immagini responsive con fallback e testo alternativo
+# key: g-picture
+# group: Media
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<picture>
+  <source type="image/avif" srcset="${1:image}.avif">
+  <source type="image/webp" srcset="$1.webp">
+  <img src="$1.jpg" alt="${2:Descrizione}" width="${3:800}" height="${4:450}" decoding="async">
+</picture>$0

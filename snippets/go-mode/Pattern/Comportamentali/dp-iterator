@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Iterator — iter.Seq e uscita anticipata del consumatore (Go 1.23+)
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+package ${1:example}
+
+import "iter"
+
+func ${2:Positive}(values []int) iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for _, value := range values {
+			if value > 0 && !yield(value) {
+				return
+			}
+		}
+	}
+}
+$0

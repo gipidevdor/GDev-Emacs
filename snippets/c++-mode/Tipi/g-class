@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Classe con costruttore esplicito e membro privato
+# key: g-class
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <string>
+#include <utility>
+
+class ${1:Item} {
+public:
+    explicit $1(std::string name) : name_{std::move(name)} {}
+
+    [[nodiscard]] const std::string& name() const noexcept { return name_; }
+
+private:
+    std::string name_;
+};
+
+$0

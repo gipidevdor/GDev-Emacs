@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Data Mapper — traduce una riga in un oggetto di dominio
+# key: dp-data-mapper
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Mantieni qui la traduzione tra colonne persistite e proprietà del dominio.
+
+from collections.abc import Mapping
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ${1:Product}:
+    identifier: int
+    cents: int
+
+
+def ${2:product_from_row}(row: Mapping[str, int]) -> $1:
+    return $1(identifier=row["id"], cents=row["price_cents"])
+
+
+def ${3:product_to_row}(product: $1) -> dict[str, int]:
+    return {"id": product.identifier, "price_cents": product.cents}
+
+
+$0

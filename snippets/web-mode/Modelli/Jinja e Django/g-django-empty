@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Django — ciclo con vista per elenco vuoto
+# key: g-django-empty
+# group: Modelli.Jinja e Django
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+{% for ${1:item} in ${2:items} %}
+  <li>{{ $1.label }}</li>
+{% empty %}
+  <li>${3:Nessun elemento.}</li>
+{% endfor %}
+</ul>
+$0

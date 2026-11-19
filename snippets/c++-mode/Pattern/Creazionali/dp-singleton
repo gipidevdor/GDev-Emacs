@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Singleton — unica istanza
+# key: dp-singleton
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+class ${1:Settings} final {
+public:
+    [[nodiscard]] static const $1& instance() {
+        static const $1 value;
+        return value;
+    }
+
+    $1(const $1&) = delete;
+    $1& operator=(const $1&) = delete;
+
+    [[nodiscard]] int timeout_seconds() const noexcept { return ${2:5}; }
+
+private:
+    $1() = default;
+};
+
+$0

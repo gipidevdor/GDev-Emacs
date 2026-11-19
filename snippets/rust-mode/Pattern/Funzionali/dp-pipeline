@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Pipeline — iteratori pigri che prendono in prestito il testo
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+pub fn ${1:records}(input: &str) -> impl Iterator<Item = &str> {
+    input.lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+}
+$0

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Async let — avvia due lavori e attendi insieme i risultati
+# key: g-async-let
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+func ${1:loadPair}(_ load: @Sendable (String) async throws -> String) async throws -> [String] {
+    // I due task sono figli dello scope e vengono attesi anche all'uscita.
+    async let first = load("first")
+    async let second = load("second")
+    $0
+    return try await [first, second]
+}

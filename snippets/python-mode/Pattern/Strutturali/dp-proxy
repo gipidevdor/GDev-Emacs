@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Proxy — accesso indiretto a un oggetto
+# key: dp-proxy
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il chiamante passa per la stessa interfaccia. Il proxy controlla quando raggiungere il destinatario.
+
+from collections.abc import Callable
+from functools import cached_property
+from typing import Protocol
+
+
+class Report(Protocol):
+    def render(self) -> str: ...
+
+
+class ${1:LazyReport}:
+    def __init__(self, load: Callable[[], Report]) -> None:
+        self._load = load
+
+    @cached_property
+    def _report(self) -> Report:
+        return self._load()
+
+    def render(self) -> str:
+        return self._report.render()
+
+
+$0

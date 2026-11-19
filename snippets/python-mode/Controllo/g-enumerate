@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Iterazione indicizzata con enumerate
+# key: g-enumerate
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+for ${1:index}, ${2:item} in enumerate(${3:items}, start=1):
+    $0pass

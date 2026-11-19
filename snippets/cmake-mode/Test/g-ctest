@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: CTest — costruzione del target di test e registrazione
+# key: g-ctest
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+include(CTest)
+if(BUILD_TESTING)
+  add_executable(${1:core_tests} "${2:tests/core.cpp}")
+  target_link_libraries($1 PRIVATE ${3:core})
+  add_test(NAME $1 COMMAND $1)
+endif()
+$0

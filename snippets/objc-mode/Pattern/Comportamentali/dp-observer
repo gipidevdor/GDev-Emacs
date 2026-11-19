@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Observer — notifica Foundation con token di disiscrizione
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+#import <Foundation/Foundation.h>
+
+id ${1:observeChanges}(NSNotificationCenter *center, void (^handler)(NSNotification *))
+{
+    // Retain the token and pass it to removeObserver: when finished.
+    return [center addObserverForName:@"${2:SettingsDidChange}"
+                              object:nil
+                               queue:NSOperationQueue.mainQueue
+                          usingBlock:handler];
+}
+$0

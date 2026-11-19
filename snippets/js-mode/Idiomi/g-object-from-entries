@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Seleziona proprietà di un oggetto con Object.fromEntries
+# key: g-object-from-entries
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Object.entries enumera soltanto proprietà proprie, enumerabili e con chiave stringa.
+const ${1:visible} = Object.fromEntries(
+  Object.entries(${2:\{ title: "Example", _internal: true \}})
+    .filter(([key]) => !key.startsWith("_")),
+);
+$0

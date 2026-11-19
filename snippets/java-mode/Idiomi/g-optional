@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Optional — calcola il fallback soltanto in assenza del valore
+# key: g-optional
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import java.util.Optional;
+import java.util.function.Supplier;
+
+final class ${1:Labels} {
+    static String label(Optional<String> candidate, Supplier<String> fallback) {
+        // orElseGet evita di calcolare valori costosi se il candidato è presente.
+        $0
+        return candidate.filter(value -> !value.isBlank()).orElseGet(fallback);
+    }
+}

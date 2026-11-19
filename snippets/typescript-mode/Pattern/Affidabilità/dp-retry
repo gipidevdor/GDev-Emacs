@@ -1,0 +1,42 @@
+# -*- mode: snippet -*-
+# name: Retry — predicate, backoff con jitter e cancellazione
+# key: dp-retry
+# group: Pattern.Affidabilità
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ripeti operazioni idempotenti, con un limite e una decisione esplicita sugli errori ripetibili.
+
+function delay(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    signal.throwIfAborted();
+    const abort = () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", abort);
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", abort, { once: true });
+  });
+}
+
+async function ${1:retry}<T>(
+  operation: (signal: AbortSignal) => Promise<T>,
+  retryable: (error: unknown) => boolean,
+  signal: AbortSignal,
+  attempts = ${2:4},
+): Promise<T> {
+  if (!Number.isSafeInteger(attempts) || attempts < 1) throw new RangeError("Invalid attempts");
+  for (let index = 0; ; index++) {
+    signal.throwIfAborted();
+    try {
+      return await operation(signal);
+    } catch (error) {
+      if (signal.aborted || index + 1 === attempts || !retryable(error)) throw error;
+      await delay(Math.random() * Math.min(2000, 100 * 2 ** index), signal);
+    }
+  }
+}
+$0

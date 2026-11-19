@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Pipeline — composizione di trasformazioni pigre
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+from collections.abc import Iterable, Iterator
+
+
+def ${1:records}(lines: Iterable[str]) -> Iterator[str]:
+    stripped = (line.strip() for line in lines)
+    return (line for line in stripped if line and not line.startswith("#"))
+
+
+$0

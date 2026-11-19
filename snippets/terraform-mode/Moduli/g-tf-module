@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Modulo locale parametrizzato
+# key: g-tf-module
+# group: Moduli
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+module "${1:service}" {
+  source = "./modules/$1"
+  ${2:label} = "${3:example}"
+  $0
+}

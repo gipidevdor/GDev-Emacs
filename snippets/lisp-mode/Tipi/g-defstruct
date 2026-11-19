@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Defstruct con tipo e valore predefinito dello slot
+# key: g-defstruct
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defstruct ${1:point}
+  (x 0 :type integer)
+  (y 0 :type integer))
+$0

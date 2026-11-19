@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+(defclass ${1:exporter} () ())
+(defclass markdown-exporter ($1) ())
+
+(defgeneric make-writer (exporter))
+(defmethod make-writer ((exporter markdown-exporter))
+  (declare (ignore exporter))
+  (lambda (text) (format nil "# ~A" text)))
+
+(defun render (exporter text)
+  (funcall (make-writer exporter) text))
+$0

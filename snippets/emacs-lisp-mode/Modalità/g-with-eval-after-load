@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Registra un tasto quando la libreria è pronta
+# key: g-with-eval-after-load
+# group: Modalità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(with-eval-after-load '${1:org}
+  (keymap-set ${2:org-mode-map} "${3:C-c C-x}" #'${4:ignore}))
+$0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Jinja/Django — include parziale nella posizione corrente
+# key: g-jinja-include
+# group: Modelli.Jinja e Django
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{% include "${1:partials/item.html}" %}$0

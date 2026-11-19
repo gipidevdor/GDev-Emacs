@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Singleton — unica istanza
+# key: dp-singleton
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+use std::sync::OnceLock;
+
+pub struct ${1:Settings} {
+    pub retries: u8,
+}
+
+static SETTINGS: OnceLock<$1> = OnceLock::new();
+
+pub fn settings() -> &'static $1 {
+    SETTINGS.get_or_init(|| $1 { retries: 3 })
+}
+$0

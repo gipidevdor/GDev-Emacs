@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Metadati YAML in testa al documento
+# key: g-front-matter
+# group: Struttura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+---
+title: "${1:Titolo}"
+description: "${2:Descrizione breve}"
+---
+
+$0

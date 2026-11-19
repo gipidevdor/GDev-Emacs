@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Proprietà di superficie con colori di sistema chiari e scuri
+# key: g-theme
+# group: Tema
+# expand-env: ((yas-indent-line 'fixed))
+# --
+:root {
+  color-scheme: light dark;
+  --surface: Canvas;
+  --text: CanvasText;
+  --link: LinkText;
+}
+
+body {
+  color: var(--text);
+  background: var(--surface);
+  $0
+}

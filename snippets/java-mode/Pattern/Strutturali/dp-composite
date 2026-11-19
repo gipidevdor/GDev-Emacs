@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+import java.util.List;
+
+interface Node { long size(); }
+
+final class FileNode implements Node {
+    private final long bytes;
+
+    FileNode(long bytes) { this.bytes = bytes; }
+
+    @Override
+    public long size() { return bytes; }
+}
+
+final class ${1:DirectoryNode} implements Node {
+    private final List<Node> children;
+
+    $1(List<Node> children) { this.children = List.copyOf(children); }
+
+    @Override
+    public long size() { return children.stream().mapToLong(Node::size).sum(); }
+}
+$0

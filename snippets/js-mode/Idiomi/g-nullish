@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Valore di riserva con ?? che conserva zero e false
+# key: g-nullish
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// ?? usa il valore di riserva soltanto per null e undefined.
+const ${1:limit} = ${2:settings}?.limit ?? ${3:20};
+$0

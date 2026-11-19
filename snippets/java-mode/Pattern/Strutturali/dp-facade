@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Facade — ingresso unico a un sottosistema
+# key: dp-facade
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'ordine delle chiamate ai sottosistemi rimane in un unico punto.
+
+import java.util.function.BiFunction;
+import java.util.function.ToIntFunction;
+
+final class ${1:Checkout} {
+    private final ToIntFunction<String> quote;
+    private final BiFunction<String, Integer, String> place;
+
+    $1(ToIntFunction<String> quote, BiFunction<String, Integer, String> place) {
+        this.quote = quote;
+        this.place = place;
+    }
+
+    String checkout(String cartId) { return place.apply(cartId, quote.applyAsInt(cartId)); }
+}
+$0

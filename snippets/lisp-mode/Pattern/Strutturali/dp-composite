@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+(defgeneric node-size (node))
+
+(defclass file-node ()
+  ((bytes :initarg :bytes :reader bytes)))
+
+(defclass ${1:directory-node} ()
+  ((children :initarg :children :initform nil :reader children)))
+
+(defmethod node-size ((node file-node))
+  (bytes node))
+
+(defmethod node-size ((node $1))
+  (reduce #'+ (children node) :key #'node-size :initial-value 0))
+$0

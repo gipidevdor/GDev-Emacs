@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Web Storage — lettura con valore predefinito
+# key: g-web-storage
+# group: DOM
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+function ${1:readPreference}(key, fallback) {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored === null ? fallback : JSON.parse(stored);
+  } catch {
+    return fallback;
+  }
+}
+$0

@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Template Method — passi specializzabili
+# key: dp-template-method
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Mantieni fissa la sequenza dei passaggi e rendi sostituibili i passaggi specifici.
+
+abstract class ${1:Importer} {
+  run(source: string): string[] {
+    return this.parse(source).filter((line) => line.trim() !== "");
+  }
+
+  protected abstract parse(source: string): string[];
+}
+
+class LineImporter extends $1 {
+  protected override parse(source: string): string[] {
+    return source.split(/\\r?\\n/);
+  }
+}
+$0

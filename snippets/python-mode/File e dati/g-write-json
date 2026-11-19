@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Esportazione JSON UTF-8 con nuova riga finale
+# key: g-write-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import json
+from pathlib import Path
+
+Path("${1:payload.json}").write_text(
+    json.dumps(${2:\{"enabled": True\}}, ensure_ascii=False, indent=2) + "\\n",
+    encoding="utf-8",
+)
+$0

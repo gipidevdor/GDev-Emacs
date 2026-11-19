@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Result — unione discriminata con errore di dominio
+# key: dp-result
+# group: Pattern.Funzionali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Rendi rappresentabile il fallimento insieme al successo, così il chiamante può gestire entrambi.
+
+type Result<T, E> =
+  | { ok: true; value: T }
+  | { ok: false; error: E };
+
+function ${1:parseCount}(text: string): Result<number, string> {
+  if (text.trim() === "") return { ok: false, error: "Missing count" };
+  const value = Number(text);
+  return Number.isSafeInteger(value) && value >= 0
+    ? { ok: true, value }
+    : { ok: false, error: "Expected a non-negative integer" };
+}
+$0

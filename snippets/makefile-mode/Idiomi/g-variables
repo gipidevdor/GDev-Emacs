@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Variabili semplici e valori di fallback
+# key: g-variables
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# ?= rispetta il valore dell'ambiente o della riga di comando.
+${1:BUILD_DIR} ?= ${2:build}
+# := espande la parte destra una volta, al momento della definizione.
+${3:OBJECTS} := \$(patsubst %.c,\$($1)/%.o,\$(wildcard *.c))
+$0

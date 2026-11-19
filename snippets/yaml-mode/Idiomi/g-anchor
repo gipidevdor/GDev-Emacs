@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Ancora locale e alias riutilizzabile nello stesso documento
+# key: g-anchor
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'alias riferisce l'intero valore nell'ambito di questo documento.
+${1:enabled_regions}: &${2:regions}
+  - eu
+  - us
+deployment:
+  regions: *$2
+$0

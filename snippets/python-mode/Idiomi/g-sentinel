@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Sentinella — distingue il valore mancante da None
+# key: g-sentinel
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+_MISSING = object()
+
+
+def ${1:get_label}(settings: dict[str, str | None]) -> str | None:
+    # Usa l'identità, dato che None può essere uno stato del dominio.
+    value = settings.get("label", _MISSING)
+    if value is _MISSING:
+        return "${2:Untitled}"
+    return settings["label"]
+
+
+$0

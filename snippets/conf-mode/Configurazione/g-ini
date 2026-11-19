@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: INI — sezione con opzioni di esempio
+# key: g-ini
+# group: Configurazione
+# condition: (and (not (derived-mode-p 'conf-toml-mode)) (not (and buffer-file-name (string-match-p "/\\.env\\(?:\\.\\|\\'\\)" buffer-file-name))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[${1:application}]
+${2:host} = ${3:localhost}
+port = 8080
+$0

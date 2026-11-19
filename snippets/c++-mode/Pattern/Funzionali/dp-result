@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Result — std::expected e parsing con std::from_chars (C++23)
+# key: dp-result
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Rendi rappresentabile il fallimento insieme al successo, così il chiamante può gestire entrambi.
+
+#include <charconv>
+#include <expected>
+#include <string_view>
+#include <system_error>
+
+[[nodiscard]] std::expected<int, std::errc> ${1:parse_int}(std::string_view text) {
+    if (text.empty()) return std::unexpected{std::errc::invalid_argument};
+    int value{};
+    const auto end = text.data() + text.size();
+    const auto [parsed, error] = std::from_chars(text.data(), end, value);
+    if (error != std::errc{}) return std::unexpected{error};
+    if (parsed != end) return std::unexpected{std::errc::invalid_argument};
+    return value;
+}
+
+$0

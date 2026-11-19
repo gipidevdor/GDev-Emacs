@@ -1,0 +1,38 @@
+# -*- mode: snippet -*-
+# name: CQRS — separa il comando dal modello di lettura
+# key: dp-cqrs
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il percorso di scrittura applica vincoli. Il percorso di lettura espone la vista richiesta.
+
+from dataclasses import dataclass
+from typing import Protocol
+
+
+@dataclass(frozen=True)
+class ${1:RenameItem}:
+    item_id: str
+    label: str
+
+
+class ItemWriter(Protocol):
+    def rename(self, item_id: str, label: str) -> None: ...
+
+
+class ItemReader(Protocol):
+    def label(self, item_id: str) -> str | None: ...
+
+
+def handle(command: $1, writer: ItemWriter) -> None:
+    label = command.label.strip()
+    if not label:
+        raise ValueError("Label required")
+    writer.rename(command.item_id, label)
+
+
+def ${2:query_label}(item_id: str, reader: ItemReader) -> str | None:
+    return reader.label(item_id)
+
+
+$0

@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Jinja/Django — interpolazione HTML con escaping esplicito
+# key: g-jinja-escape
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{# Usa il filtro escape per visualizzare del testo anche con autoescape disattivato. #}
+{{ ${1:user_label} | escape }}$0

@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Visitor — operazioni su più tipi
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+#include <numbers>
+#include <variant>
+
+struct Circle { double radius; };
+struct Square { double side; };
+
+using Shape = std::variant<Circle, Square>;
+
+struct Area {
+    double operator()(const Circle& circle) const {
+        return std::numbers::pi * circle.radius * circle.radius;
+    }
+
+    double operator()(const Square& square) const {
+        return square.side * square.side;
+    }
+};
+
+[[nodiscard]] double ${1:area}(const Shape& shape) {
+    return std::visit(Area{}, shape);
+}
+
+$0

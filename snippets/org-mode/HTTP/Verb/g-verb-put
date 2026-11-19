@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Verb — richiesta PUT condizionata con If-Match
+# key: g-verb-put
+# group: HTTP.Verb
+# expand-env: ((yas-indent-line 'fixed))
+# --
+** ${1:Aggiorna elemento}
+put /${2:items}/${3:42}
+If-Match: "${4:revision-1}"
+Content-Type: application/json
+
+{"label": "${5:Updated}"}
+$0

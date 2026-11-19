@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Bridge — astrazione e implementazione indipendenti
+# key: dp-bridge
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'astrazione può evolvere indipendentemente dall'implementazione che riceve.
+
+from typing import Protocol
+
+
+class Renderer(Protocol):
+    def heading(self, title: str) -> str: ...
+
+
+class ${1:MarkdownRenderer}:
+    def heading(self, title: str) -> str:
+        return f"## {title}"
+
+
+class Report:
+    def __init__(self, title: str, renderer: Renderer) -> None:
+        self._title = title
+        self._renderer = renderer
+
+    def render(self) -> str:
+        return self._renderer.heading(self._title)
+
+
+$0

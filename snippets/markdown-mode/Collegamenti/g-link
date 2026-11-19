@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Collegamento con testo descrittivo
+# key: g-link
+# group: Collegamenti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[${1:Titolo della risorsa}](${2:https://example.org})$0

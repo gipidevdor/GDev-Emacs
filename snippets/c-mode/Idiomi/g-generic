@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Generic selection — scegli una funzione in base al tipo C11
+# key: g-generic
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// _Generic sceglie l'implementazione senza valutare l'espressione di controllo.
+#define ${1:ABS_VALUE}(x) _Generic((x), int: abs, long: labs, long long: llabs)(x)
+#include <stdlib.h>
+
+long ${2:magnitude}(long value)
+{
+    // Precondizione: value è diverso da LONG_MIN.
+    return $1(value);
+}
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+(defun ${1:sorted-lines} (lines lessp)
+  "Return a sorted copy of LINES using LESSP."
+  (sort (copy-sequence lines) lessp))
+
+($1 '("beta" "alpha") #'string-lessp)
+$0

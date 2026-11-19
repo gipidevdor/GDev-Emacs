@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Dotenv — impostazioni locali di esempio
+# key: g-env
+# group: Configurazione
+# condition: (or (not buffer-file-name) (string-match-p "/\\.env\\(?:\\.\\|\\'\\)" buffer-file-name))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+APP_ENV=${1:development}
+LOG_LEVEL=${2:info}
+PORT=${3:8080}
+$0

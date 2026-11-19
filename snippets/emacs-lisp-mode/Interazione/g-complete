@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Completing-read — scelta obbligatoria tra valori noti
+# key: g-complete
+# group: Interazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(let ((${1:choice} (completing-read "${2:Action: }" '("show" "hide") nil t)))
+  $0(message "%s" $1))

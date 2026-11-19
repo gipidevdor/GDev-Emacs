@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+#include <stdbool.h>
+#include <stddef.h>
+
+typedef bool (*handler)(const char *request, int *answer);
+
+bool ${1:dispatch}(const char *request, const handler *handlers, size_t length, int *answer)
+{
+    for (size_t i = 0; i < length; ++i) {
+        if (handlers[i](request, answer)) return true;
+    }
+    return false;
+}
+
+$0

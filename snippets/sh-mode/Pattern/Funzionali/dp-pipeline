@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Pipeline — trasforma testo in più fasi
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+# LC_ALL=C rende stabile l'ordine dei risultati.
+LC_ALL=C sort "${1:input.txt}" | uniq -c | sort -nr
+$0

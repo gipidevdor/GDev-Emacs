@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Visitor — dispatch multiplo con CLOS
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+(defclass circle () ((radius :initarg :radius :reader radius)))
+(defclass square () ((side :initarg :side :reader side)))
+(defclass ${1:area-visitor} () ())
+
+;; CLOS può scegliere il metodo usando entrambi gli argomenti.
+(defgeneric visit (operation shape))
+
+(defmethod visit ((operation $1) (shape circle))
+  (declare (ignore operation))
+  (* pi (expt (radius shape) 2)))
+
+(defmethod visit ((operation $1) (shape square))
+  (declare (ignore operation))
+  (expt (side shape) 2))
+$0

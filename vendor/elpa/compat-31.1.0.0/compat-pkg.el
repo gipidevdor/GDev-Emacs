@@ -1,0 +1,3 @@
+;; Generated package description from compat.el  -*- no-byte-compile: t; lexical-binding:t -*-
+;; Modificato per GDev-Emacs il 2026-11-15: descrizione del pacchetto in italiano.
+(define-package "compat" "31.1.0.0" "Compatibilità tra versioni di Emacs" '((emacs "25.1")) :commit "90880f81419577e1d3f68424d2a3adf31e6d663e" :authors '(("Philip Kaludercic" . "philipk@posteo.net") ("Daniel Mendler" . "mail@daniel-mendler.de")) :maintainer '(("Philip Kaludercic" . "philipk@posteo.net") ("Daniel Mendler" . "mail@daniel-mendler.de")) :keywords '("lisp" "maint") :url "https://github.com/emacs-compat/compat")

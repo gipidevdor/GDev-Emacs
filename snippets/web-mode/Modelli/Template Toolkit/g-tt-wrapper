@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Template Toolkit — wrapper del contenuto con titolo
+# key: g-tt-wrapper
+# group: Modelli.Template Toolkit
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[% WRAPPER ${1:layout.tt} title = '${2:Titolo}' %]
+  $0
+[% END %]

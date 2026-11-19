@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Timer inattivo con sostituzione del precedente
+# key: g-timer
+# group: Processi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defvar ${1:example-timer} nil)
+
+(defun ${2:schedule-example} ()
+  "Schedule the action after a short idle interval."
+  (when (timerp $1) (cancel-timer $1))
+  (setq $1
+        (run-with-idle-timer
+         ${3:0.2} nil
+         (lambda ()
+           (setq $1 nil)
+           $0(message "Ready")))))

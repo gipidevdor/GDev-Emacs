@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Pipeline — filtra e trasforma con ranges
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+#include <ranges>
+#include <vector>
+
+std::vector<int> ${1:square_positives}(const std::vector<int>& values) {
+    auto view = values
+        | std::views::filter([](int value) { return 0 <= value && value <= 100; })
+        | std::views::transform([](int value) { return value * value; });
+    return {view.begin(), view.end()};
+}
+
+$0

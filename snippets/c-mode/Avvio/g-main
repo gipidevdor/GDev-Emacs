@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Programma C con codice di uscita e argomenti
+# key: g-main
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char **argv)
+{
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s INPUT\\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    $0
+    return EXIT_SUCCESS;
+}

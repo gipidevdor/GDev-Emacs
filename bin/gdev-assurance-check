@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""Verify signed GDev commit receipts without executing project code.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+Copyright (C) 2026 Giacomo Picchiarelli
+"""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
+
+NAMESPACE = "assurance@gdev-emacs"
+PREFIX = b".gdev-assurance/receipts/"
+OID = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?\Z")
+DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+
+
+class Refused(Exception):
+    """A commit lacks a valid, externally authorized receipt."""
+
+
+def git(root, *args):
+    result = subprocess.run(
+        ["git", "--no-replace-objects", "--no-optional-locks", "-c", "core.hooksPath=/dev/null",
+         "-c", "core.fsmonitor=false", "-C", str(root), *args],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+    )
+    if result.returncode:
+        raise Refused(result.stderr.decode("utf-8", "replace").strip())
+    return result.stdout
+
+
+def resolve(root, ref):
+    value = git(root, "rev-parse", "--verify", "--end-of-options", ref + "^{commit}").decode().strip()
+    if not OID.fullmatch(value):
+        raise Refused("Riferimento Git non valido")
+    return value
+
+
+def tree_entries(root, tree):
+    entries = git(root, "ls-tree", "-rz", "--full-tree", tree).split(b"\0")
+    source = []
+    receipts = {}
+    for entry in filter(None, entries):
+        metadata, path = entry.split(b"\t", 1)
+        mode, kind, oid = metadata.split(b" ")
+        if path.startswith(PREFIX):
+            if (mode != b"100644" or kind != b"blob" or not re.fullmatch(
+                    rb"[0-9a-f]{64}\.(json|sig)", path[len(PREFIX):])):
+                raise Refused("La cartella delle ricevute ammette solo dati regolari")
+            receipts[path] = oid.decode("ascii")
+        else:
+            source.append(entry + b"\0")
+    return hashlib.sha256(b"".join(source)).hexdigest(), receipts
+
+
+def snapshot(root, amend=False, include_tree=False):
+    tree = git(root, "write-tree").decode().strip()
+    head = resolve(root, "HEAD")
+    parents = git(root, "show", "-s", "--format=%P", head).decode().strip().split() if amend else [head]
+    merge = git(root, "rev-parse", "--git-path", "MERGE_HEAD").decode().strip()
+    merge_file = Path(merge)
+    if not merge_file.is_absolute():
+        merge_file = Path(root) / merge_file
+    if merge_file.exists():
+        if amend:
+            raise Refused("Un merge in corso non si firma come amend")
+        for value in merge_file.read_text().splitlines():
+            if not OID.fullmatch(value):
+                raise Refused("Genitore del merge non valido")
+            parents.append(resolve(root, value))
+    digest, _ = tree_entries(root, tree)
+    value = {"source_digest": digest, "parents": parents}
+    if include_tree:
+        value["tree"] = tree
+    return value
+
+
+def object_pairs(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise Refused("Chiavi duplicate nella ricevuta")
+        value[key] = item
+    return value
+
+
+def verify(root, tree, parents, message, signers, repository):
+    # Git's trailer parser defines trailers; body text is never an approval.
+    parsed = subprocess.run(["git", "interpret-trailers", "--parse"], input=message,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True).stdout
+    trailers = {}
+    for line in parsed.decode("utf-8", "strict").splitlines():
+        key, _, value = line.partition(":")
+        key = key.lower()
+        if key in ("gdev-transaction", "gdev-receipt"):
+            if key in trailers:
+                raise Refused("Trailer GDev duplicato")
+            trailers[key] = value.strip()
+    tx = trailers.get("gdev-transaction", "")
+    receipt = trailers.get("gdev-receipt", "")
+    if not re.fullmatch(r"GT-[0-9]{4,18}", tx) or not DIGEST.fullmatch(receipt):
+        raise Refused("Servono GDev-Transaction e GDev-Receipt validi")
+    digest, entries = tree_entries(root, tree)
+    name = PREFIX + receipt.encode() + b".json"
+    try:
+        payload_oid, signature_oid = entries[name], entries[name[:-5] + b".sig"]
+        if (int(git(root, "cat-file", "-s", payload_oid)) > 131072
+                or int(git(root, "cat-file", "-s", signature_oid)) > 16384):
+            raise Refused("Ricevuta troppo grande")
+        payload = git(root, "cat-file", "blob", payload_oid)
+        signature = git(root, "cat-file", "blob", signature_oid)
+    except KeyError as error:
+        raise Refused("Ricevuta o firma assente dall'albero Git") from error
+    if len(payload) > 131072 or len(signature) > 16384:
+        raise Refused("Ricevuta troppo grande")
+    if hashlib.sha256(payload).hexdigest() != receipt:
+        raise Refused("Impronta della ricevuta diversa dal trailer")
+    data = json.loads(payload, object_pairs_hook=object_pairs)
+    fields = {"format", "transaction", "profile", "state", "authorized_by", "signer",
+              "chain_head", "controls_digest", "source_digest", "parents", "repository"}
+    if not isinstance(data, dict) or set(data) != fields:
+        raise Refused("Campi della ricevuta non validi")
+    if (data["format"] != "GES-commit-1" or data["transaction"] != tx
+            or data["repository"] != repository or not repository
+            or data["parents"] != parents or data["source_digest"] != digest
+            or data["profile"] not in ("core", "quality", "secure", "high-assurance", "critical")
+            or data["state"] not in ("AUTHORIZED", "IMPLEMENTING", "VERIFYING", "REVIEWING", "APPROVED", "BASELINED")):
+        raise Refused("La ricevuta non autorizza questo contenuto e questi genitori")
+    for key in ("chain_head", "controls_digest"):
+        if not isinstance(data[key], str) or not DIGEST.fullmatch(data[key]):
+            raise Refused("Impronta dell'archivio non valida")
+    for key in ("authorized_by", "signer"):
+        if (not isinstance(data[key], str) or not 0 < len(data[key]) <= 200
+                or any(ord(c) < 32 or ord(c) == 127 for c in data[key])):
+            raise Refused("Identità dell'autorizzazione non valida")
+    with tempfile.TemporaryDirectory(prefix="gdev-signature-") as directory:
+        sig = Path(directory) / "receipt.sig"
+        sig.write_bytes(signature)
+        result = subprocess.run(["ssh-keygen", "-Y", "verify", "-f", str(signers),
+                                 "-I", data["signer"], "-n", NAMESPACE, "-s", str(sig)],
+                                input=payload, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                check=False)
+        if result.returncode:
+            raise Refused("Firma non valida o firmatario non autorizzato")
+    return receipt
+
+
+def verify_commit(root, commit, signers, repository):
+    commit = resolve(root, commit)
+    parents = git(root, "show", "-s", "--format=%P", commit).decode().strip().split()
+    message = git(root, "show", "-s", "--format=%B", commit)
+    return verify(root, commit, parents, message, signers, repository)
+
+
+def verify_range(root, base, head, signers, repository):
+    base, head = resolve(root, base), resolve(root, head)
+    # A range must continue a trusted baseline, including merges and new branches.
+    result = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", base, head], check=False)
+    if result.returncode:
+        raise Refused("La revisione non discende dalla linea di base fidata")
+    commits = git(root, "rev-list", "--reverse", head, "^" + base).decode().splitlines()
+    for commit in commits:
+        verify_commit(root, commit, signers, repository)
+    return len(commits)
+
+
+def config(root, name):
+    return git(root, "config", "--local", "--get", name).decode().strip()
+
+
+def install(root, signers, repository):
+    checker = Path(__file__).resolve()
+    hooks = checker.parent.parent / ".githooks"
+    if not Path(signers).is_file() or not repository:
+        raise Refused("Indica il file esterno dei firmatari e l'identità del repository")
+    existing = subprocess.run(["git", "-C", str(root), "config", "--get", "core.hooksPath"],
+                              stdout=subprocess.PIPE, check=False).stdout.decode().strip()
+    if existing and Path(existing).resolve() != hooks:
+        raise Refused("core.hooksPath è già configurato: integra esplicitamente i ganci esistenti")
+    # The key file must not come from the candidate tree.
+    if Path(signers).resolve().is_relative_to(Path(root).resolve()):
+        raise Refused("Il file dei firmatari deve essere esterno al progetto")
+    for name, value in (("gdev.assuranceChecker", str(checker)),
+                        ("gdev.assuranceSigners", str(Path(signers).resolve())),
+                        ("gdev.assuranceRepository", repository),
+                        ("gdev.assuranceBase", resolve(root, "HEAD")),
+                        ("core.hooksPath", str(hooks))):
+        git(root, "config", "--local", name, value)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", default=os.getcwd())
+    parser.add_argument("--signers")
+    parser.add_argument("--repository")
+    sub = parser.add_subparsers(dest="command", required=True)
+    snapshot_parser = sub.add_parser("snapshot")
+    snapshot_parser.add_argument("--amend", action="store_true")
+    snapshot_parser.add_argument("--tree", action="store_true")
+    staged = sub.add_parser("staged")
+    staged.add_argument("message")
+    ranges = sub.add_parser("range")
+    ranges.add_argument("base")
+    ranges.add_argument("head")
+    sub.add_parser("pre-push")
+    sub.add_parser("install")
+    args = parser.parse_args()
+    try:
+        root = Path(args.root).resolve()
+        if args.command == "snapshot":
+            print(json.dumps(snapshot(root, args.amend, args.tree), sort_keys=True, separators=(",", ":")))
+            return 0
+        signers = args.signers or config(root, "gdev.assuranceSigners")
+        repository = args.repository or config(root, "gdev.assuranceRepository")
+        if args.command == "install":
+            install(root, signers, repository)
+        elif args.command == "staged":
+            state = snapshot(root)
+            tree = git(root, "write-tree").decode().strip()
+            message = Path(args.message).read_bytes()
+            try:
+                verify(root, tree, state["parents"], message, signers, repository)
+            except Refused:
+                # commit-msg doesn't receive --amend. Accept either authorized
+                # parent set here; pre-push/CI always check the actual commit.
+                verify(root, tree, snapshot(root, amend=True)["parents"], message, signers, repository)
+        elif args.command == "range":
+            print(verify_range(root, args.base, args.head, signers, repository))
+        else:
+            baseline = config(root, "gdev.assuranceBase")
+            for line in sys.stdin:
+                fields = line.split()
+                if len(fields) != 4:
+                    raise Refused("Riga pre-push non valida")
+                _, head, _, remote = fields
+                if set(head) == {"0"}:  # Branch deletion has no new commits.
+                    continue
+                base = baseline if set(remote) == {"0"} else remote
+                verify_range(root, base, head, signers, repository)
+        return 0
+    except (Refused, OSError, ValueError, TypeError, subprocess.SubprocessError) as error:
+        print(f"GDev: {error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

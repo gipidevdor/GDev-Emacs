@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Nota a piè di pagina con identificatore ripetuto
+# key: g-footnote
+# group: Struttura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:Testo con una nota}[^${2:source}].
+
+[^$2]: ${3:Dettaglio o fonte.}
+$0

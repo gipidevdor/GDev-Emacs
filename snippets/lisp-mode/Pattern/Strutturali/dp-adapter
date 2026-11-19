@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+(defclass legacy-sensor ()
+  ((fahrenheit :initarg :fahrenheit :reader fahrenheit)))
+
+(defun ${1:celsius-reader} (legacy)
+  (lambda () (* (- (fahrenheit legacy) 32) 5/9)))
+$0

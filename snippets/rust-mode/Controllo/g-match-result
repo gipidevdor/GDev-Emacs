@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Match su Result con errore contestualizzato
+# key: g-match-result
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+fn ${1:parse_count}(input: &str) -> Result<u32, String> {
+    match input.parse() {
+        Ok(value) => {
+            $0
+            Ok(value)
+        }
+        Err(cause) => Err(format!("invalid count {input:?}: {cause}")),
+    }
+}

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Django — form POST con token CSRF
+# key: g-django-csrf
+# group: Modelli.Jinja e Django
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<form method="post" action="{% url '${1:save}' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">${2:Salva}</button>
+  $0
+</form>

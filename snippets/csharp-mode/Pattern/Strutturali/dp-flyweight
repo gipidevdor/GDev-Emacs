@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Flyweight — condivisione di stato immutabile
+# key: dp-flyweight
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Condividi solo i dati intrinseci e immutabili. Tieni lo stato di ogni uso fuori dalla cache.
+
+using System.Collections.Concurrent;
+
+sealed record ${1:TextStyle}(string Font, int Size);
+
+sealed class TextStyles
+{
+    private readonly ConcurrentDictionary<(string Font, int Size), $1> styles = new();
+
+    public $1 Get(string font, int size) =>
+        styles.GetOrAdd((font, size), key => new $1(key.Font, key.Size));
+}
+$0

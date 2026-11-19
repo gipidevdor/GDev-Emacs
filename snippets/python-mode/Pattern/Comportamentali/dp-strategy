@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+from collections.abc import Callable
+
+
+def ${1:total}(amount: int, discount: Callable[[int], int]) -> int:
+    return amount - discount(amount)
+
+
+def ${2:ten_percent}(amount: int) -> int:
+    return amount // 10
+
+
+${3:price} = $1(${4:1000}, $2)
+$0

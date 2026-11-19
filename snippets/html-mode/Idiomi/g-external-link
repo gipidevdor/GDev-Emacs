@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Link esterno con apertura esplicita in nuova scheda
+# key: g-external-link
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<!-- noopener impedisce alla nuova pagina di accedere alla finestra d'origine. -->
+<a href="${1:https://example.org}" target="_blank" rel="noopener">${2:Risorsa (nuova scheda)}</a>$0

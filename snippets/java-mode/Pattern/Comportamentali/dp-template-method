@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Template Method — passi specializzabili
+# key: dp-template-method
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Mantieni fissa la sequenza dei passaggi e rendi sostituibili i passaggi specifici.
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+abstract class ${1:Importer} {
+    final List<String> run(String source) {
+        return parse(source).stream().filter(line -> !line.isBlank()).collect(Collectors.toList());
+    }
+
+    protected abstract List<String> parse(String source);
+}
+$0

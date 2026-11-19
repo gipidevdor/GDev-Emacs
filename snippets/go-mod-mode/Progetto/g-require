@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: go.mod — aggiungi una dipendenza con versione semantica
+# key: g-require
+# group: Progetto
+# expand-env: ((yas-indent-line 'fixed))
+# --
+require ${1:example.org/library} ${2:v1.0.0}
+$0

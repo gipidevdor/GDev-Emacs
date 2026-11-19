@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata a una tabella di funzioni
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+#include <stdlib.h>
+
+struct ${1:widget} {
+    void *data;
+    void (*destroy)(struct $1 *widget);
+};
+
+struct widget_factory {
+    struct $1 *(*create)(const char *label);
+};
+
+struct $1 *make_default_widget(const struct widget_factory *factory)
+{
+    return factory->create("${2:untitled}");
+}
+
+$0

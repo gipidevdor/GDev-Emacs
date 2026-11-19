@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Lista di controllo Markdown
+# key: g-tasks
+# group: Struttura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+- [ ] ${1:Prima azione}
+- [ ] ${2:Seconda azione}
+$0

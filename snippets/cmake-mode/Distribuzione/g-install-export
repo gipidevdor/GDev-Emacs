@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Installazione di libreria ed export con namespace
+# key: g-install-export
+# group: Distribuzione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+include(GNUInstallDirs)
+install(TARGETS ${1:core} EXPORT ${2:Project}Targets
+  ARCHIVE DESTINATION "\${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY DESTINATION "\${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "\${CMAKE_INSTALL_BINDIR}"
+)
+install(DIRECTORY include/ DESTINATION "\${CMAKE_INSTALL_INCLUDEDIR}")
+install(EXPORT $2Targets
+  NAMESPACE $2::
+  DESTINATION "\${CMAKE_INSTALL_LIBDIR}/cmake/$2"
+)
+$0

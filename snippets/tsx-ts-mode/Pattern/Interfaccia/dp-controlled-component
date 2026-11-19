@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Controlled Component — campo con valore posseduto dal genitore
+# key: dp-controlled-component
+# group: Pattern.Interfaccia
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il componente riceve il valore corrente e inoltra al proprietario le proposte di modifica.
+
+type Props = { value: string; change(value: string): void };
+
+export function ${1:SearchField}({ value, change }: Props) {
+  return (
+    <label>
+      ${2:Cerca}
+      <input type="search" value={value} onChange={(event) => change(event.currentTarget.value)} />
+    </label>
+  );
+}
+$0

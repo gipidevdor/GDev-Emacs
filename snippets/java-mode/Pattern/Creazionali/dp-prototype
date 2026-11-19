@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+import java.util.List;
+
+final class ${1:Job} {
+    private final String name;
+    private final List<String> tags;
+    private final int timeoutSeconds;
+
+    $1(String name, List<String> tags, int timeoutSeconds) {
+        this.name = name;
+        this.tags = List.copyOf(tags);
+        this.timeoutSeconds = timeoutSeconds;
+    }
+
+    $1 withTimeout(int seconds) {
+        return new $1(name, tags, seconds);
+    }
+}
+$0

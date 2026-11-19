@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Blocco @autoreleasepool in un programma da terminale
+# key: g-autoreleasepool
+# group: Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#import <Foundation/Foundation.h>
+
+int main(void)
+{
+    @autoreleasepool {
+        $0
+        NSLog(@"${1:Ready}");
+    }
+    return 0;
+}

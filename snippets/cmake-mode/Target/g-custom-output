@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: File generato con OUTPUT esplicito, DEPENDS e VERBATIM
+# key: g-custom-output
+# group: Target
+# expand-env: ((yas-indent-line 'fixed))
+# --
+set(output "\${CMAKE_CURRENT_BINARY_DIR}/${1:generated.txt}")
+add_custom_command(
+  OUTPUT "\${output}"
+  COMMAND "\${CMAKE_COMMAND}" -E copy_if_different
+          "\${CMAKE_CURRENT_SOURCE_DIR}/${2:input.txt}" "\${output}"
+  DEPENDS "\${CMAKE_CURRENT_SOURCE_DIR}/$2"
+  VERBATIM
+)
+add_custom_target(${3:generate_example} DEPENDS "\${output}")
+$0

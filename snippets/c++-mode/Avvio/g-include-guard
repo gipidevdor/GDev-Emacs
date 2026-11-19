@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Intestazione con guardia e namespace
+# key: g-include-guard
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#ifndef ${1:PROJECT_ITEM_HPP}
+#define $1
+
+namespace ${2:project} {
+$0
+}
+
+#endif // $1

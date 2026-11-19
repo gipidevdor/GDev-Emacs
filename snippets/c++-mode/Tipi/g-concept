@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Concept con espressione e tipo di ritorno
+# key: g-concept
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <concepts>
+
+template <class T>
+concept ${1:Sized} = requires(const T& value) {
+    { value.size() } -> std::integral;
+};
+
+$0

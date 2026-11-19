@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Memento — istantanea e ripristino
+# key: dp-memento
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Cattura i dati necessari al ripristino. Le modifiche successive devono lasciare intatta la cattura.
+
+final class ${1:Editor} {
+    private String text = "";
+    private int cursor;
+
+    Snapshot snapshot() { return new Snapshot(text, cursor); }
+
+    void restore(Snapshot state) {
+        text = state.text;
+        cursor = state.cursor;
+    }
+
+    static final class Snapshot {
+        private final String text;
+        private final int cursor;
+
+        private Snapshot(String text, int cursor) {
+            this.text = text;
+            this.cursor = cursor;
+        }
+    }
+}
+$0

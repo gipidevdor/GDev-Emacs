@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Sequenza di record con chiave e valore
+# key: g-records
+# group: Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+${1:items}:
+  - id: ${2:example}
+    label: "${3:Example}"
+  $0

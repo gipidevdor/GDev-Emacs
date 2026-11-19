@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Accesso generico con vincolo keyof
+# key: g-keyof
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+function ${1:pluck}<T, K extends keyof T>(items: readonly T[], key: K): T[K][] {
+  return items.map((item) => item[key]);
+}
+$0

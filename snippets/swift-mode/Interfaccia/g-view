@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: SwiftUI — vista con stato locale e pulsante
+# key: g-view
+# group: Interfaccia
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import SwiftUI
+
+struct ${1:CounterView}: View {
+    @State private var count = 0
+
+    var body: some View {
+        VStack {
+            Text("Conteggio: " + String(count))
+            Button("${2:Aumenta}") { count += 1 }
+            $0
+        }
+    }
+}

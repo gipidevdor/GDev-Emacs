@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Costruisci una stringa tramite uno stream
+# key: g-with-output-string
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Lo stream raccoglie le scritture e restituisce l'intera stringa.
+(with-output-to-string (${1:output})
+  (format $1 "~A~%" "${2:Example}")
+  $0)

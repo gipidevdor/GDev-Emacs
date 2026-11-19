@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Array Bash — aggiungi elementi ed espandili senza divisione
+# key: g-array
+# group: Idiomi
+# condition: (or (eq major-mode 'bash-ts-mode) (eq (bound-and-true-p sh-shell) 'bash))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# [@] tra doppi apici conserva i confini di ogni elemento.
+${1:arguments}=("${2:--verbose}" "${3:file with spaces.txt}")
+$1+=("${4:another.txt}")
+${5:printf '%s\\n'} "\${$1[@]}"
+$0

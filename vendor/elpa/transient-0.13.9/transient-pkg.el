@@ -1,0 +1,3 @@
+;; Generated package description from transient.el  -*- mode: lisp-data; no-byte-compile: t; lexical-binding:t -*-
+;; Modificato per GDev-Emacs il 2026-11-15: descrizione del pacchetto in italiano.
+(define-package "transient" "0.13.9" "Menu contestuali da tastiera" '((emacs "28.1") (compat "31.1") (cond-let "1.1") (llama "1.0") (seq "2.24")) :commit "08d85042ced662a73da813a143785f135f66a769" :authors '(("Jonas Bernoulli" . "emacs.transient@jonas.bernoulli.dev")) :maintainer '("Jonas Bernoulli" . "emacs.transient@jonas.bernoulli.dev") :keywords '("extensions") :url "https://github.com/magit/transient")

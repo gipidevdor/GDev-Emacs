@@ -1,0 +1,36 @@
+# -*- mode: snippet -*-
+# name: Bridge — astrazione e implementazione indipendenti
+# key: dp-bridge
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'astrazione può evolvere indipendentemente dall'implementazione che riceve.
+
+#include <string>
+#include <string_view>
+#include <utility>
+
+struct Renderer {
+    virtual ~Renderer() = default;
+    virtual std::string heading(std::string_view text) const = 0;
+};
+
+struct MarkdownRenderer final : Renderer {
+    std::string heading(std::string_view text) const override {
+        return "# " + std::string{text};
+    }
+};
+
+class ${1:Report} {
+public:
+    explicit $1(std::string title) : title_{std::move(title)} {}
+
+    [[nodiscard]] std::string render(const Renderer& renderer) const {
+        return renderer.heading(title_);
+    }
+
+private:
+    std::string title_;
+};
+
+$0

@@ -1,0 +1,57 @@
+# -*- mode: snippet -*-
+# name: Circuit Breaker — chiuso, aperto e una sonda in semiaperto
+# key: dp-circuit-breaker
+# group: Pattern.Affidabilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Apri il circuito dopo guasti ripetuti. Dopo la pausa, consenti una sonda alla volta.
+
+import asyncio
+from collections.abc import Awaitable, Callable
+from time import monotonic
+
+
+class CircuitOpen(RuntimeError):
+    pass
+
+
+class ${1:CircuitBreaker}:
+    """One asyncio event loop. Count consecutive failures in completion order."""
+
+    def __init__(self, threshold: int = ${2:3}, cooldown: float = ${3:10.0}) -> None:
+        if threshold < 1 or cooldown <= 0:
+            raise ValueError("Threshold and cooldown must be positive")
+        self._threshold = threshold
+        self._cooldown = cooldown
+        self._failures = 0
+        self._opened_until: float | None = None
+        self._probe = False
+        self._epoch = 0
+
+    async def call(self, operation: Callable[[], Awaitable[str]]) -> str:
+        probing = self._opened_until is not None
+        if self._opened_until is not None:
+            if monotonic() < self._opened_until or self._probe:
+                raise CircuitOpen("Dependency unavailable")
+            self._probe = True
+        epoch = self._epoch
+        try:
+            value = await asyncio.wait_for(operation(), timeout=${4:5.0})
+        except Exception:
+            if epoch == self._epoch:
+                self._failures += 1
+                if probing or self._failures >= self._threshold:
+                    self._opened_until = monotonic() + self._cooldown
+                    self._epoch += 1
+            raise
+        else:
+            if epoch == self._epoch:
+                self._failures = 0
+                self._opened_until = None
+            return value
+        finally:
+            if probing:
+                self._probe = False
+
+
+$0

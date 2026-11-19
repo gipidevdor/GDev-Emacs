@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Conditional type con infer sul valore di Promise
+# key: g-conditional-type
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type ${1:UnwrapPromise}<T> = T extends PromiseLike<infer V> ? V : T;
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Bats — verifica codice di uscita e testo
+# key: g-bats
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#!/usr/bin/env bats
+
+@test "${1:prints the expected message}" {
+    run printf '%s\\n' '${2:ready}'
+    [ "\$status" -eq 0 ]
+    [ "\$output" = '$2' ]
+    $0
+}

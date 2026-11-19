@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Defer — conserva anche un errore di chiusura
+# key: g-defer-close
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"errors"
+	"os"
+)
+
+func ${2:WriteReport}(path string, payload []byte) (err error) {
+	stream, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	// Il ritorno nominato può aggiungere l'errore di chiusura a quello di scrittura.
+	defer func() { err = errors.Join(err, stream.Close()) }()
+	_, err = stream.Write(payload)
+	$0
+	return err
+}

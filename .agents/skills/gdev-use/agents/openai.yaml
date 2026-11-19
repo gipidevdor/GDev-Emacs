@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+interface:
+  display_name: "Usa GDev-Emacs"
+  short_description: "Lavora nei tuoi progetti con GDev-Emacs"
+  default_prompt: "Usa $gdev-use per aprire il progetto in GDev-Emacs, eseguire i test e localizzare il primo errore."

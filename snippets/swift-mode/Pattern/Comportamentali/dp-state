@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+enum ${1:Status} {
+    case draft, review, published
+
+    func advance() throws -> Self {
+        switch self {
+        case .draft: .review
+        case .review: .published
+        case .published: throw PublicationError.alreadyPublished
+        }
+    }
+}
+
+enum PublicationError: Error {
+    case alreadyPublished
+}
+$0

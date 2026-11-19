@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Variabile tipizzata con valore e messaggio di validazione
+# key: g-tf-variable
+# group: Variabili
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+variable "${1:port}" {
+  description = "${2:HTTP listening port}"
+  type        = number
+  default     = ${3:8080}
+  nullable    = false
+
+  validation {
+    condition     = var.$1 >= 1 && var.$1 <= 65535 && floor(var.$1) == var.$1
+    error_message = "The port must be an integer between 1 and 65535."
+  }
+}
+$0

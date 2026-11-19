@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+class Exporter {
+  render(text) {
+    return this.createWriter().write(text);
+  }
+
+  createWriter() {
+    throw new TypeError("Implement createWriter in the exporter");
+  }
+}
+
+class ${1:MarkdownExporter} extends Exporter {
+  createWriter() {
+    return { write: (text) => \`# \${text}\` };
+  }
+}
+$0

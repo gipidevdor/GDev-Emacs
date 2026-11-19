@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Test::More — eccezione nel ramo di errore
+# key: g-test-exception
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use Test::More;
+
+my \$ok = eval { ${1:die "Invalid value"}; 1 };
+my \$error = \$@;
+ok(!\$ok, 'call failed');
+like(\$error, qr/${2:Invalid value}/, 'expected cause');
+$0
+done_testing;

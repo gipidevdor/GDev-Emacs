@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Proprietà esclusiva esplicita con unique_ptr
+# key: g-move-only
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <memory>
+#include <string>
+#include <utility>
+
+void ${1:consume}(std::unique_ptr<std::string> value) {
+    if (!value) return;
+    $0
+}
+
+void example() {
+    auto label = std::make_unique<std::string>("${2:example}");
+    // Il passaggio per valore documenta il trasferimento di proprietà.
+    $1(std::move(label));
+}

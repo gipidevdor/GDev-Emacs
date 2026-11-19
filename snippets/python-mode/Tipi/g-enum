@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Enumerazione di stringhe (Python 3.11+)
+# key: g-enum
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from enum import StrEnum
+
+
+class ${1:Status}(StrEnum):
+    PENDING = "pending"
+    COMPLETE = "complete"
+
+
+$0

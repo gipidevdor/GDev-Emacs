@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: GNU Make — compilazione C, dipendenze degli header e target clean
+# key: g-c-build
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.DEFAULT_GOAL := all
+CC ?= cc
+CPPFLAGS ?=
+CFLAGS ?= -std=c17 -Wall -Wextra -g
+LDFLAGS ?=
+LDLIBS ?=
+
+APP := ${1:app}
+SOURCES := ${2:main.c}
+OBJECTS := \$(SOURCES:.c=.o)
+
+.PHONY: all clean
+all: \$(APP)
+
+\$(APP): \$(OBJECTS)
+	\$(CC) \$(LDFLAGS) -o "\$@" \$^ \$(LDLIBS)
+
+%.o: %.c
+	\$(CC) \$(CPPFLAGS) \$(CFLAGS) -MMD -MP -c "\$<" -o "\$@"
+
+-include \$(OBJECTS:.o=.d)
+
+clean:
+	\$(RM) -- "\$(APP)" \$(OBJECTS) \$(OBJECTS:.o=.d)
+$0

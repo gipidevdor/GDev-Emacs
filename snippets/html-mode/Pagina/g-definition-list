@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Elenco di coppie termine e descrizione
+# key: g-definition-list
+# group: Pagina
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<dl>
+  <dt>${1:Versione}</dt>
+  <dd>${2:1.0}</dd>
+  $0
+</dl>

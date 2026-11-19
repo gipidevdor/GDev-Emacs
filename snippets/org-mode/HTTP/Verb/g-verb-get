@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Verb — richiesta GET sotto una sezione template
+# key: g-verb-get
+# group: HTTP.Verb
+# expand-env: ((yas-indent-line 'fixed))
+# --
+** ${1:Lista}
+get /${2:items}?limit=${3:20}
+$0

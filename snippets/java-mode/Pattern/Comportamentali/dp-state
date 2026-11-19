@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+interface State {
+    String label();
+    State advance();
+}
+
+final class ${1:Article} {
+    private State state = DRAFT;
+
+    String label() { return state.label(); }
+    void advance() { state = state.advance(); }
+
+    private static final State PUBLISHED = new State() {
+        public String label() { return "Published"; }
+        public State advance() { throw new IllegalStateException("Already published"); }
+    };
+    private static final State REVIEW = new State() {
+        public String label() { return "Review"; }
+        public State advance() { return PUBLISHED; }
+    };
+    private static final State DRAFT = new State() {
+        public String label() { return "Draft"; }
+        public State advance() { return REVIEW; }
+    };
+}
+$0

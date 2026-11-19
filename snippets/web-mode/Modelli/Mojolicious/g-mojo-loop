@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Mojolicious — ciclo Perl con output HTML escapato
+# key: g-mojo-loop
+# group: Modelli.Mojolicious
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+% for my \$${1:item} (@{stash('${2:items}') // []}) {
+  <li><%= \$$1->{label} %></li>
+% }
+</ul>
+$0

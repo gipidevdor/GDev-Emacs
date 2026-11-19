@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Errdefer — libera un'allocazione se l'operazione fallisce
+# key: g-errdefer
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+pub fn ${1:copyNonEmpty}(allocator: std.mem.Allocator, input: []const u8) ![]u8 {
+    const output = try allocator.dupe(u8, input);
+    // In caso di successo il chiamante acquisisce il buffer restituito.
+    errdefer allocator.free(output);
+    if (output.len == 0) return error.EmptyInput;
+    $0
+    return output;
+}

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Bisect — trova una soglia esclusiva in una lista ordinata
+# key: g-bisect
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from bisect import bisect_right
+
+# bisect_right posiziona l'inserimento dopo tutti gli elementi equivalenti.
+thresholds = [${1:10, 20, 50}]
+bucket = bisect_right(thresholds, ${2:20})
+$0

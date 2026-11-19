@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: deno.json — task di controllo, formattazione e test
+# key: g-deno
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "tasks": {
+    "check": "deno check ${1:main.ts}",
+    "lint": "deno lint",
+    "fmt:check": "deno fmt --check",
+    "test": "deno test"
+  }
+}$0

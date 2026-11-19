@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+sealed record ${1:Job}(string Queue, int TimeoutSeconds);
+
+static class Jobs
+{
+    public static readonly $1 Standard = new("default", 30);
+    public static $1 Urgent() => Standard with { Queue = "urgent", TimeoutSeconds = 5 };
+}
+$0

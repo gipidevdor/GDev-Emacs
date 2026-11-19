@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: ERT — test con buffer temporaneo e asserzione
+# key: g-ert
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(require 'ert)
+
+(ert-deftest ${1:example-test-insert} ()
+  (with-temp-buffer
+    (insert "${2:hello}")
+    (should (equal (buffer-string) "$2"))
+    $0))

@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Fetch JSON con timeout e controllo dello stato HTTP
+# key: g-fetch-json
+# group: Rete
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+async function ${1:fetchJson}(url) {
+  const response = await fetch(url, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(${2:5000}),
+  });
+  if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+  return response.json();
+}
+$0

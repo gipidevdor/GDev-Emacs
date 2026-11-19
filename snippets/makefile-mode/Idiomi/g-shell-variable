@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Variabile shell dentro una ricetta Make
+# key: g-shell-variable
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.PHONY: ${1:show-dir}
+$1:
+	# Il doppio dollaro lascia l'espansione alla shell.
+	${2:directory}="\$\$(pwd)"; printf '%s\\n' "\$\$$2"
+$0

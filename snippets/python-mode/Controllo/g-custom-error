@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Eccezione di dominio e concatenazione della causa
+# key: g-custom-error
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+class ${1:InvalidInput}(ValueError):
+    """An input value cannot be converted."""
+
+
+def ${2:parse_number}(text: str) -> int:
+    try:
+        return int(text)
+    except ValueError as error:
+        raise $1(f"Invalid integer: {text!r}") from error
+
+
+$0

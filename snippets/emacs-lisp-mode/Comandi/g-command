@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Comando interattivo con selezione e modifica atomica
+# key: g-command
+# group: Comandi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defun ${1:example-command} (start end)
+  "Operate on the selected text between START and END."
+  (interactive "r")
+  (unless (use-region-p)
+    (user-error "Select some text first"))
+  (atomic-change-group
+    $0(upcase-region start end)))

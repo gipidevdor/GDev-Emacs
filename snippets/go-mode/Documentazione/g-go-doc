@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Commento GoDoc che inizia con il nome del simbolo
+# key: g-go-doc
+# group: Documentazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// ${1:Identifier} ${2:describes the task.}
+func $1() {
+	$0
+}

@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Async Iterator — paginazione tipizzata e AbortSignal
+# key: dp-async-iterator
+# group: Pattern.Concorrenza
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni pagina viene richiesta quando serve. Il chiamante conserva il controllo della cancellazione.
+
+type Page<T> = { items: readonly T[]; next: string | null };
+
+async function* ${1:iteratePages}<T>(
+  load: (cursor: string | null, signal: AbortSignal) => Promise<Page<T>>,
+  signal: AbortSignal,
+): AsyncGenerator<T> {
+  let cursor: string | null = null;
+  do {
+    signal.throwIfAborted();
+    const page = await load(cursor, signal);
+    yield* page.items;
+    cursor = page.next;
+  } while (cursor !== null);
+}
+$0

@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+using System.Collections.Generic;
+using System.Linq;
+
+interface INode { long Size(); }
+
+sealed record FileNode(long Bytes) : INode
+{
+    public long Size() => Bytes;
+}
+
+sealed class ${1:DirectoryNode}(IEnumerable<INode> items) : INode
+{
+    private readonly INode[] children = items.ToArray();
+
+    public long Size() => children.Sum(child => child.Size());
+}
+$0

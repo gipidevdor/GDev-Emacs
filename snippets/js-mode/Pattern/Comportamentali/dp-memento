@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Memento — istantanea e ripristino
+# key: dp-memento
+# group: Pattern.Comportamentali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Cattura i dati necessari al ripristino. Le modifiche successive devono lasciare intatta la cattura.
+
+class ${1:Editor} {
+  text = "";
+  cursor = 0;
+
+  snapshot() {
+    return Object.freeze({ text: this.text, cursor: this.cursor });
+  }
+
+  restore(snapshot) {
+    this.text = snapshot.text;
+    this.cursor = snapshot.cursor;
+  }
+}
+$0

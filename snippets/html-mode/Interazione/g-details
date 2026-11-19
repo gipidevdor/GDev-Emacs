@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Contenuto espandibile con details e summary
+# key: g-details
+# group: Interazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<!-- Summary è raggiungibile anche da tastiera. -->
+<details>
+  <summary>${1:Dettagli}</summary>
+  <p>${2:Informazioni aggiuntive.}</p>
+  $0
+</details>

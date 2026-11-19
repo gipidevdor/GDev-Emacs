@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Custom Element — componente DOM e registrazione
+# key: g-custom-element
+# group: DOM
+# expand-env: ((yas-indent-line 'fixed))
+# --
+class ${1:StatusBadge} extends HTMLElement {
+  connectedCallback() {
+    this.textContent = this.getAttribute("value") ?? "Ready";
+  }
+}
+
+customElements.define("${2:status-badge}", $1);
+$0

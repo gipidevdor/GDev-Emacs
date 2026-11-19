@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Blocco sorgente Org con selezione facoltativa
+# key: g-src
+# group: Babel
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region t))
+# --
+#+begin_src ${1:python}
+$0
+#+end_src

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: BufRead — leggi testo senza caricare l'intero file
+# key: g-read-lines
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use std::fs::File;
+use std::io::{self, BufRead, BufReader};
+use std::path::Path;
+
+pub fn ${1:scan}(path: &Path) -> io::Result<usize> {
+    let stream = BufReader::new(File::open(path)?);
+    let mut count = 0;
+    for line in stream.lines() {
+        let line = line?;
+        $0
+        count += usize::from(!line.trim().is_empty());
+    }
+    Ok(count)
+}

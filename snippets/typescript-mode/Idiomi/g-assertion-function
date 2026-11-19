@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Assertion function — convalida e restringe il tipo del chiamante
+# key: g-assertion-function
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso successivo alla chiamata può trattare il dato come stringa.
+function ${1:assertString}(value: unknown): asserts value is string {
+  if (typeof value !== "string") throw new TypeError("Expected a string");
+}
+$0

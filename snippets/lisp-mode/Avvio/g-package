@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Package Common Lisp con esportazione del simbolo pubblico
+# key: g-package
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defpackage #:${1:example}
+  (:use #:cl)
+  (:export #:${2:run}))
+
+(in-package #:$1)
+
+(defun $2 ()
+  $0nil)

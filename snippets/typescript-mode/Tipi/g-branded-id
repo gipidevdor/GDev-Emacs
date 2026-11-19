@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Identificatore nominale con unique symbol e validazione
+# key: g-branded-id
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+declare const brand: unique symbol;
+type ${1:UserId} = string & { readonly [brand]: "$1" };
+
+function to$1(value: string): $1 {
+  if (!/^[a-zA-Z0-9_-]+\$/.test(value)) throw new TypeError("Invalid identifier");
+  return value as $1;
+}
+$0

@@ -1,0 +1,53 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+#include <memory>
+#include <stdexcept>
+#include <string_view>
+
+struct ArticleState {
+    virtual ~ArticleState() = default;
+    virtual std::string_view label() const = 0;
+    virtual std::unique_ptr<ArticleState> advance() const = 0;
+};
+
+struct Published final : ArticleState {
+    std::string_view label() const override { return "Published"; }
+
+    std::unique_ptr<ArticleState> advance() const override {
+        throw std::logic_error("Already published");
+    }
+};
+
+struct Review final : ArticleState {
+    std::string_view label() const override { return "In review"; }
+
+    std::unique_ptr<ArticleState> advance() const override {
+        return std::make_unique<Published>();
+    }
+};
+
+struct Draft final : ArticleState {
+    std::string_view label() const override { return "Draft"; }
+
+    std::unique_ptr<ArticleState> advance() const override {
+        return std::make_unique<Review>();
+    }
+};
+
+class ${1:Article} {
+public:
+    [[nodiscard]] std::string_view label() const { return state_->label(); }
+
+    void advance() { state_ = state_->advance(); }
+
+private:
+    std::unique_ptr<ArticleState> state_ = std::make_unique<Draft>();
+};
+
+$0

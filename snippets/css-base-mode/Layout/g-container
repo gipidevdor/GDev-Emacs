@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Container query basata sulla larghezza del contenitore
+# key: g-container
+# group: Layout
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:card-region} {
+  container-type: inline-size;
+  container-name: ${2:card};
+}
+
+@container $2 (min-width: ${3:36rem}) {
+  .${4:card} {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    $0
+  }
+}

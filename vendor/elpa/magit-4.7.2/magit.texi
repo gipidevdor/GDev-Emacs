@@ -1,0 +1,894 @@
+\input texinfo    @c -*- texinfo -*-
+@c Guida italiana di Hit per GDev-Emacs.
+@c Manuale adattato da GDev-Emacs il 2026-11-15.
+@c Copyright (C) 2015-2026 Jonas Bernoulli <emacs.magit@@jonas.bernoulli.dev>
+@c Copyright (C) 2026 Giacomo Picchiarelli.
+@c SPDX-License-Identifier: GPL-3.0-or-later
+@c I nodi e le ancore conservano i collegamenti Lisp e i segnalibri Info.
+@c Le ancore storiche puntano alla sezione italiana più vicina.
+@c Dalla cartella del pacchetto, rigenera magit.info con:
+@c   emacs -Q --batch -l texinfmt -f batch-texinfo-format magit.texi
+@setfilename magit.info
+@settitle Guida di Hit
+@documentencoding UTF-8
+@documentlanguage it
+@dircategory Emacs
+@direntry
+* Hit: (magit).                 Controllo versione Git in GDev-Emacs.
+@end direntry
+
+@node Top, Introduction, , (dir)
+@top Guida di Hit
+
+Hit è lo strumento di controllo versione di GDev-Emacs. Apri lo stato del
+repository, prepara le modifiche, registra un commit e consulta le
+differenze senza lasciare lo spazio di lavoro.
+
+Usa le voci del menu per passare a un argomento. In Info, @kbd{Invio} apre
+il collegamento sotto il cursore, @kbd{l} torna alla pagina precedente,
+@kbd{d} torna all'indice generale e @kbd{q} chiude la vista.
+
+Manuale di origine: copyright (C) 2015-2026 Jonas Bernoulli e contributori.
+Guida per GDev-Emacs: copyright (C) 2026 Giacomo Picchiarelli.
+Puoi ridistribuire e modificare questa guida secondo la GNU GPL, versione 3
+o successiva. La guida è fornita senza garanzia. Il testo della licenza
+è nel file @file{LICENSE} del pacchetto.
+
+@menu
+* Hit e Git: Introduction.
+* Disponibilità e aggiornamenti: Installation.
+* Primi passi: Getting Started.
+* Interfaccia e navigazione: Interface Concepts.
+* Stato, cronologia e differenze: Inspecting.
+* Modifiche e rami: Manipulating.
+* Repository remoti: Transferring.
+* Strumenti aggiuntivi: Miscellaneous.
+* Comandi ricorrenti: Common Commands.
+* Preferenze di Hit: Customizing.
+* Riferimento per le integrazioni: Plumbing.
+* Domande frequenti e problemi: FAQ.
+* Indice delle scorciatoie: Keystroke Index.
+* Indice dei comandi Lisp: Function and Command Index.
+* Indice delle opzioni Lisp: Variable Index.
+@end menu
+
+@node Introduction, Installation, Top, Top
+@chapter Hit e Git
+
+Hit deriva da Magit, sviluppato da Jonas Bernoulli e contributori. In
+GDev-Emacs le viste e i menu usano il nome Hit. Negli script e nelle
+personalizzazioni Emacs Lisp, i comandi conservano i nomi @code{magit-}
+per la compatibilità.
+
+Le modifiche ai file, quelle preparate nell'indice e i commit sono stati
+distinti. Controllali in quest'ordine prima di inviare un ramo.
+
+@node Installation, Getting Started, Introduction, Top
+@chapter Disponibilità e aggiornamenti
+
+Il modulo @code{:tools git} attiva Hit nella configurazione GDev. GDev
+include il fork, la guida e le sue dipendenze Lisp. Il programma
+@command{git} deve essere disponibile nell'ambiente di Emacs.
+
+@menu
+* Una copia già installata: Installing from Melpa.
+* Origine e manutenzione del fork: Installing from the Git Repository.
+* Verifica iniziale: Post-Installation Tasks.
+@end menu
+
+@node Installing from Melpa, Installing from the Git Repository, Installation, Installation
+@section Una copia già installata
+
+Il modulo carica il fork incluso in GDev. Se dopo un aggiornamento una
+sessione già aperta mostra il vecchio aiuto, riavvia GDev-Emacs affinché
+ricarichi anche l'indice di Info.
+
+@node Installing from the Git Repository, Post-Installation Tasks, Installing from Melpa, Installation
+@section Origine e manutenzione del fork
+
+Il catalogo delle dipendenze di GDev identifica la versione e la revisione
+di origine. Aggiorna il fork insieme a GDev e verifica il manuale generato
+se modifichi il sorgente Texinfo.
+
+@node Post-Installation Tasks, , Installing from the Git Repository, Installation
+@section Verifica iniziale
+
+Apri un file che appartiene a un repository e premi @kbd{C-x g}. Se Git
+rifiuta una registrazione, controlla l'identità impostata per quel
+repository con @command{git config --local}.
+
+@node Getting Started, Interface Concepts, Installation, Top
+@chapter Primi passi
+
+Apri @strong{Hit > Apri Hit} oppure premi @kbd{C-x g} o @kbd{C-c g g}. In
+@strong{Stato} espandi un file con @kbd{TAB} per leggere i blocchi
+modificati. Premi @kbd{s} sul blocco da registrare.
+
+Rileggi la sezione delle modifiche preparate. Premi @kbd{c c}, scrivi il
+messaggio e conferma con @kbd{C-c C-c}. Con @kbd{C-c C-k} puoi annullare
+la composizione del messaggio. Per inviare il commit, apri @kbd{P} e
+verifica il ramo remoto proposto.
+
+@node Interface Concepts, Inspecting, Getting Started, Top
+@chapter Interfaccia e navigazione
+
+Le voci principali sono disponibili dalla barra dei menu. Il clic destro
+propone le azioni della vista o della voce sotto il puntatore. @kbd{h} o
+@kbd{?} nelle viste di Hit apre i comandi del repository.
+
+@menu
+* Viste e riquadri: Modes and Buffers.
+* Sezioni e blocchi: Sections.
+* Tavolozze dei comandi: Transient Commands.
+* Scelta e conferma: Completion Confirmation and the Selection.
+* Uso del puntatore: Mouse Support.
+* Eseguire e controllare Git: Running Git.
+@end menu
+
+@node Modes and Buffers, Sections, Interface Concepts, Interface Concepts
+@section Viste e riquadri
+
+@anchor{Switching Buffers}
+@anchor{Naming Buffers}
+@anchor{Quitting Windows}
+@anchor{Automatic Saving of File-Visiting Buffers}
+@anchor{Risk of Reverting Automatically}
+
+Stato, riferimenti e messaggi di commit si aprono nell'area di modifica.
+Differenze, cronologia e risultati Git usano il pannello degli strumenti.
+@kbd{q} esce dalla vista Git. Nei confronti Ediff, @kbd{X} o il pulsante
+di chiusura passa per la conferma della sessione.
+
+@node Sections, Transient Commands, Modes and Buffers, Interface Concepts
+@section Sezioni e blocchi
+
+@anchor{Section Visibility}
+@anchor{Section Hooks}
+@anchor{Section Types and Values}
+@anchor{Section Options}
+
+Premi @kbd{TAB} per espandere o comprimere la sezione, @kbd{n} e @kbd{p}
+per muoverti tra sezioni e @kbd{Invio} per aprire la voce. Le azioni
+possono interessare un blocco, un file o un'intera sezione secondo la
+posizione del cursore.
+
+@menu
+* Movimento tra sezioni: Section Movement.
+@end menu
+
+@node Section Movement, , Sections, Sections
+@subsection Movimento tra sezioni
+
+Usa @kbd{n} e @kbd{p} per attraversare le sezioni dello stesso livello. Il
+menu contestuale della vista offre i comandi di navigazione pertinenti.
+
+@node Transient Commands, Completion Confirmation and the Selection, Sections, Interface Concepts
+@section Tavolozze dei comandi
+
+Un tasto come @kbd{c}, @kbd{d} o @kbd{b} apre una tavolozza per il commit,
+le differenze o i rami. La tavolozza mostra a sinistra il tasto di
+ciascuna azione. @kbd{C-g} chiude la tavolozza corrente, @kbd{C-h} apre
+l'aiuto delle azioni.
+
+@menu
+* Opzioni delle tavolozze: Transient Arguments and Buffer Variables.
+@end menu
+
+@node Transient Arguments and Buffer Variables, , Transient Commands, Transient Commands
+@subsection Opzioni delle tavolozze
+
+Imposta gli argomenti prima di scegliere l'azione. Le voci di opzione
+mostrano i valori attivi. Nelle tavolozze che lo consentono, salva le
+opzioni per riutilizzarle dalla stessa vista.
+
+@node Completion Confirmation and the Selection, Mouse Support, Transient Commands, Interface Concepts
+@section Scelta e conferma
+
+@anchor{Action Confirmation}
+@anchor{Completion and Confirmation}
+@anchor{The Selection}
+@anchor{The hunk-internal region}
+@anchor{Support for Completion Frameworks}
+@anchor{Additional Completion Options}
+
+Leggi il valore predefinito prima di confermare un ramo, un riferimento o
+un percorso. @kbd{C-g} annulla la scelta. Nelle azioni potenzialmente
+distruttive controlla l'ambito indicato dalla conferma.
+
+@node Mouse Support, Running Git, Completion Confirmation and the Selection, Interface Concepts
+@section Uso del puntatore
+
+Fai clic destro o Ctrl-clic su una voce per aprire il menu contestuale.
+Sulla riga di un file o di un blocco, il menu segue la voce cliccata. Nei
+menu puoi usare anche la tastiera.
+
+@node Running Git, , Mouse Support, Interface Concepts
+@section Eseguire e controllare Git
+
+@anchor{Viewing Git Output}
+@anchor{Git Process Status}
+@anchor{Running Git Manually}
+@anchor{Git Executable}
+@anchor{Global Git Arguments}
+@anchor{Mapping Git Hooks to Lisp Hooks}
+
+In Hit, @kbd{!} apre le azioni per eseguire un comando Git. Se una
+richiesta fallisce, consulta il risultato del processo per leggere
+l'errore restituito da Git.
+
+@node Inspecting, Manipulating, Interface Concepts, Top
+@chapter Stato, cronologia e differenze
+
+Consulta lo stato prima di modificare il repository. Usa la cronologia, i
+riferimenti e le differenze per confrontare la modifica locale, il ramo
+corrente e il remoto.
+
+@menu
+* Stato del repository: Status Buffer.
+* Elenco dei repository: Repository List.
+* Cronologia: Logging.
+* Differenze: Diffing.
+* Confronto affiancato: Ediffing.
+* Rami, etichette e altri riferimenti: References Buffer.
+* Cronologia dei riferimenti: Reflog.
+* Ricerca di una regressione: Bisecting.
+* File e versioni storiche: Visiting Files and Blobs.
+* Autori delle righe: Blaming.
+@end menu
+
+@node Status Buffer, Repository List, Inspecting, Inspecting
+@section Stato del repository
+
+@anchor{Status Sections}
+@anchor{Status File List Sections}
+@anchor{Status Log Sections}
+@anchor{Status Header Sections}
+@anchor{Status Module Sections}
+@anchor{Status Options}
+
+Lo stato mostra il ramo corrente e separa file non tracciati, modifiche da
+preparare e modifiche preparate. Premi @kbd{g} per rileggere il repository
+e @kbd{Invio} per aprire il file o il commit della riga corrente.
+
+@node Repository List, Logging, Status Buffer, Inspecting
+@section Elenco dei repository
+
+L'elenco dei repository raccoglie le cartelle Git configurate. Seleziona
+una riga e apri lo stato del repository scelto.
+
+@node Logging, Diffing, Repository List, Inspecting
+@section Cronologia
+
+@anchor{Refreshing Logs}
+@anchor{Cherries}
+
+Premi @kbd{l} per aprire le azioni della cronologia. Seleziona il ramo o
+l'intervallo da consultare. @kbd{Invio} su un commit apre la revisione.
+@kbd{C-c g L} mostra la cronologia del file attivo.
+
+@menu
+* Vista della cronologia: Log Buffer.
+* Scelta dalla cronologia: Select from Log.
+@end menu
+
+@node Log Buffer, Select from Log, Logging, Logging
+@subsection Vista della cronologia
+
+Ogni riga rappresenta un commit. Leggi il grafico insieme ai riferimenti
+per individuare la divergenza tra i rami. Apri la revisione per
+controllare il messaggio e i file coinvolti.
+
+@node Select from Log, , Log Buffer, Logging
+@subsection Scelta dalla cronologia
+
+Quando una vista della cronologia chiede di scegliere un commit, sposta il
+cursore sulla riga desiderata e conferma. Usa l'azione di annullamento per
+tornare alla vista di partenza.
+
+@node Diffing, Ediffing, Logging, Inspecting
+@section Differenze
+
+@anchor{Refreshing Diffs}
+@anchor{Commands Available in Diffs}
+@anchor{Diff Options}
+
+Premi @kbd{d} per scegliere cosa confrontare. Distingui le modifiche
+locali da quelle preparate per il commit. Dal menu contestuale puoi
+visitare il file e passare al blocco successivo.
+
+@menu
+* Vista delle differenze: Diff Buffer.
+* Vista della revisione: Revision Buffer.
+@end menu
+
+@node Diff Buffer, Revision Buffer, Diffing, Diffing
+@subsection Vista delle differenze
+
+I blocchi raggruppano righe vicine dello stesso file. Espandi il blocco
+per leggere il contesto. Usa @kbd{s} e @kbd{u} quando l'azione è
+disponibile per preparare o rimuovere dall'indice la modifica corrente.
+
+@node Revision Buffer, , Diff Buffer, Diffing
+@subsection Vista della revisione
+
+La revisione mostra il commit selezionato e i cambiamenti che introduce.
+Controlla il riferimento e il genitore del commit prima di applicarlo a un
+altro ramo.
+
+@node Ediffing, References Buffer, Diffing, Inspecting
+@section Confronto affiancato
+
+Dal menu @kbd{E} scegli un confronto o la risoluzione di un conflitto. In
+Ediff, @kbd{n} e @kbd{p} passano tra le differenze. Il menu contestuale
+dei controlli mostra anche l'accesso diretto a una differenza. Conferma la
+chiusura per tornare ai riquadri di partenza.
+
+@node References Buffer, Reflog, Ediffing, Inspecting
+@section Rami, etichette e altri riferimenti
+
+@anchor{References Sections}
+
+Apri i riferimenti con @kbd{y}. Utilizza @kbd{Invio} per ispezionare la
+voce corrente. Prima di cambiare ramo, verifica che gli eventuali file
+modificati siano salvati.
+
+@node Reflog, Bisecting, References Buffer, Inspecting
+@section Cronologia dei riferimenti
+
+Il reflog registra gli spostamenti locali di un riferimento, inclusi cambi
+di ramo e ripristini. Può aiutarti a ritrovare un commit che ha perso il
+riferimento usuale.
+
+@node Bisecting, Visiting Files and Blobs, Reflog, Inspecting
+@section Ricerca di una regressione
+
+Con @kbd{B} avvia la ricerca binaria fra una revisione nota come
+funzionante e una difettosa. Prova la revisione proposta e registra
+l'esito. Interrompi la ricerca dalla stessa tavolozza per riprendere il
+normale lavoro sul ramo.
+
+@node Visiting Files and Blobs, Blaming, Bisecting, Inspecting
+@section File e versioni storiche
+
+@anchor{General-Purpose Visit Commands}
+@anchor{Visiting Files and Blobs from a Diff}
+
+La visita a una revisione apre la versione del file registrata in quel
+commit. Usa la cronologia del file per scegliere la revisione e
+confrontarla con quella attuale.
+
+@node Blaming, , Visiting Files and Blobs, Inspecting
+@section Autori delle righe
+
+@kbd{C-c g B} mostra, accanto alle righe, autore e commit. Apri il commit
+per capire il contesto della modifica. L'autore dell'ultima modifica può
+essere diverso da chi ha scritto la prima versione.
+
+@node Manipulating, Transferring, Inspecting, Top
+@chapter Modifiche e rami
+
+Prepara il contenuto del prossimo commit, controllalo nelle differenze e
+poi registralo. Le altre voci descrivono unione, riallineamento e
+recupero.
+
+@menu
+* Creare un repository: Creating Repository.
+* Clonare un repository: Cloning Repository.
+* Preparare o togliere modifiche dall'indice: Staging and Unstaging.
+* Applicare o scartare modifiche: Applying.
+* Registrare un commit: Committing.
+* Creare e cambiare ramo: Branching.
+* Unire rami: Merging.
+* Riallineare un ramo: Rebasing.
+* Riprendere un commit su un altro ramo: Cherry Picking.
+* Ripristinare un riferimento o l'indice: Resetting.
+* Accantonare modifiche temporanee: Stashing.
+@end menu
+
+@node Creating Repository, Cloning Repository, Manipulating, Manipulating
+@section Creare un repository
+
+Con @kbd{I} scegli la cartella da inizializzare. Apri lo stato del nuovo
+repository e verifica i file da ignorare prima di preparare il primo
+commit.
+
+@node Cloning Repository, Staging and Unstaging, Creating Repository, Manipulating
+@section Clonare un repository
+
+Con @kbd{C} scegli l'indirizzo e la destinazione. Apri la cartella clonata
+e controlla il ramo iniziale nello stato.
+
+@node Staging and Unstaging, Applying, Cloning Repository, Manipulating
+@section Preparare o togliere modifiche dall'indice
+
+@anchor{Staging from File-Visiting Buffers}
+
+@kbd{s} prepara il blocco, il file o la sezione sotto il cursore. @kbd{u}
+rimuove dall'indice la modifica preparata, lasciandola tra le modifiche
+locali. Rileggi le modifiche preparate prima di registrarle.
+
+@node Applying, Committing, Staging and Unstaging, Manipulating
+@section Applicare o scartare modifiche
+
+Usa il menu del blocco per applicare, invertire o scartare una modifica.
+Scartare può eliminare il lavoro locale. Controlla la parte selezionata e
+leggi la conferma prima di procedere.
+
+@node Committing, Branching, Applying, Manipulating
+@section Registrare un commit
+
+@anchor{Creating a new commit}
+@anchor{Editing the last commit}
+@anchor{Editing any reachable commit}
+@anchor{Editing any reachable commit and rebasing immediately}
+@anchor{Options used by commit commands}
+@anchor{Using the Revision Stack}
+@anchor{Commit Pseudo Headers}
+@anchor{Commit Mode and Hooks}
+@anchor{Commit Message Conventions}
+
+Premi @kbd{c c} dopo aver preparato i cambiamenti. Scrivi un oggetto che
+descriva la modifica e aggiungi dettagli se servono. @kbd{C-c C-c}
+conferma il messaggio; @kbd{C-c C-k} lo annulla.
+
+@menu
+* Azioni della tavolozza Commit: Initiating a Commit.
+* Modificare un messaggio di commit: Editing Commit Messages.
+@end menu
+
+@node Initiating a Commit, Editing Commit Messages, Committing, Committing
+@subsection Azioni della tavolozza Commit
+
+@anchor{Used by all or most commit commands}
+@anchor{Used by all squash and fixup commands}
+@anchor{Used by specific commit commands}
+
+La tavolozza @kbd{c} offre anche operazioni sull'ultimo commit. Modificare
+un commit già condiviso cambia la cronologia del ramo e richiede
+coordinamento con chi lo usa.
+
+@node Editing Commit Messages, , Initiating a Commit, Committing
+@subsection Modificare un messaggio di commit
+
+Nel messaggio, scrivi l'oggetto sulla prima riga e separalo dal corpo con
+una riga vuota. Puoi consultare le differenze preparate prima di
+confermare.
+
+@node Branching, Merging, Committing, Manipulating
+@section Creare e cambiare ramo
+
+@anchor{The Two Remotes}
+@anchor{Branch Commands}
+@anchor{Branch Git Variables}
+@anchor{Auxiliary Branch Commands}
+
+La tavolozza @kbd{b} permette di creare, cambiare e gestire rami. Indica
+il punto di partenza per un nuovo ramo e verifica il ramo selezionato
+nello stato dopo il passaggio.
+
+@node Merging, Rebasing, Branching, Manipulating
+@section Unire rami
+
+Posizionati sul ramo che deve ricevere le modifiche. Apri @kbd{m}, scegli
+il ramo da integrare e controlla l'esito nello stato. Se Git segnala un
+conflitto, apri il file o usa Ediff.
+
+@menu
+* Risolvere conflitti: Resolving Conflicts.
+@end menu
+
+@node Resolving Conflicts, , Merging, Merging
+@subsection Risolvere conflitti
+
+Nel file usa @kbd{C-c g m n} per raggiungere il conflitto successivo.
+@kbd{C-c g m u} e @kbd{C-c g m l} tengono la parte superiore o inferiore.
+Con Ediff confronti le varianti e modifichi il risultato. Salva, prepara
+il file risolto e poi prosegui l'operazione Git che ha generato il
+conflitto.
+
+@node Rebasing, Cherry Picking, Merging, Manipulating
+@section Riallineare un ramo
+
+@anchor{Information About In-Progress Rebase}
+@anchor{Information About In-Progress Rebase-Footnote-1}
+
+La tavolozza @kbd{r} riallinea i commit su una nuova base. Se il processo
+si ferma, risolvi e prepara i file coinvolti, quindi scegli di proseguire.
+La stessa tavolozza espone anche l'annullamento.
+
+@menu
+* Modificare una sequenza di riallineamento: Editing Rebase Sequences.
+@end menu
+
+@node Editing Rebase Sequences, , Rebasing, Rebasing
+@subsection Modificare una sequenza di riallineamento
+
+Nel riallineamento interattivo leggi ogni commit e l'azione assegnata.
+Conferma la sequenza solo dopo aver verificato ordine e operazioni. Le
+azioni successive di Git restano disponibili nello stato.
+
+@node Cherry Picking, Resetting, Rebasing, Manipulating
+@section Riprendere un commit su un altro ramo
+
+@anchor{Reverting}
+
+Posizionati sul ramo di destinazione. Nella cronologia scegli il commit e
+usa la tavolozza di applicazione. Se appare un conflitto, prepara la
+risoluzione prima di proseguire.
+
+@node Resetting, Stashing, Cherry Picking, Manipulating
+@section Ripristinare un riferimento o l'indice
+
+La tavolozza @kbd{X} offre diversi ripristini. Un ripristino può spostare
+il ramo, rifare l'indice o sovrascrivere le modifiche locali. Leggi
+l'opzione e il riferimento di destinazione prima di confermare.
+
+@node Stashing, , Resetting, Manipulating
+@section Accantonare modifiche temporanee
+
+Con @kbd{z} accantona le modifiche e assegna un nome comprensibile. Quando
+riprendi il lavoro, verifica l'accantonamento selezionato. Puoi applicarlo
+mantenendolo in elenco oppure applicarlo e rimuoverlo.
+
+@node Transferring, Miscellaneous, Manipulating, Top
+@chapter Repository remoti
+
+Scarica i riferimenti, integra i cambiamenti o invia i commit con le
+azioni dedicate. Verifica sempre il ramo e il remoto proposti.
+
+@menu
+* Configurare un remoto: Remotes.
+* Scaricare riferimenti: Fetching.
+* Scaricare e integrare: Pulling.
+* Inviare i commit: Pushing.
+* Patch di testo: Plain Patches.
+* Serie di patch da posta: Maildir Patches.
+@end menu
+
+@node Remotes, Fetching, Transferring, Transferring
+@section Configurare un remoto
+
+@anchor{Remote Commands}
+@anchor{Remote Git Variables}
+
+Usa @kbd{M} per elencare o modificare i remoti. Un remoto comprende un
+nome e un indirizzo. Controlla l'indirizzo prima di inviare il ramo.
+
+@node Fetching, Pulling, Remotes, Transferring
+@section Scaricare riferimenti
+
+Con @kbd{f} aggiorni i riferimenti remoti. Puoi quindi confrontare il ramo
+locale con il remoto prima di decidere se integrare i cambiamenti.
+
+@node Pulling, Pushing, Fetching, Transferring
+@section Scaricare e integrare
+
+Con @kbd{F} scegli da dove scaricare e come integrare il ramo. Al termine
+leggi lo stato, in particolare se la cronologia dei due rami era
+divergente.
+
+@node Pushing, Plain Patches, Pulling, Transferring
+@section Inviare i commit
+
+Con @kbd{P} scegli la destinazione. Prima di confermare, controlla che il
+ramo e il remoto corrispondano a quelli attesi. Imposta il ramo remoto
+associato se è il primo invio.
+
+@node Plain Patches, Maildir Patches, Pushing, Transferring
+@section Patch di testo
+
+Usa la tavolozza delle patch per esportare una modifica o applicarla da
+file. Esamina il contenuto prima di prepararlo per il commit.
+
+@node Maildir Patches, , Plain Patches, Transferring
+@section Serie di patch da posta
+
+La tavolozza @kbd{w} comprende il flusso per applicare patch con i
+relativi messaggi di commit. Consulta lo stato per proseguire o annullare
+se una patch si ferma.
+
+@node Miscellaneous, Common Commands, Transferring, Top
+@chapter Strumenti aggiuntivi
+
+Per le operazioni meno frequenti, apri @strong{Comandi di Hit} dallo stato
+o usa la sezione @strong{Avanzate} del menu della vista.
+
+@menu
+* Etichettare una versione: Tagging.
+* Note ai commit: Notes.
+* Sottomoduli: Submodules.
+* Sottoalberi: Subtree.
+* Alberi di lavoro: Worktree.
+* Copia di lavoro parziale: Sparse checkouts.
+* Trasferire un archivio Git: Bundle.
+@end menu
+
+@node Tagging, Notes, Miscellaneous, Miscellaneous
+@section Etichettare una versione
+
+Con @kbd{t} scegli il commit e il nome dell'etichetta. Controlla il commit
+a cui punta l'etichetta prima di inviarla al remoto.
+
+@node Notes, Submodules, Tagging, Miscellaneous
+@section Note ai commit
+
+Con @kbd{T} associa una nota a un commit. Le note hanno riferimenti
+separati dalla cronologia principale. Verifica quali riferimenti sono
+sincronizzati nel tuo progetto.
+
+@node Submodules, Subtree, Notes, Miscellaneous
+@section Sottomoduli
+
+@anchor{Listing Submodules}
+@anchor{Submodule Transient}
+
+Un sottomodulo registra la revisione di un altro repository. Controlla sia
+lo stato del progetto principale sia quello del sottomodulo prima di
+registrare il cambio di revisione.
+
+@node Subtree, Worktree, Submodules, Miscellaneous
+@section Sottoalberi
+
+I sottoalberi integrano un altro progetto sotto un percorso del
+repository. Seleziona il prefisso e il riferimento corretti prima di
+importare o aggiornare il sottoalbero.
+
+@node Worktree, Sparse checkouts, Subtree, Miscellaneous
+@section Alberi di lavoro
+
+Usa la tavolozza degli alberi di lavoro per lavorare in una cartella
+separata sullo stesso repository. Verifica il percorso prima di rimuovere
+un albero di lavoro.
+
+@node Sparse checkouts, Bundle, Worktree, Miscellaneous
+@section Copia di lavoro parziale
+
+La copia parziale limita le cartelle presenti nella copia di lavoro.
+Verifica le regole applicate prima di interpretare un percorso mancante
+come cancellato.
+
+@node Bundle, , Sparse checkouts, Miscellaneous
+@section Trasferire un archivio Git
+
+Un bundle porta riferimenti e oggetti Git in un file. Scegli i riferimenti
+di origine e verifica il contenuto del bundle prima di usarlo in un altro
+repository.
+
+@node Common Commands, Customizing, Miscellaneous, Top
+@chapter Comandi ricorrenti
+
+Dallo stato puoi raggiungere le differenze, la cronologia e la
+registrazione. In un documento usa @kbd{C-c g f} per le azioni sul file e
+@kbd{C-c g d} per i comandi di Hit.
+
+@menu
+* Cronologia di lavoro in corso: Wip Modes.
+* Comandi Git nel documento: Commands for Buffers Visiting Files.
+* Comandi nelle versioni storiche: Minor Mode for Buffers Visiting Blobs.
+@end menu
+
+@node Wip Modes, Commands for Buffers Visiting Files, Common Commands, Common Commands
+@section Cronologia di lavoro in corso
+
+@anchor{Wip Graph}
+
+Le modalità WIP registrano salvataggi su riferimenti separati. Se ne usi
+una, controlla come il progetto gestisce tali riferimenti e quando ne
+viene eseguita la pulizia.
+
+@node Commands for Buffers Visiting Files, Minor Mode for Buffers Visiting Blobs, Wip Modes, Common Commands
+@section Comandi Git nel documento
+
+Apri con @kbd{C-c g f} le azioni del file corrente. @kbd{C-c g B} mostra
+gli autori; @kbd{C-c g L} apre la cronologia; @kbd{C-c g t} permette di
+consultare versioni del file.
+
+@menu
+* Comandi della modalità Git per i file: Minor Mode for Buffers Visiting Files.
+@end menu
+
+@node Minor Mode for Buffers Visiting Files, , Commands for Buffers Visiting Files, Commands for Buffers Visiting Files
+@subsection Comandi della modalità Git per i file
+
+La modalità locale aggiunge al documento azioni sulla storia del file. Per
+scoprire le scorciatoie attive, consulta la guida della modalità o apri la
+tavolozza del file.
+
+@node Minor Mode for Buffers Visiting Blobs, , Commands for Buffers Visiting Files, Common Commands
+@section Comandi nelle versioni storiche
+
+Nelle versioni storiche puoi risalire al relativo commit, cambiare
+revisione o visitare il file nella copia di lavoro. Verifica la revisione
+mostrata prima di copiare una modifica.
+
+@node Customizing, Plumbing, Common Commands, Top
+@chapter Preferenze di Hit
+
+Usa le preferenze GDev per le scorciatoie. Le opzioni specifiche di Git
+restano disponibili nei gruppi di personalizzazione Emacs con i nomi Lisp
+di origine.
+
+@menu
+* Impostazioni del repository: Per-Repository Configuration.
+* Impostazioni essenziali: Essential Settings.
+* Aggiornamento dei file aperti: Automatic Reverting of File-Visiting Buffers.
+* Aggiornamento delle viste Git: Automatic Refreshing of Magit Buffers.
+* Margine della cronologia: Log Margin.
+@end menu
+
+@node Per-Repository Configuration, Essential Settings, Customizing, Customizing
+@section Impostazioni del repository
+
+Verifica le impostazioni locali del repository per autore, remoti e
+comportamento dei rami. In team, applica le impostazioni condivise del
+progetto.
+
+@node Essential Settings, Automatic Reverting of File-Visiting Buffers, Per-Repository Configuration, Customizing
+@section Impostazioni essenziali
+
+@anchor{Safety}
+@anchor{Performance}
+@anchor{Log Performance}
+@anchor{Diff Performance}
+@anchor{Refs Buffer Performance}
+@anchor{Committing Performance}
+@anchor{Microsoft Windows Performance}
+@anchor{MacOS Performance}
+@anchor{Global Bindings}
+@anchor{MacOS Performance-Footnote-1}
+
+Controlla l'eseguibile Git, l'identità del repository e l'accesso al
+remoto. Se usi Forge, configura l'accesso al servizio prima di consultare
+richieste di integrazione o segnalazioni.
+
+@node Automatic Reverting of File-Visiting Buffers, Automatic Refreshing of Magit Buffers, Essential Settings, Customizing
+@section Aggiornamento dei file aperti
+
+Se un'operazione Git cambia i file su disco, GDev può aggiornarne il
+contenuto visibile quando opportuno. Controlla prima eventuali modifiche
+presenti solo in memoria.
+
+@node Automatic Refreshing of Magit Buffers, Log Margin, Automatic Reverting of File-Visiting Buffers, Customizing
+@section Aggiornamento delle viste Git
+
+Dopo un'operazione Git le viste pertinenti possono aggiornarsi. Premi
+@kbd{g} per rileggere la vista corrente quando un comando eseguito altrove
+ha modificato il repository.
+
+@node Log Margin, , Automatic Refreshing of Magit Buffers, Customizing
+@section Margine della cronologia
+
+Il margine della cronologia mostra informazioni accessorie come data o
+autore. Le opzioni della cronologia permettono di cambiarne la
+visualizzazione.
+
+@node Plumbing, FAQ, Customizing, Top
+@chapter Riferimento per le integrazioni
+
+Il fork conserva i nomi Lisp originari. Le integrazioni esistenti possono
+continuare a usare i comandi pubblici; il codice interno può cambiare con
+gli aggiornamenti del fork.
+
+@menu
+* Chiamare Git da Emacs Lisp: Calling Git.
+* Sezioni nelle estensioni: Section Plumbing.
+* Aggiornare una vista dopo un comando: Refreshing Buffers.
+* Convenzioni delle integrazioni: Conventions.
+@end menu
+
+@node Calling Git, Section Plumbing, Plumbing, Plumbing
+@section Chiamare Git da Emacs Lisp
+
+@anchor{Getting a Value from Git}
+@anchor{Calling Git for Effect}
+
+Usa le funzioni Git pubbliche del pacchetto o le primitive di Emacs con
+una cartella di lavoro esplicita. Controlla il codice di uscita e
+distingui i dati dal testo di errore.
+
+@node Section Plumbing, Refreshing Buffers, Calling Git, Plumbing
+@section Sezioni nelle estensioni
+
+@anchor{Creating Sections}
+@anchor{Section Selection}
+@anchor{Matching Sections}
+
+Le sezioni sono elementi strutturati e annidati. Usa le funzioni di
+movimento e di apertura della libreria delle sezioni evitando di dedurre
+l'elemento soltanto dal testo della riga.
+
+@node Refreshing Buffers, Conventions, Section Plumbing, Plumbing
+@section Aggiornare una vista dopo un comando
+
+Aggiorna le viste interessate dopo la modifica del repository. Conserva,
+se possibile, la sezione selezionata e il riquadro dal quale l'azione è
+partita.
+
+@node Conventions, , Refreshing Buffers, Plumbing
+@section Convenzioni delle integrazioni
+
+@anchor{Theming Faces}
+
+Nelle estensioni usa i nomi Lisp stabili; nelle etichette dell'interfaccia
+usa i nomi GDev in italiano. Per le opzioni consulta la documentazione
+della funzione o della variabile effettivamente caricata.
+
+@node FAQ, Keystroke Index, Plumbing, Top
+@chapter Domande frequenti e problemi
+
+Se una voce manca, controlla il contesto: il menu mostra le operazioni
+applicabili alla vista. Se Git restituisce un errore, parti dal risultato
+dell'ultimo comando.
+
+@menu
+* Come trovare un comando: FAQ - How to ...?.
+* Errori di accesso e di aggiornamento: FAQ - Issues and Errors.
+* Diagnosticare un comando Git: Debugging Tools.
+@end menu
+
+@node FAQ - How to ...?, FAQ - Issues and Errors, FAQ, FAQ
+@section Come trovare un comando
+
+@anchor{How to pronounce Magit?}
+@anchor{How to show git's output?}
+@anchor{How to install the gitman info manual?}
+@anchor{How to show diffs for gpg-encrypted files?}
+@anchor{How does branching and pushing work?}
+@anchor{Should I disable VC?}
+@anchor{The diff/log is filtered to one file; how do I show all changes}
+
+Apri la tavolozza dei comandi di GDev oppure premi @kbd{h} in Hit. Dal
+menu @strong{Hit > Guida di Hit} puoi ritrovare questa guida anche fuori
+dallo stato del repository.
+
+@node FAQ - Issues and Errors, Debugging Tools, FAQ - How to ...?, FAQ
+@section Errori di accesso e di aggiornamento
+
+@anchor{Magit is slow}
+@anchor{I changed several thousand files at once and now Magit is unusable}
+@anchor{I am having problems committing}
+@anchor{I am using MS Windows and cannot push with Magit}
+@anchor{I am using macOS and SOMETHING works in shell but not in Magit}
+@anchor{Expanding a file to show the diff causes it to disappear}
+@anchor{Point is wrong in the COMMIT_EDITMSG buffer}
+@anchor{The mode-line information isn't always up-to-date}
+@anchor{A branch and tag sharing the same name breaks SOMETHING}
+@anchor{My Git hooks work on the command-line but not inside Magit}
+@anchor{git-commit-mode isn't used when committing from the command-line}
+@anchor{Point ends up inside invisible text when jumping to a file-visiting buffer}
+@anchor{I am no longer able to save popup defaults}
+
+Verifica la cartella di lavoro, l'identità e il remoto. Per una richiesta
+di rete fallita controlla il messaggio del processo Git e le credenziali
+del servizio interessato.
+
+@node Debugging Tools, , FAQ - Issues and Errors, FAQ
+@section Diagnosticare un comando Git
+
+Apri la vista dei processi Git e riproduci l'operazione. Conserva il
+messaggio d'errore e i passi per riprodurlo; elidi credenziali e indirizzi
+privati quando condividi un resoconto.
+
+@node Keystroke Index, Function and Command Index, FAQ, Top
+@chapter Indice delle scorciatoie
+
+@kbd{C-x g} apre lo stato. @kbd{?} mostra le azioni Hit. @kbd{s} e @kbd{u}
+preparano o tolgono voci dall'indice; @kbd{c c} registra, @kbd{l} mostra
+la cronologia, @kbd{d} apre le differenze e @kbd{P} le azioni di invio.
+
+@node Function and Command Index, Variable Index, Keystroke Index, Top
+@chapter Indice dei comandi Lisp
+
+@code{magit-status} apre lo stato, @code{magit-dispatch} le azioni,
+@code{magit-file-dispatch} le azioni del file e @code{magit-info} questa
+guida. In GDev puoi richiamarla anche con @code{hit-guida}.
+
+@node Variable Index, , Function and Command Index, Top
+@chapter Indice delle opzioni Lisp
+
+Usa @kbd{C-h v} per leggere un'opzione. Esempi:
+@code{magit-diff-refine-hunk} evidenzia le differenze interne al blocco e
+@code{magit-repository-directories} definisce le cartelle da esplorare per
+elencare i repository.
+
+@bye

@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Type guard — validazione di un record ricevuto
+# key: g-type-guard
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type ${1:User} = { id: string; active: boolean };
+
+function is$1(value: unknown): value is $1 {
+  return typeof value === "object" && value !== null
+    && "id" in value && typeof value.id === "string"
+    && "active" in value && typeof value.active === "boolean";
+}
+$0

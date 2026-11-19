@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+@MainActor
+final class ${1:Subject} {
+    private var handlers: [Int: (String) -> Void] = [:]
+    private var next = 0
+
+    func subscribe(_ handler: @escaping (String) -> Void) -> Int {
+        defer { next += 1 }
+        handlers[next] = handler
+        return next
+    }
+
+    func unsubscribe(_ key: Int) {
+        handlers.removeValue(forKey: key)
+    }
+
+    func publish(_ value: String) {
+        for handler in Array(handlers.values) { handler(value) }
+    }
+}
+$0

@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Switch esaustivo che rileva l'aggiunta di una variante
+# key: g-exhaustive-switch
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type ${1:Action} = { type: "open" } | { type: "close"; reason: string };
+
+function label(action: $1): string {
+  switch (action.type) {
+    case "open":
+      return "Open";
+    case "close":
+      return action.reason;
+    default: {
+      // Una nuova variante rende questa assegnazione un errore di tipo.
+      const unreachable: never = action;
+      throw new Error(\`Unhandled action: \${unreachable}\`);
+    }
+  }
+}
+$0

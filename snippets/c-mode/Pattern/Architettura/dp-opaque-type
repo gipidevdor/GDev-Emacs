@@ -1,0 +1,38 @@
+# -*- mode: snippet -*-
+# name: Opaque Type — stato privato con API di creazione e distruzione
+# key: dp-opaque-type
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Lascia la struttura incompleta nell'intestazione e documenta la funzione che la libera.
+
+/* Public header. */
+typedef struct ${1:counter} $1;
+$1 *$1_create(void);
+unsigned $1_get(const $1 *counter);
+void $1_destroy($1 *counter);
+
+/* Source file. */
+#include <stdlib.h>
+
+struct $1 {
+    unsigned value;
+};
+
+$1 *$1_create(void)
+{
+    $1 *result = malloc(sizeof *result);
+    if (result != NULL) *result = ($1){ .value = 0 };
+    return result;
+}
+
+unsigned $1_get(const $1 *counter)
+{
+    return counter->value;
+}
+
+void $1_destroy($1 *counter)
+{
+    free(counter);
+}
+$0

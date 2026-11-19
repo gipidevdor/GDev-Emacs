@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+type ${1:Job} = Readonly<{ queue: string; timeoutSeconds: number }>;
+
+const standard: $1 = { queue: "default", timeoutSeconds: 30 };
+const ${2:urgent}: $1 = { ...standard, queue: "urgent", timeoutSeconds: 5 };
+$0

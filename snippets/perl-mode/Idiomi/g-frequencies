@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Conta le occorrenze con un hash
+# key: g-frequencies
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Una chiave nuova parte da zero con l'incremento numerico.
+my %${1:count};
+++\$$1{\$_} for ${2:@values};
+$0

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Moved — conserva l'associazione nello stato dopo una rinomina
+# key: g-tf-moved
+# group: Idiomi
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il passaggio indica a Terraform come associare gli indirizzi dello stesso oggetto.
+moved {
+  from = terraform_data.${1:old_name}
+  to   = terraform_data.${2:new_name}
+}
+$0

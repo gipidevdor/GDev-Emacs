@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Dataclass immutabile con slots
+# key: g-dataclass
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class ${1:Item}:
+    ${2:name}: ${3:str}
+
+
+$0

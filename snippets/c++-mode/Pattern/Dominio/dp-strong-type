@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Strong Type — identificatore con tipo distinto
+# key: dp-strong-type
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Una conversione esplicita impedisce di scambiare identificatori con la stessa rappresentazione.
+
+#include <compare>
+#include <cstdint>
+
+class ${1:UserId} {
+public:
+    explicit constexpr $1(std::uint64_t value) : value_{value} {}
+
+    [[nodiscard]] constexpr std::uint64_t value() const noexcept { return value_; }
+    auto operator<=>(const $1&) const = default;
+
+private:
+    std::uint64_t value_;
+};
+
+$0

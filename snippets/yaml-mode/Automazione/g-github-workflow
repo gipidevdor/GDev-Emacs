@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: GitHub Actions — workflow avviabile a mano con soli permessi di lettura
+# key: g-github-workflow
+# group: Automazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+name: ${1:Example check}
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ${2:Print status}
+        run: printf '%s\\n' ready
+        $0

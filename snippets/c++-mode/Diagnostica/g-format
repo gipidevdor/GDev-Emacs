@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Formattazione tipizzata con std::format (C++20)
+# key: g-format
+# group: Diagnostica
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <format>
+#include <string>
+#include <string_view>
+
+std::string ${1:format_status}(std::string_view name, int code) {
+    return std::format("${2:\{\} (\{\})}", name, code);
+}
+
+$0

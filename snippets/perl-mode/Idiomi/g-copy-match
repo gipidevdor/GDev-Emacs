@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Sostituzione /r su una copia del valore
+# key: g-copy-match
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# /r restituisce il testo trasformato e lascia disponibile l'originale.
+my \$${1:normalized} = ${2:\$raw} =~ s/^\\s+|\\s+\$//gr;
+$0

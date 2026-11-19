@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Retry — tentativi limitati e ritardo crescente (POSIX)
+# key: dp-retry
+# group: Pattern.Affidabilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ripeti operazioni idempotenti, con un limite e una decisione esplicita sugli errori ripetibili.
+
+${1:retry}() {
+    attempt=1
+    delay=1
+    while :; do
+        if "\$@"; then return 0; else status=\$?; fi
+        [ "\$attempt" -lt ${2:4} ] || return "\$status"
+        sleep "\$delay" || return 1
+        attempt=\$((attempt + 1))
+        delay=\$((delay * 2))
+        [ "\$delay" -lt 8 ] || delay=8
+    done
+}
+
+$0

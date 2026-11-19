@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Conserva i dati della corrispondenza del chiamante
+# key: g-save-match
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Le ricerche usate internamente non sostituiscono i gruppi del chiamante.
+(save-match-data
+  (when (string-match ${1:regexp} ${2:text})
+    $0(match-string 0 $2)))

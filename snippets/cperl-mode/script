@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: scheletro di programma (script)
+# key: script
+# --
+#!/usr/bin/env perl
+use v5.36;    # attiva strict, warnings, say e signatures
+
+$0

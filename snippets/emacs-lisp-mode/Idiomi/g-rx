@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Regexp leggibile con rx e gruppo di cattura
+# key: g-rx
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; RX esplicita gli ancoraggi e rende visibile il gruppo catturato.
+(rx line-start "${1:Name}" ": " (group (+ nonl)) line-end)$0

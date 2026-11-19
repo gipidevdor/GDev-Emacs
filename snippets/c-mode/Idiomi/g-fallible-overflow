@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Somma size_t con controllo prima dell'operazione
+# key: g-fallible-overflow
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+bool ${1:size_add}(size_t first, size_t second, size_t *result)
+{
+    // Confronta prima della somma e lascia intatto *result in caso di errore.
+    if (second > SIZE_MAX - first) return false;
+    *result = first + second;
+    return true;
+}
+
+$0

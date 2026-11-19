@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Template Method — passi specializzabili
+# key: dp-template-method
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Mantieni fissa la sequenza dei passaggi e rendi sostituibili i passaggi specifici.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+abstract class ${1:Importer}
+{
+    public IReadOnlyList<string> Run(string text) =>
+        Parse(text).Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+
+    protected abstract IEnumerable<string> Parse(string text);
+}
+
+sealed class LineImporter : $1
+{
+    protected override IEnumerable<string> Parse(string text) =>
+        text.Split(new[] { "\\r\\n", "\\n" }, StringSplitOptions.None);
+}
+$0

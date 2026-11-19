@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Ricerca ricorsiva di file con pathlib
+# key: g-path-walk
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from pathlib import Path
+
+for ${1:path} in sorted(Path("${2:.}").rglob("${3:*.json}")):
+    if $1.is_file():
+        $0pass

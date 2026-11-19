@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: File::Temp — file temporaneo con eliminazione automatica
+# key: g-tempfile
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use v5.36;
+use autodie;
+use File::Temp qw(tempfile);
+
+my (\$stream, \$path) = tempfile(UNLINK => 1);
+binmode \$stream, ':encoding(UTF-8)';
+say {\$stream} "${1:example}";
+close \$stream;
+$0

@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Bash 4+ — carica righe in array con mapfile
+# key: g-readarray
+# group: Idiomi
+# condition: (or (eq major-mode 'bash-ts-mode) (eq (bound-and-true-p sh-shell) 'bash))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# -t rimuove soltanto il delimitatore finale di ciascuna riga.
+mapfile -t ${1:lines} < "${2:input.txt}"
+printf '%s\\n' "\${$1[@]}"
+$0

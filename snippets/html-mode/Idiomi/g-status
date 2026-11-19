@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Annuncio di stato per cambiamenti asincroni
+# key: g-status
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<!-- Inserisci i messaggi in questa regione già presente nel DOM. -->
+<p id="${1:status}" role="status" aria-live="polite"></p>$0

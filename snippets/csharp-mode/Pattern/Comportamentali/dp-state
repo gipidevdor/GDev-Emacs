@@ -1,0 +1,42 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+using System;
+
+interface IState
+{
+    string Label { get; }
+    IState Advance();
+}
+
+sealed class ${1:Article}
+{
+    private IState state = new Draft();
+
+    public string Label => state.Label;
+    public void Advance() => state = state.Advance();
+
+    private sealed class Draft : IState
+    {
+        public string Label => "Draft";
+        public IState Advance() => new Review();
+    }
+
+    private sealed class Review : IState
+    {
+        public string Label => "Review";
+        public IState Advance() => new Published();
+    }
+
+    private sealed class Published : IState
+    {
+        public string Label => "Published";
+        public IState Advance() => throw new InvalidOperationException("Already published");
+    }
+}
+$0

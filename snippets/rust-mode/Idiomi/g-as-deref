@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: As_deref — usa una stringa opzionale senza clonarla
+# key: g-as-deref
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+pub fn ${1:label}(value: &Option<String>) -> &str {
+    // Da &Option<String> a Option<&str> usando la durata del prestito.
+    $0
+    value.as_deref().unwrap_or("untitled")
+}

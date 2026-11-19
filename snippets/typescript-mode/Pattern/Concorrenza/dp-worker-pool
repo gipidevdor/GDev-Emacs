@@ -1,0 +1,40 @@
+# -*- mode: snippet -*-
+# name: Worker Pool — lavoro concorrente limitato e annullamento
+# key: dp-worker-pool
+# group: Pattern.Concorrenza
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Limita il numero di lavori simultanei. Il chiamante deve poter attendere la fine dei worker.
+
+async function ${1:mapLimited}<T, R>(
+  items: readonly T[],
+  limit: number,
+  map: (item: T, signal: AbortSignal) => Promise<R>,
+): Promise<R[]> {
+  if (!Number.isSafeInteger(limit) || limit < 1) throw new RangeError("Invalid limit");
+
+  const controller = new AbortController();
+  const results: R[] = [];
+  const queue = items.entries();
+
+  async function worker(): Promise<void> {
+    for (const [index, item] of queue) {
+      controller.signal.throwIfAborted();
+      try {
+        results[index] = await map(item, controller.signal);
+      } catch (error) {
+        controller.abort(error);
+        throw error;
+      }
+    }
+  }
+
+  const settled = await Promise.allSettled(
+    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
+  );
+  const rejected = settled.find((result) => result.status === "rejected");
+  if (rejected) throw rejected.reason;
+  return results;
+}
+$0

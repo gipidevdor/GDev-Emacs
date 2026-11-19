@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+from collections.abc import Callable, Iterator
+
+
+def ${1:iter_pages}(fetch: Callable[[str | None], tuple[list[str], str | None]]) -> Iterator[str]:
+    cursor = None
+    while True:
+        items, cursor = fetch(cursor)
+        yield from items
+        if cursor is None:
+            break
+
+
+$0

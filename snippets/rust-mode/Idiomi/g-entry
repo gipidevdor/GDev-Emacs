@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Entry API — aggiorna un bucket con un solo accesso alla mappa
+# key: g-entry
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use std::collections::HashMap;
+
+pub fn ${1:counts}(input: &str) -> HashMap<&str, usize> {
+    let mut counts = HashMap::new();
+    for token in input.split_whitespace() {
+        // La chiave nuova parte da zero. Entry riusa la ricerca effettuata.
+        *counts.entry(token).or_insert(0) += 1;
+    }
+    $0
+    counts
+}

@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: CRTP — polimorfismo statico con il tipo derivato
+# key: dp-crtp
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il tipo derivato risolve la chiamata a compile time e soddisfa il contratto di implementazione.
+
+template <class Derived>
+class ${1:Printable} {
+public:
+    void print() const { static_cast<const Derived&>(*this).print_impl(); }
+
+private:
+    $1() = default;
+    friend Derived;
+};
+
+struct Line final : $1<Line> {
+    Line() = default;
+    void print_impl() const { $0 }
+};

@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+import java.util.function.IntUnaryOperator;
+
+final class ${1:Pricing} {
+    int total(int amount, IntUnaryOperator discount) {
+        return amount - discount.applyAsInt(amount);
+    }
+
+    static IntUnaryOperator tenPercent() { return amount -> amount / 10; }
+}
+$0

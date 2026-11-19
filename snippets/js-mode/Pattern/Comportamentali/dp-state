@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: State — transizioni e comportamento
+# key: dp-state
+# group: Pattern.Comportamentali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni stato definisce il proprio comportamento e le transizioni ammesse.
+
+const published = Object.freeze({
+  label: "Published",
+  advance() { throw new Error("Already published"); },
+});
+const review = Object.freeze({ label: "In review", advance: () => published });
+const draft = Object.freeze({ label: "Draft", advance: () => review });
+
+class ${1:Article} {
+  #state = draft;
+
+  get label() {
+    return this.#state.label;
+  }
+
+  advance() {
+    this.#state = this.#state.advance();
+  }
+}
+$0

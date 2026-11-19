@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Target di verifica richiamabile con make test
+# key: g-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.PHONY: test
+test: ${1:check-app}
+	./$1
+$0

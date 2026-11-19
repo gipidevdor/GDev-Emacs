@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Composite — foglie e gruppi con la stessa interfaccia
+# key: dp-composite
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il nodo composto delega ai figli attraverso la stessa interfaccia che espone.
+
+from dataclasses import dataclass, field
+from typing import Protocol
+
+
+class SizedNode(Protocol):
+    def size(self) -> int: ...
+
+
+@dataclass(frozen=True)
+class FileNode:
+    bytes: int
+
+    def size(self) -> int:
+        return self.bytes
+
+
+@dataclass
+class ${1:DirectoryNode}:
+    children: list[SizedNode] = field(default_factory=list)
+
+    def size(self) -> int:
+        return sum(child.size() for child in self.children)
+
+
+$0

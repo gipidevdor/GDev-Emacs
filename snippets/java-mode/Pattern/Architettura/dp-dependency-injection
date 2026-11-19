@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — costruttore con interfaccia del consumatore
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+interface Sender { void send(String message); }
+
+final class ${1:Greeter} {
+    private final Sender sender;
+
+    $1(Sender sender) { this.sender = sender; }
+
+    void greet(String name) { sender.send("Hello, " + name); }
+
+    static $1 console() { return new $1(System.out::println); }
+}
+$0

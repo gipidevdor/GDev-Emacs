@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Web Worker — scambio di un messaggio e terminazione
+# key: g-worker
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const worker = new Worker(new URL("./${1:worker.js}", import.meta.url), { type: "module" });
+
+worker.addEventListener("message", (event) => {
+  worker.terminate();
+  $0console.log(event.data);
+}, { once: true });
+worker.addEventListener("error", () => worker.terminate(), { once: true });
+worker.postMessage({ type: "${2:start}" });

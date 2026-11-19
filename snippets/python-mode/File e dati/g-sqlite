@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: SQLite — connessione chiusa e query con parametri
+# key: g-sqlite
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import sqlite3
+from contextlib import closing
+
+with closing(sqlite3.connect("${1:app.sqlite3}")) as db:
+    db.row_factory = sqlite3.Row
+    ${2:row} = db.execute("SELECT name FROM item WHERE id = ?", (${3:1},)).fetchone()
+$0

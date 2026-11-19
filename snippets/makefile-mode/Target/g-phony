@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Target phony per un'azione che non produce un file
+# key: g-phony
+# group: Target
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.PHONY: ${1:check}
+$1:
+	${2:printf '%s\\n' ready}$0

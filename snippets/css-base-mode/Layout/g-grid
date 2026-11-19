@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Griglia fluida con colonne auto-fit e limite minimo
+# key: g-grid
+# group: Layout
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:cards} {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, ${2:16rem}), 1fr));
+  gap: ${3:1rem};
+  $0
+}

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Promise.allSettled — raccogli successi e fallimenti
+# key: g-promise-settled
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const results = await Promise.allSettled(${1:jobs});
+for (const result of results) {
+  if (result.status === "rejected") {
+    console.error(result.reason);
+  } else {
+    $0console.log(result.value);
+  }
+}

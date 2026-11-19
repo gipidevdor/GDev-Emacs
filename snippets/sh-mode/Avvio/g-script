@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Script portabile /bin/sh con main e argomenti
+# key: g-script
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#!/bin/sh
+
+main() {
+    $0:
+}
+
+main "\$@"

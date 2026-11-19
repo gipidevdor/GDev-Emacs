@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# Modificato per GDev-Emacs il 2026-11-17 - corretta la direttiva contributor
+#contributor: Henrique Jung <henriquenj@gmail.com>
+# name: Function description
+# key: \brief
+# group: doxygen
+# --
+/**
+ *  \brief ${1:function description}
+ ${2:*
+ *  ${3:Detailed description}
+ *
+ }*  \param ${4:param}
+ *  \return ${5:return type}
+ */

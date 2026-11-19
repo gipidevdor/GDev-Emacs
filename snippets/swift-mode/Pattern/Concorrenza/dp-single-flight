@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Single Flight — un task condiviso per chiave in un actor
+# key: dp-single-flight
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Condividi il lavoro in corso per chiave. Rimuovi la voce quando termina anche se fallisce.
+
+actor ${1:Loader} {
+    private var pending: [String: Task<String, any Error>] = [:]
+
+    func value(
+        for key: String,
+        load: @escaping @Sendable (String) async throws -> String
+    ) async throws -> String {
+        if let task = pending[key] { return try await task.value }
+        let task = Task { try await load(key) }
+        pending[key] = task
+        defer { pending[key] = nil }
+        return try await task.value
+    }
+}
+$0

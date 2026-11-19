@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: RAII — guardia a durata limitata per un lock
+# key: dp-raii
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'oggetto locale possiede la risorsa finché resta nello scope, anche se l'operazione fallisce.
+
+use std::sync::Mutex;
+
+pub fn ${1:increment}(counter: &Mutex<u64>) -> Option<u64> {
+    let mut guard = counter.lock().ok()?;
+    *guard = guard.checked_add(1)?;
+    let value = *guard;
+    $0
+    Some(value)
+}

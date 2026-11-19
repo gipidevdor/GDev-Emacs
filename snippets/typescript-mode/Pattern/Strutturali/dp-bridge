@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Bridge — astrazione e implementazione indipendenti
+# key: dp-bridge
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'astrazione può evolvere indipendentemente dall'implementazione che riceve.
+
+interface Renderer {
+  heading(title: string): string;
+}
+
+class ${1:Report} {
+  constructor(private readonly title: string) {}
+
+  renderWith(renderer: Renderer): string {
+    return renderer.heading(this.title);
+  }
+}
+
+const markdown: Renderer = { heading: (title) => \`## \${title}\` };
+$0

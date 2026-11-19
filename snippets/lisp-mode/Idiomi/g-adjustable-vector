@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Vettore regolabile con fill pointer
+# key: g-adjustable-vector
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; VECTOR-PUSH-EXTEND aumenta la capacità quando il vettore è pieno.
+(let ((${1:buffer} (make-array 0 :element-type 'character :adjustable t :fill-pointer 0)))
+  (loop for character across "${2:example}"
+        do (vector-push-extend character $1))
+  $0
+  (copy-seq $1))

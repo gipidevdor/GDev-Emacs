@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Lettura CSV con intestazioni (DictReader)
+# key: g-read-csv
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import csv
+from pathlib import Path
+
+with Path("${1:records.csv}").open(encoding="utf-8", newline="") as stream:
+    for ${2:row} in csv.DictReader(stream):
+        $0pass

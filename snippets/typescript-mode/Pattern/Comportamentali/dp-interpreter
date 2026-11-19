@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Interpreter — valuta un albero di espressioni
+# key: dp-interpreter
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I nodi rappresentano la grammatica e valutano il proprio sottoalbero con il medesimo ambiente.
+
+type ${1:Expression} =
+  | { kind: "number"; value: number }
+  | { kind: "variable"; name: string }
+  | { kind: "add"; left: $1; right: $1 };
+
+function ${2:evaluate}(expr: $1, values: ReadonlyMap<string, number>): number {
+  switch (expr.kind) {
+    case "number":
+      return expr.value;
+    case "variable": {
+      const value = values.get(expr.name);
+      if (value === undefined) throw new ReferenceError(expr.name);
+      return value;
+    }
+    case "add":
+      return $2(expr.left, values) + $2(expr.right, values);
+  }
+}
+$0

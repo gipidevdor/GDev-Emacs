@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Log strutturato con slog e contesto chiamante
+# key: g-slog
+# group: Diagnostica
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"context"
+	"log/slog"
+)
+
+func ${2:Report}(ctx context.Context, logger *slog.Logger, id string) {
+	logger.InfoContext(ctx, "Item ready", slog.String("id", id))
+	$0
+}

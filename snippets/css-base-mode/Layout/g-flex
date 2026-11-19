@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Riga flessibile su più righe con allineamento e gap
+# key: g-flex
+# group: Layout
+# expand-env: ((yas-indent-line 'fixed))
+# --
+.${1:toolbar} {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${2:0.75rem};
+  $0
+}

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Let else — estrai un valore o termina con un errore
+# key: g-let-else
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+pub fn ${1:first}(values: &[u32]) -> Result<u32, &'static str> {
+    // Dopo il blocco il valore è definito in tutto il resto dello scope.
+    let Some(&value) = values.first() else {
+        return Err("expected a non-empty slice");
+    };
+    $0
+    Ok(value)
+}

@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: ERT — verifica del tipo di errore
+# key: g-ert-error
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(require 'ert)
+
+(ert-deftest ${1:example-test-error} ()
+  (should-error ${2:(user-error "Invalid input")} :type '${3:user-error})
+  $0)

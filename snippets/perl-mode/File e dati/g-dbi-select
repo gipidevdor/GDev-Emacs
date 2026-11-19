@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: DBI — query con segnaposto e riga come hashref
+# key: g-dbi-select
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+my \$${1:row} = \$db->selectrow_hashref(
+    'SELECT id, label FROM item WHERE id = ?',
+    undef,
+    ${2:\$id},
+);
+$0

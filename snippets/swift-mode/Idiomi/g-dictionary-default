@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Dictionary default — accumula frequenze in un solo passaggio
+# key: g-dictionary-default
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+func ${1:counts}(_ values: [String]) -> [String: Int] {
+    var result: [String: Int] = [:]
+    for value in values {
+        // Il subscript con default modifica direttamente la voce del dizionario.
+        result[value, default: 0] += 1
+    }
+    $0
+    return result
+}

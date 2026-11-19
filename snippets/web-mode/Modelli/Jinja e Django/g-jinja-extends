@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Jinja/Django — eredita un layout e riempie un blocco
+# key: g-jinja-extends
+# group: Modelli.Jinja e Django
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{% extends "${1:base.html}" %}
+{% block ${2:content} %}
+  $0
+{% endblock %}

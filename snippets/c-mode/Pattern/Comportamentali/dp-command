@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+struct ${1:command} {
+    void *context;
+    int (*execute)(void *context);
+    void (*undo)(void *context);
+};
+
+int run(const struct $1 *command)
+{
+    return command->execute(command->context);
+}
+
+$0

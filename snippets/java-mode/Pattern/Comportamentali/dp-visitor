@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: Visitor — operazioni su più tipi
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+interface Shape { <T> T accept(Visitor<T> visitor); }
+
+interface Visitor<T> {
+    T visit(Circle circle);
+    T visit(Square square);
+}
+
+final class Circle implements Shape {
+    final double radius;
+    Circle(double radius) { this.radius = radius; }
+    public <T> T accept(Visitor<T> visitor) { return visitor.visit(this); }
+}
+
+final class Square implements Shape {
+    final double side;
+    Square(double side) { this.side = side; }
+    public <T> T accept(Visitor<T> visitor) { return visitor.visit(this); }
+}
+
+final class ${1:Area} implements Visitor<Double> {
+    public Double visit(Circle circle) { return Math.PI * circle.radius * circle.radius; }
+    public Double visit(Square square) { return square.side * square.side; }
+}
+$0

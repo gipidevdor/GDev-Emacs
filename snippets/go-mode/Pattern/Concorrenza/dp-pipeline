@@ -1,0 +1,36 @@
+# -*- mode: snippet -*-
+# name: Pipeline — stage su canali con cancellazione lungo il flusso
+# key: dp-pipeline
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+package ${1:example}
+
+import "context"
+
+func ${2:Map}[T, R any](ctx context.Context, input <-chan T, transform func(T) R) <-chan R {
+	output := make(chan R)
+	go func() {
+		defer close(output)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case value, open := <-input:
+				if !open {
+					return
+				}
+				result := transform(value)
+				select {
+				case output <- result:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+	return output
+}
+$0

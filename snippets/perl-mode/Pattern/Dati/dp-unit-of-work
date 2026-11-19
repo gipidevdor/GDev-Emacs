@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Unit of Work — transazione DBI con eccezione e rollback
+# key: dp-unit-of-work
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le operazioni devono usare la stessa connessione fino a commit o rollback.
+
+use v5.36;
+
+sub ${1:transaction} (\$db, \$operation) {
+    die 'Expected RaiseError and AutoCommit' if !\$db->{RaiseError} || !\$db->{AutoCommit};
+    \$db->begin_work;
+    my \$ok = eval {
+        \$operation->(\$db);
+        \$db->commit;
+        1;
+    };
+    if (!\$ok) {
+        my \$error = \$@;
+        eval { \$db->rollback };
+        my \$rollback_error = \$@;
+        die "Transaction failed: \$error; rollback failed: \$rollback_error" if \$rollback_error;
+        die \$error;
+    }
+    return;
+}
+$0

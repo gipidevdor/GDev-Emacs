@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Deduplicazione che mantiene la posizione della prima occorrenza
+# key: g-stable-dedupe
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# dict.fromkeys mantiene l'ordine di inserimento per elementi hashable.
+${1:unique} = list(dict.fromkeys(${2:["a", "b", "a"]}))
+$0

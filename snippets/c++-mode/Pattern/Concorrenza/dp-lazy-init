@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Lazy Initialization — inizializzazione una volta con retry automatico
+# key: dp-lazy-init
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Pubblica il valore completo dopo l'inizializzazione. Un'eccezione lascia possibile un altro tentativo.
+
+#include <mutex>
+#include <string>
+
+class ${1:LazySettings} {
+public:
+    [[nodiscard]] const std::string& get() const {
+        std::call_once(initialized_, [this] { value_ = "${2:default}"; });
+        return value_;
+    }
+
+private:
+    mutable std::once_flag initialized_;
+    mutable std::string value_;
+};
+
+$0

@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — passa un adattatore alla funzione
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+export function ${1:createGreeter}({ send }) {
+  return (name) => send(\`Hello, \${name}!\`);
+}
+
+const greet = $1({ send: console.log });
+greet("${2:Ada}");
+$0

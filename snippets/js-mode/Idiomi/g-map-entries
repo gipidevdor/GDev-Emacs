@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Mappa da coppie chiave e valore e fallback esplicito
+# key: g-map-entries
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const ${1:prices} = new Map([["pen", 180], ["book", 1200]]);
+// has distingue una chiave assente da una chiave associata a undefined.
+const key = "${2:book}";
+const amount = $1.has(key) ? $1.get(key) : 0;
+$0

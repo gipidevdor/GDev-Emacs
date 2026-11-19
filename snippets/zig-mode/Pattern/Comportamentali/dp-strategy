@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Strategy — funzione nota a comptime e sottrazione saturante
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+pub fn ${1:total}(amount: u32, comptime discount: fn (u32) u32) u32 {
+    return amount -| discount(amount);
+}
+
+pub fn tenPercent(amount: u32) u32 {
+    return amount / 10;
+}
+$0

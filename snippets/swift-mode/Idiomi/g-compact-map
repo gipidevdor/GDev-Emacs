@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: CompactMap — mappa e scarta i risultati nil
+# key: g-compact-map
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+func ${1:parseValues}(_ items: [String]) -> [Int] {
+    // Int.init restituisce nil sui valori che non rappresentano un intero.
+    $0
+    return items.compactMap(Int.init)
+}

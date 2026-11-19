@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Singleton — unica istanza
+# key: dp-singleton
+# group: Pattern.Creazionali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa istanza è condivisa in questo processo. Passala esplicitamente a chi deve poterla sostituire.
+
+interface ${1:Settings} {
+  readonly timeoutMs: number;
+}
+
+// One instance per ES module and runtime.
+export const ${2:settings}: $1 = Object.freeze({ timeoutMs: ${3:5000} });
+$0

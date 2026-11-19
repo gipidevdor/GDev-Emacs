@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Weak self — interrompi il ciclo tra proprietario e callback
+# key: g-weak-self
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+final class ${1:Owner} {
+    var onChange: (() -> Void)?
+
+    func install() {
+        // La closure è posseduta dall'oggetto e non ne deve impedire il rilascio.
+        onChange = { [weak self] in
+            guard let self else { return }
+            self.refresh()
+        }
+    }
+
+    private func refresh() {
+        $0
+    }
+}

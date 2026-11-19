@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Scrittura CSV con elenco dei campi
+# key: g-write-csv
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import csv
+from pathlib import Path
+
+with Path("${1:records.csv}").open("w", encoding="utf-8", newline="") as stream:
+    writer = csv.DictWriter(stream, fieldnames=[${2:"id", "name"}])
+    writer.writeheader()
+    writer.writerows(${3:[]})
+$0

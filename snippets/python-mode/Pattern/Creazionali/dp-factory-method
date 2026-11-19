@@ -1,0 +1,36 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+from abc import ABC, abstractmethod
+from typing import Protocol
+
+
+class Writer(Protocol):
+    def write(self, text: str) -> str: ...
+
+
+class Exporter(ABC):
+    def export(self, text: str) -> str:
+        return self.create_writer().write(text)
+
+    @abstractmethod
+    def create_writer(self) -> Writer:
+        raise NotImplementedError
+
+
+class ${1:MarkdownWriter}:
+    def write(self, text: str) -> str:
+        return f"# {text}"
+
+
+class ${2:MarkdownExporter}(Exporter):
+    def create_writer(self) -> Writer:
+        return $1()
+
+
+$0

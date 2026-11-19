@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+from dataclasses import dataclass
+
+
+@dataclass
+class ${1:AppendText}:
+    target: list[str]
+    text: str
+
+    def execute(self) -> None:
+        self.target.append(self.text)
+
+    def undo(self) -> None:
+        if not self.target or self.target[-1] != self.text:
+            raise RuntimeError("Undo in reverse execution order")
+        self.target.pop()
+
+
+$0

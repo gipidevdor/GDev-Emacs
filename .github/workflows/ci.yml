@@ -1,0 +1,125 @@
+# Test unitari, igiene del repository (nessun segreto) e una prova di avvio
+# (smoke test) dopo `gdev sync'. Su Linux verifica il minimo supportato e
+# lo snapshot. Su macOS verifica l'app stabile e compila anche in nativo.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Emacs ${{ matrix.emacs }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            emacs: "30.1"
+          - os: ubuntu-latest
+            emacs: snapshot
+          - os: macos-15
+            emacs: stabile
+    env:
+      GDEV_STATE_DIR: ${{ github.workspace }}/../gdev-state
+      GDEV_USER_DIR: ${{ github.workspace }}/../gdev-user
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          # Due revisioni: serve il genitore per controllare solo ciò che cambia.
+          fetch-depth: 2
+      - name: Spazi e righe finali
+        run: git show --check --format= HEAD
+      - uses: purcell/setup-emacs@34c6ded44899fd1bf74d2889558befd1750e61a7
+        if: runner.os == 'Linux'
+        with:
+          version: ${{ matrix.emacs }}
+      - name: Installa Emacs per macOS
+        if: runner.os == 'macOS'
+        run: brew install --cask emacs-app
+      - name: Installa gli strumenti dei moduli
+        shell: bash
+        # Le prove della ricerca nel progetto saltano senza rg: la CI non lo deve permettere.
+        run: |
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            # La mappa dei tasti comprende Jinx, attivato soltanto con Enchant.
+            brew install ripgrep enchant
+          else
+            sudo apt-get update && sudo apt-get install -y ripgrep
+          fi
+      - name: Assistenti nativi di macOS
+        if: runner.os == 'macOS'
+        run: |
+          xcrun swiftc -typecheck bin/gdev-print-macos.swift
+          clang -fsyntax-only -fobjc-arc -x objective-c bin/gdev-pdf-macos.m
+          clang -fsyntax-only -fobjc-arc -I /Applications/Emacs.app/Contents/Resources/include -x objective-c bin/gdev-macos-icon.m
+      - name: Test unitari
+        run: emacs --batch -Q -l early-init.el -l test/gdev-test.el -f ert-run-tests-batch-and-exit
+      - name: Copertura delle Preferenze
+        if: runner.os == 'macOS'
+        run: emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-preferences
+      - name: Copertura dello stato condiviso
+        if: runner.os == 'macOS'
+        run: |
+          emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-workspace-state
+          emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-state-flows
+      - name: Copertura del nucleo di assicurazione
+        if: runner.os == 'macOS'
+        run: |
+          emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-assurance
+          emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-assurance-extensions
+      - name: Installa pacchetti e grammatiche, poi compila
+        shell: bash
+        run: |
+          args=(--no-docs)
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            args+=(--native)
+          fi
+          ./bin/gdev sync "${args[@]}"
+      - name: Mappa dei tasti aggiornata
+        if: runner.os == 'macOS'
+        run: |
+          ./bin/gdev docs
+          git diff --exit-code -- docs/keymap.md
+      - name: Prova di avvio (smoke test)
+        env:
+          GDEV_TEST_SMOKE: "1"
+        run: emacs --batch -Q -l early-init.el -l test/gdev-test.el -f ert-run-tests-batch-and-exit
+      - name: Contratti di CLI e MCP
+        run: python3 test/gdev-cli-contract-test.py
+      - name: Contratto Git e firme dell'assicurazione
+        run: python3 test/gdev-assurance-git-test.py
+      - name: Documenti di assicurazione aggiornati
+        run: ./bin/gdev assurance documents check
+      - name: Fonti normative e indici riproducibili
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/gdev-taxonomy"
+          "$RUNNER_TEMP/gdev-taxonomy/bin/pip" install -r test/requirements-taxonomy.txt
+          PATH="$RUNNER_TEMP/gdev-taxonomy/bin:$PATH" python3 test/gdev-taxonomy-test.py
+      - name: Requisiti e modello formale della distribuzione
+        run: |
+          ./bin/gdev assurance project
+          ./bin/gdev assurance model-check
+          ./bin/gdev assurance project-report check
+      - name: Guasti, crash, sequenze e mutazioni
+        id: reliability
+        timeout-minutes: 15
+        run: python3 test/gdev-reliability-test.py --mutations --output "$RUNNER_TEMP/gdev-reliability.json"
+      - name: Verifica indipendente del rapporto di autoverifica
+        env:
+          GDEV_SELF_ASSURANCE_REPORT: ${{ runner.temp }}/gdev-reliability.json
+        run: emacs --batch -Q -l early-init.el -l test/gdev-test.el --eval "(ert-run-tests-batch-and-exit 'gdev-test-self-assurance-requires-fresh-complete-reliability-evidence)"
+      - name: Conserva le evidenze di affidabilità
+        if: always() && (steps.reliability.outcome == 'success' || steps.reliability.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: affidabilita-${{ matrix.os }}-${{ matrix.emacs }}
+          path: ${{ runner.temp }}/gdev-reliability.json
+          if-no-files-found: error

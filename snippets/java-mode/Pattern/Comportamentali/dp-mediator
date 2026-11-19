@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Mediator — coordinamento tra componenti
+# key: dp-mediator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I componenti inviano cambiamenti al coordinatore, che decide quale stato propagare.
+
+import java.util.function.Consumer;
+
+final class ${1:FormMediator} {
+    private final Consumer<Boolean> updateSubmit;
+    private boolean valid;
+    private boolean busy;
+
+    $1(Consumer<Boolean> updateSubmit) { this.updateSubmit = updateSubmit; }
+
+    void valid(boolean value) { valid = value; refresh(); }
+    void busy(boolean value) { busy = value; refresh(); }
+
+    private void refresh() { updateSubmit.accept(valid && !busy); }
+}
+$0

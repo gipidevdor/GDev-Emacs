@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Handler HTTP — contenuto JSON, codifica e invio
+# key: g-json-handler
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"encoding/json"
+	"net/http"
+)
+
+func ${2:Health}(writer http.ResponseWriter, request *http.Request) {
+	if request.Method != http.MethodGet {
+		writer.Header().Set("Allow", http.MethodGet)
+		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(writer).Encode(map[string]string{"status": "ok"}); err != nil {
+		$0
+		return // An already-started response cannot be replaced with http.Error.
+	}
+}

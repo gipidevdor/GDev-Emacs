@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+using System;
+
+sealed class ${1:Subject}
+{
+    public event Action<string>? Updated;
+
+    public void Publish(string message) => Updated?.Invoke(message);
+}
+$0

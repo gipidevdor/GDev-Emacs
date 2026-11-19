@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Programma Rust con Result e catena dell'errore
+# key: g-main
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use std::error::Error;
+use std::process::ExitCode;
+
+fn ${1:run}() -> Result<(), Box<dyn Error>> {
+    $0
+    Ok(())
+}
+
+fn main() -> ExitCode {
+    match $1() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("{error}");
+            ExitCode::FAILURE
+        }
+    }
+}

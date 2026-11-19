@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — dipendenza esplicita e punto di composizione
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+from collections.abc import Callable
+from dataclasses import dataclass
+
+
+@dataclass
+class ${1:Greeter}:
+    send: Callable[[str], None]
+
+    def greet(self, name: str) -> None:
+        self.send(f"Hello, {name}")
+
+
+def ${2:build_greeter}() -> $1:
+    return $1(send=print)
+
+
+$0

@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Fuzz test — seme e proprietà del sistema
+# key: g-fuzz
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"strings"
+	"testing"
+)
+
+func Fuzz${2:Trim}(f *testing.F) {
+	f.Add(" abc ")
+	f.Fuzz(func(t *testing.T, value string) {
+		normalized := strings.TrimSpace(value)
+		if strings.TrimSpace(normalized) != normalized {
+			t.Fatalf("trim not idempotent for %q", value)
+		}
+		$0
+	})
+}

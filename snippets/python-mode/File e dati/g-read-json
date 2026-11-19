@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Caricamento JSON da Path in UTF-8
+# key: g-read-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import json
+from pathlib import Path
+
+with Path("${1:payload.json}").open(encoding="utf-8") as stream:
+    ${2:payload} = json.load(stream)
+$0

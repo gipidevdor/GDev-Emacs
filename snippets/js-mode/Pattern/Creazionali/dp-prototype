@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+const ${1:defaults} = Object.freeze({
+  queue: "default",
+  limits: Object.freeze({ timeout: 30 }),
+});
+
+const ${2:urgent} = structuredClone($1);
+$2.queue = "urgent";
+$2.limits.timeout = 5;
+$0

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Kubernetes — Job con timeout e limite di tentativi
+# key: g-kube-job
+# group: Distribuzione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${1:example}
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: $1
+          image: "${2:example/job:1.0}"
+          $0

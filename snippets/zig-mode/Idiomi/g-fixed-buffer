@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: FixedBufferAllocator — usa una riserva di memoria limitata
+# key: g-fixed-buffer
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+pub fn ${1:formatSample}() !void {
+    var storage: [${2:256}]u8 = undefined;
+    var buffer = std.heap.FixedBufferAllocator.init(&storage);
+    const allocator = buffer.allocator();
+    // La slice non deve uscire dallo scope della memoria su stack.
+    const text = try std.fmt.allocPrint(allocator, "value={d}", .{@as(u32, 42)});
+    defer allocator.free(text);
+    $0
+    std.log.info("{s}", .{text});
+}

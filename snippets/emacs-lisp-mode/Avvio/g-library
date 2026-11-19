@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Libreria Emacs Lisp con binding lessicale e provide
+# key: g-library
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;;; ${1:example}.el --- ${2:Short summary} -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;; ${3:Describe the library here.}
+
+;;; Code:
+
+$0
+
+(provide '$1)
+;;; $1.el ends here

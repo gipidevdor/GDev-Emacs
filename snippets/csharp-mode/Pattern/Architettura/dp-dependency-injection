@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — costruttore primario per un caso d'uso
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+interface ISender { void Send(string message); }
+
+sealed class ${1:Greeter}(ISender sender)
+{
+    public void Greet(string name) => sender.Send(\$"Hello, {name}");
+}
+$0

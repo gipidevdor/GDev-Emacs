@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Multiple-value-bind — presenza e valore distinti
+# key: g-multiple-values
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; GETHASH distingue una chiave assente da una chiave associata a NIL.
+(multiple-value-bind (${1:value} present-p) (gethash ${2:key} ${3:table})
+  (if present-p $1 ${4:nil}))$0

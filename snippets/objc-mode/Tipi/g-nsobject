@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Classe NSObject con proprietà e inizializzatore designato
+# key: g-nsobject
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#import <Foundation/Foundation.h>
+
+@interface ${1:Item} : NSObject
+@property (nonatomic, copy, readonly) NSString *${2:name};
+- (instancetype)initWithName:(NSString *)name NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+@end
+
+@implementation $1
+- (instancetype)initWithName:(NSString *)name
+{
+    self = [super init];
+    if (self) _$2 = [name copy];
+    return self;
+}
+@end
+$0

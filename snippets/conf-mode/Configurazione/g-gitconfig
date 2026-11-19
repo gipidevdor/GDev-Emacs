@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Git config — impostazioni locali di branch e fetch
+# key: g-gitconfig
+# group: Configurazione
+# condition: (and (not (derived-mode-p 'conf-toml-mode)) (not (and buffer-file-name (string-match-p "/\\.env\\(?:\\.\\|\\'\\)" buffer-file-name))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[init]
+    defaultBranch = ${1:main}
+[fetch]
+    prune = true
+$0

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Modalità derivata con regole di evidenziazione
+# key: g-derived-mode
+# group: Modalità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defvar ${1:example}-font-lock-keywords
+  '(("\\\\_<\\\\(TODO\\\\|DONE\\\\)\\\\_>" . font-lock-keyword-face)))
+
+(define-derived-mode $1-mode text-mode "${2:Example}"
+  "Major mode for Example documents."
+  (setq-local font-lock-defaults '($1-font-lock-keywords))
+  $0)

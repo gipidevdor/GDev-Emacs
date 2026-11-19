@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Cache-Aside — riempimento a richiesta e invalidazione
+# key: dp-cache-aside
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Carica soltanto alla prima lettura o alla scadenza e invalida dopo una scrittura riuscita.
+
+from collections.abc import Callable
+from functools import lru_cache
+
+
+def ${1:cached_reader}(load: Callable[[str], str], max_entries: int = ${2:256}):
+    @lru_cache(maxsize=max_entries)
+    def read(key: str) -> str:
+        return load(key)
+
+    return read, read.cache_clear
+
+
+$0

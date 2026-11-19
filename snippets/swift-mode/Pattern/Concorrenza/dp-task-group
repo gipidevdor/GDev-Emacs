@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Structured Concurrency — task concorrenti con errori propagati
+# key: dp-task-group
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I task figli appartengono allo scope del gruppo e devono terminare prima che lo scope esca.
+
+func ${1:loadAll}(
+    keys: [String],
+    load: @escaping @Sendable (String) async throws -> String
+) async throws -> [String: String] {
+    try await withThrowingTaskGroup(of: (String, String).self) { group in
+        for key in keys {
+            group.addTask { (key, try await load(key)) }
+        }
+        var results: [String: String] = [:]
+        for try await (key, value) in group {
+            results[key] = value
+        }
+        return results
+    }
+}
+$0

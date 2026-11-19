@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Collegamento di riferimento per riusare lo stesso indirizzo
+# key: g-link-reference
+# group: Idiomi
+# Nota — La definizione del riferimento può stare alla fine del documento.
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[${1:Documentazione}][${2:docs}]
+
+[$2]: ${3:https://example.org}
+$0

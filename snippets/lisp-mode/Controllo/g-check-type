@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Check-type — convalida un argomento con messaggio
+# key: g-check-type
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(check-type ${1:count} (integer ${2:0} *) "${3:a non-negative integer}")
+$0

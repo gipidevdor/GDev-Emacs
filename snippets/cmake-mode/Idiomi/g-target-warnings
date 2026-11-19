@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Warning per compilatore e per target con generator expression
+# key: g-target-warnings
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le opzioni restano private e seguono il compilatore effettivo di ciascun target.
+target_compile_options(${1:app} PRIVATE
+  "\$<\$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall;-Wextra;-Wpedantic>"
+  "\$<\$<CXX_COMPILER_ID:MSVC>:/W4>"
+)
+$0

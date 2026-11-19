@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Ordine di cascata esplicito con @layer
+# key: g-layers
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+/* L'ordine vale anche quando carichi i fogli di stile da file diversi. */
+@layer reset, base, components, utilities;
+
+@layer ${1:base} {
+  a { color: LinkText; }
+  $0
+}

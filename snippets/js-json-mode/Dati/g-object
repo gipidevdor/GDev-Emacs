@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Oggetto JSON con proprietà tipizzata
+# key: g-object
+# group: Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "${1:enabled}": ${2:true}
+}$0

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+type Page<T> = { items: readonly T[]; next: string | null };
+
+function* ${1:iteratePages}<T>(fetchPage: (cursor: string | null) => Page<T>): Generator<T> {
+  let cursor: string | null = null;
+  do {
+    const page = fetchPage(cursor);
+    yield* page.items;
+    cursor = page.next;
+  } while (cursor !== null);
+}
+$0

@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Oggetto Terraform con attributo facoltativo e default
+# key: g-tf-object
+# group: Idiomi
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il tipo applica il default anche quando l'attributo facoltativo è omesso.
+variable "${1:settings}" {
+  type = object({
+    label = string
+    port  = optional(number, 8080)
+  })
+  nullable = false
+  default  = { label = "example" }
+}
+$0

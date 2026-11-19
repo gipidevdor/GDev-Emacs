@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Test a tabella — casi con sottotest nominati
+# key: g-table-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import "testing"
+
+func Test${2:Length}(t *testing.T) {
+	tests := []struct {
+		name, value string
+		want        int
+	}{
+		{name: "empty", value: "", want: 0},
+		{name: "word", value: "go", want: 2},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := ${3:len(test.value)}; got != test.want {
+				t.Errorf("got %d, want %d", got, test.want)
+			}
+			$0
+		})
+	}
+}

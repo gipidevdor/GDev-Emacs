@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+#include <memory>
+#include <string>
+#include <utility>
+
+struct Shape {
+    virtual ~Shape() = default;
+    [[nodiscard]] virtual std::unique_ptr<Shape> clone() const = 0;
+};
+
+class ${1:Label} final : public Shape {
+public:
+    explicit $1(std::string text) : text_{std::move(text)} {}
+
+    [[nodiscard]] std::unique_ptr<Shape> clone() const override {
+        return std::make_unique<$1>(*this);
+    }
+
+private:
+    std::string text_;
+};
+
+$0

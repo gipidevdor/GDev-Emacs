@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Funzione generica e primo metodo specializzato
+# key: g-generic
+# group: CLOS
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defgeneric ${1:describe-item} (item)
+  (:documentation "${2:Return a brief description of ITEM.}"))
+
+(defmethod $1 ((item string))
+  $0
+  (format nil "~S" item))

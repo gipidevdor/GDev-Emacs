@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Form con etichetta, testo di supporto e submit
+# key: g-form
+# group: Form
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<form action="${1:/subscribe}" method="post">
+  <label for="${2:email}">Indirizzo email</label>
+  <input id="$2" name="$2" type="email" autocomplete="email" aria-describedby="$2-help" required>
+  <p id="$2-help">${3:Useremo questo indirizzo per rispondere.}</p>
+  <button type="submit">${4:Invia}</button>
+  $0
+</form>

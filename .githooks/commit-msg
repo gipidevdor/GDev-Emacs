@@ -1,0 +1,5 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+checker=$(git config --local --get gdev.assuranceChecker) || exit 1
+test -x "$checker" || exit 1
+exec "$checker" staged "$1"

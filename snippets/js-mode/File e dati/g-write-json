@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Deno — scrittura JSON con rientro e LF finale
+# key: g-write-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const document = ${1:\{ enabled: true \}};
+await Deno.writeTextFile("${2:settings.json}", JSON.stringify(document, null, 2) + "\\n");
+$0

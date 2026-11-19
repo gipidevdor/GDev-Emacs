@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Riusa un blocco Babel per produrre direttamente testo Org
+# key: g-results-raw
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il risultato raw è inserito come sintassi Org nel documento.
+#+begin_src ${1:python} :results output raw
+$0print("* Generated heading")
+#+end_src

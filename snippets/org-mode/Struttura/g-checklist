@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Lista di controllo con contatore del progresso
+# key: g-checklist
+# group: Struttura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+* ${1:Attività} [0/2]
+- [ ] ${2:Primo passo}
+- [ ] ${3:Secondo passo}
+$0

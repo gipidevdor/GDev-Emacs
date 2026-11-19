@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: URL e parametri con URLSearchParams
+# key: g-url-search
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const ${1:url} = new URL("/${2:items}", "https://example.org");
+$1.search = new URLSearchParams({ q: "${3:example}", limit: "20" }).toString();
+$0

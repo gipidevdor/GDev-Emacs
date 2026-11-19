@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Test Rust con modulo cfg(test)
+# key: g-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn ${1:checks_result}() {
+        assert_eq!(${2:6 * 7}, ${3:42});
+        $0
+    }
+}

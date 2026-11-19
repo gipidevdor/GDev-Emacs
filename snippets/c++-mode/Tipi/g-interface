@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Interfaccia con distruttore virtuale e operazione pura
+# key: g-interface
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+struct ${1:Runnable} {
+    virtual ~$1() = default;
+    virtual void ${2:run}() = 0;
+};
+
+$0

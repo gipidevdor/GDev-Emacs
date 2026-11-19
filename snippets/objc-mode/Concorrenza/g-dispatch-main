@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Dispatch asincrono sulla coda principale
+# key: g-dispatch-main
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+dispatch_async(dispatch_get_main_queue(), ^{
+    $0
+});

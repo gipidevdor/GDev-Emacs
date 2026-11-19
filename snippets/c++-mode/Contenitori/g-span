@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Interfaccia non proprietaria con std::span
+# key: g-span
+# group: Contenitori
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <numeric>
+#include <span>
+
+[[nodiscard]] long long ${1:sum}(std::span<const int> values) {
+    return std::accumulate(values.begin(), values.end(), 0LL);
+}
+
+$0

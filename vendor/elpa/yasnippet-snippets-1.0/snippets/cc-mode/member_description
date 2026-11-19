@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# Modificato per GDev-Emacs il 2026-11-17 - corretta la direttiva contributor
+#contributor: Henrique Jung <henriquenj@gmail.com>
+# name: Member description
+# key: !<
+# group: doxygen
+# --
+/*!< ${1:Detailed description after the member} */

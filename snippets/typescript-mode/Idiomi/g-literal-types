@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Tipi letterali dall'array runtime con as const e typeof
+# key: g-literal-types
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La tabella è l'unica fonte delle alternative a runtime e a compile time.
+const ${1:statuses} = ["idle", "running", "complete"] as const;
+type ${2:Status} = typeof $1[number];
+$0

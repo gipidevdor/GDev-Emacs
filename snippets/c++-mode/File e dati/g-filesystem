@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Scansione cartella con filesystem
+# key: g-filesystem
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <filesystem>
+#include <iostream>
+
+void ${1:list_files}(const std::filesystem::path& directory) {
+    for (const auto& entry : std::filesystem::directory_iterator{directory}) {
+        if (entry.is_regular_file()) std::cout << entry.path() << '\\n';
+    }
+}
+
+$0

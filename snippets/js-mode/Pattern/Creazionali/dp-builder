@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+class ${1:ReportBuilder} {
+  #title;
+  #sections = [];
+
+  constructor(title) {
+    this.#title = title;
+  }
+
+  add(section) {
+    this.#sections.push(section);
+    return this;
+  }
+
+  build() {
+    return Object.freeze({ title: this.#title, sections: Object.freeze([...this.#sections]) });
+  }
+}
+
+const ${2:report} = new $1("Summary").add("Results").build();
+$0

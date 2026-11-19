@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Result — successo o errore del dominio come valore
+# key: dp-result
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Rendi rappresentabile il fallimento insieme al successo, così il chiamante può gestire entrambi.
+
+from dataclasses import dataclass
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
+
+
+@dataclass(frozen=True)
+class Ok(Generic[T]):
+    value: T
+
+
+@dataclass(frozen=True)
+class Err:
+    message: str
+
+
+def ${1:parse_count}(text: str) -> Ok[int] | Err:
+    try:
+        count = int(text)
+    except ValueError:
+        return Err("Invalid integer")
+    return Ok(count) if count >= 0 else Err("Expected a non-negative count")
+
+
+$0

@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: ContextVar — stato locale al contesto e ripristino via token
+# key: g-contextvar
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from contextlib import contextmanager
+from contextvars import ContextVar
+
+${1:request_id} = ContextVar("$1", default=None)
+
+
+@contextmanager
+def request_context(value: str):
+    # Il token ripristina anche il valore di un contesto esterno annidato.
+    token = $1.set(value)
+    try:
+        yield
+    finally:
+        $1.reset(token)
+
+
+$0

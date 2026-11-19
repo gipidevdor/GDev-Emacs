@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Limita la cartella corrente a un sottoprocesso
+# key: g-subshell
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il cd vale soltanto nel sottoprocesso tra parentesi.
+(
+    cd "${1:src}" || exit 1
+    $0pwd
+)

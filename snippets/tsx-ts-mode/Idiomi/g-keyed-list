@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: React — elenco con chiave stabile e caso vuoto
+# key: g-keyed-list
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type Item = { readonly id: string; readonly label: string };
+
+export function ${1:ItemList}({ items }: { items: readonly Item[] }) {
+  if (items.length === 0) return <p>${2:Nessun elemento.}</p>;
+  // La chiave appartiene al dato e mantiene l'identità quando cambia l'ordine.
+  return <ul>{items.map((item) => <li key={item.id}>{item.label}</li>)}</ul>;
+}
+$0

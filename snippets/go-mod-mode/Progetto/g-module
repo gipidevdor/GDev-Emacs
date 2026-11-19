@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: go.mod — percorso del modulo e versione minima
+# key: g-module
+# group: Progetto
+# expand-env: ((yas-indent-line 'fixed))
+# --
+module ${1:example.org/project}
+
+go ${2:1.23}
+$0

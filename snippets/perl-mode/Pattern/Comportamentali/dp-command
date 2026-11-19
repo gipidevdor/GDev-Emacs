@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Command — azione e annullamento
+# key: dp-command
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# L'azione è un valore. Il chiamante può conservarla e annullarla quando il contratto lo consente.
+
+use v5.36;
+
+sub ${1:append_text} (\$target, \$text) {
+    return {
+        execute => sub { push \$target->@*, \$text },
+        undo => sub {
+            die 'Undo in reverse execution order'
+                if !\$target->@* || \$target->[-1] ne \$text;
+            pop \$target->@*;
+        },
+    };
+}
+$0

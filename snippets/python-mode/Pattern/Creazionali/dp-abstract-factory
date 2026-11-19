@@ -1,0 +1,47 @@
+# -*- mode: snippet -*-
+# name: Abstract Factory — famiglie di prodotti
+# key: dp-abstract-factory
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Fornisci la fabbrica al chiamante per mantenere coerenti i prodotti della stessa famiglia.
+
+from typing import Protocol
+
+
+class Sender(Protocol):
+    def send(self, message: str) -> str: ...
+
+
+class Formatter(Protocol):
+    def format(self, message: str) -> str: ...
+
+
+class NotificationFactory(Protocol):
+    def sender(self) -> Sender: ...
+    def formatter(self) -> Formatter: ...
+
+
+class TextSender:
+    def send(self, message: str) -> str:
+        return message
+
+
+class TextFormatter:
+    def format(self, message: str) -> str:
+        return f"[${1:info}] {message}"
+
+
+class TextNotifications:
+    def sender(self) -> Sender:
+        return TextSender()
+
+    def formatter(self) -> Formatter:
+        return TextFormatter()
+
+
+def ${2:notify}(factory: NotificationFactory, message: str) -> str:
+    return factory.sender().send(factory.formatter().format(message))
+
+
+$0

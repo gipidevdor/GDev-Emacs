@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Programma con funzione main e codice di uscita
+# key: g-main
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+def main() -> int:
+    $0
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

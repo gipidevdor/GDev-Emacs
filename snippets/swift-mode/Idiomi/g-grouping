@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Dictionary grouping — raggruppa mantenendo l'ordine nel gruppo
+# key: g-grouping
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+func ${1:groups}(_ items: [String]) -> [Int: [String]] {
+    // L'ordine del dizionario è distinto dall'ordine degli elementi in ogni gruppo.
+    $0
+    return Dictionary(grouping: items, by: \\.count)
+}

@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Repository — confine di persistenza in memoria
+# key: dp-repository
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il caso d'uso parla il contratto del dominio. Il repository traduce le operazioni verso lo storage.
+
+use v5.36;
+
+package ${1:MemoryItems} {
+    sub new (\$class) { return bless { items => {} }, \$class }
+
+    sub find (\$self, \$id) {
+        my \$item = \$self->{items}{\$id} // return undef;
+        return { \$item->%* };
+    }
+
+    sub put (\$self, \$id, \$label) {
+        \$self->{items}{\$id} = { id => \$id, label => \$label };
+        return;
+    }
+}
+$0

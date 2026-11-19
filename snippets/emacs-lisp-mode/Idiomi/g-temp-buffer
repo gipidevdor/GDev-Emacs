@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Elabora un file senza visitarlo in un buffer utente
+# key: g-temp-buffer
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il buffer temporaneo si chiude anche se il corpo esce con un errore.
+(with-temp-buffer
+  (insert-file-contents ${1:file})
+  (goto-char (point-min))
+  $0(buffer-string))

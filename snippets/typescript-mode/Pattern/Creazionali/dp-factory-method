@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+interface Writer {
+  write(text: string): string;
+}
+
+abstract class Exporter {
+  render(text: string): string {
+    return this.createWriter().write(text);
+  }
+
+  protected abstract createWriter(): Writer;
+}
+
+class ${1:MarkdownExporter} extends Exporter {
+  protected override createWriter(): Writer {
+    return { write: (text) => \`# \${text}\` };
+  }
+}
+$0

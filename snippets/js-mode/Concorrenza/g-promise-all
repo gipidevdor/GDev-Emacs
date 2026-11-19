@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Promise.all — avvio simultaneo e risultati ordinati
+# key: g-promise-all
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const [${1:profile}, ${2:settings}] = await Promise.all([
+  ${3:loadProfile()},
+  ${4:loadSettings()},
+]);
+$0

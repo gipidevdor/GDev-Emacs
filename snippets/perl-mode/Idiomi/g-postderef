@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Postderef — prendi una copia della lista dietro il riferimento
+# key: g-postderef
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# ->@* espande il riferimento in lista senza un blocco di dereferenziazione.
+my @${1:items} = ${2:\$arrayref}->@*;
+$0

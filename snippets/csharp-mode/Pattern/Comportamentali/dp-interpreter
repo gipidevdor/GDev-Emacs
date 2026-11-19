@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Interpreter — valuta un albero di espressioni
+# key: dp-interpreter
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I nodi rappresentano la grammatica e valutano il proprio sottoalbero con il medesimo ambiente.
+
+using System.Collections.Generic;
+
+interface IExpression { int Evaluate(IReadOnlyDictionary<string, int> environment); }
+
+sealed record Variable(string Name) : IExpression
+{
+    public int Evaluate(IReadOnlyDictionary<string, int> environment) => environment[Name];
+}
+
+sealed record ${1:Add}(IExpression Left, IExpression Right) : IExpression
+{
+    public int Evaluate(IReadOnlyDictionary<string, int> environment) =>
+        checked(Left.Evaluate(environment) + Right.Evaluate(environment));
+}
+$0

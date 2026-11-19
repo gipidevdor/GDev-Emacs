@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Outbox Relay — pubblica e conferma un evento con chiave stabile
+# key: dp-outbox-relay
+# group: Pattern.Sistemi distribuiti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Una caduta tra invio e rimozione può ripetere l'evento con lo stesso identificatore.
+
+import sqlite3
+from collections.abc import Callable
+
+
+def ${1:relay_outbox}(db: sqlite3.Connection, publish: Callable[[str, str], None],
+                  limit: int = ${2:100}) -> int:
+    """One relay per database. Consumers deduplicate using the event id."""
+    if limit < 1:
+        raise ValueError("Limit must be positive")
+    records = db.execute(
+        "SELECT id, payload FROM outbox ORDER BY rowid LIMIT ?", (limit,)
+    ).fetchall()
+    for event_id, payload in records:
+        publish(event_id, payload)  # Return after the broker acknowledges.
+        with db:
+            db.execute("DELETE FROM outbox WHERE id = ?", (event_id,))
+    return len(records)
+
+
+$0

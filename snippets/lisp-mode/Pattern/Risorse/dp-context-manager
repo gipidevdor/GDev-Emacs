@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Unwind Protect — rilascio anche dopo un'uscita non locale
+# key: dp-context-manager
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Acquisizione e rilascio formano un unico confine, attraversato anche in caso di eccezione.
+
+(defun ${1:call-with-resource} (acquire release operation)
+  (let ((resource (funcall acquire)))
+    (unwind-protect (funcall operation resource)
+      (funcall release resource))))
+$0

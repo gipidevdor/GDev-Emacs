@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Controllo di esaustività con never
+# key: g-assert-never
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+function ${1:assertNever}(value: never): never {
+  throw new TypeError(\`Unexpected value: \${String(value)}\`);
+}
+$0

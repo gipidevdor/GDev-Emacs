@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Lookup con std::optional e test di presenza
+# key: g-optional
+# group: Contenitori
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <optional>
+#include <span>
+
+std::optional<int> ${1:first}(std::span<const int> values) {
+    if (values.empty()) return std::nullopt;
+    return values.front();
+}
+
+$0

@@ -1,0 +1,42 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# condition: (not (derived-mode-p 'objc-mode))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+#include <stdbool.h>
+#include <stddef.h>
+
+typedef void (*listener)(int event, void *context);
+
+struct subscription {
+    listener notify;
+    void *context;
+};
+
+struct ${1:subject} {
+    struct subscription entries[${2:8}];
+    size_t count;
+};
+
+bool subscribe(struct $1 *subject, listener notify, void *context)
+{
+    if (notify == NULL || subject->count >= sizeof subject->entries / sizeof subject->entries[0]) {
+        return false;
+    }
+    subject->entries[subject->count++] = (struct subscription){notify, context};
+    return true;
+}
+
+void publish(const struct $1 *subject, int event)
+{
+    size_t count = subject->count;
+    for (size_t i = 0; i < count; ++i) {
+        subject->entries[i].notify(event, subject->entries[i].context);
+    }
+}
+
+$0

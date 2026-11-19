@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Lock con mkdir atomico e rilascio al termine
+# key: dp-lock-directory
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# mkdir è il punto di acquisizione. Solo chi lo ha acquisito può rimuovere il lock.
+
+(
+    lock=${1:./.job.lock}
+    # Tutti gli scrittori devono rispettare il lock; un arresto forzato può lasciarlo.
+    if ! mkdir "\$lock"; then
+        printf '%s\\n' 'Job already locked' >&2
+        exit 1
+    fi
+    trap 'rmdir "\$lock"' EXIT
+    trap 'exit 1' HUP INT TERM
+    $0:
+)

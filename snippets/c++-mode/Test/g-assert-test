@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Test autonomo con assert
+# key: g-assert-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <cassert>
+
+int main() {
+    const auto actual = ${1:6 * 7};
+    assert(actual == ${2:42});
+    $0
+}

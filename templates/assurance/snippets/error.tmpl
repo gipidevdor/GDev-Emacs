@@ -1,0 +1,3 @@
+(condition-case err
+    (user-error "Implementare l’operazione {{name}}")
+  (error (message "{{name}}: %s" (error-message-string err))))

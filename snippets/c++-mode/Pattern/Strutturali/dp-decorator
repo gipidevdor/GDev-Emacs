@@ -1,0 +1,31 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+struct Message {
+    virtual ~Message() = default;
+    virtual std::string text() const = 0;
+};
+
+class ${1:TaggedMessage} final : public Message {
+public:
+    explicit $1(std::unique_ptr<Message> inner) : inner_{std::move(inner)} {
+        if (!inner_) throw std::invalid_argument("Missing message");
+    }
+
+    std::string text() const override { return "[${2:info}] " + inner_->text(); }
+
+private:
+    std::unique_ptr<Message> inner_;
+};
+
+$0

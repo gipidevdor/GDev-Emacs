@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Vue 3 — componente con script setup e prop predefinita
+# key: g-vue-component
+# group: Modelli.Vue e Svelte
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<script setup>
+const props = defineProps({ ${1:title}: { type: String, default: "${2:Dettagli}" } });
+</script>
+
+<template>
+  <section>
+    <h2>{{ props.$1 }}</h2>
+    <slot />
+    $0
+  </section>
+</template>

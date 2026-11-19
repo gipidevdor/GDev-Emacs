@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Rispetta la preferenza per il movimento ridotto
+# key: g-reduced-motion
+# group: Accessibilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+@media (prefers-reduced-motion: reduce) {
+  .${1:panel} {
+    animation: none;
+    transition: none;
+    $0
+  }
+}

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Reducer — aggiornamento immutabile con azioni esplicite
+# key: dp-reducer
+# group: Pattern.Funzionali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La stessa coppia stato e azione produce lo stesso risultato senza mutare l'ingresso.
+
+function ${1:reducer}(state, action) {
+  switch (action.type) {
+    case "add":
+      return { ...state, items: [...state.items, action.item] };
+    case "clear":
+      return { ...state, items: [] };
+    default:
+      throw new RangeError(\`Unknown action: \${action.type}\`);
+  }
+}
+$0

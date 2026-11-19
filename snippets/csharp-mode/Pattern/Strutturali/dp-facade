@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Facade — ingresso unico a un sottosistema
+# key: dp-facade
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'ordine delle chiamate ai sottosistemi rimane in un unico punto.
+
+using System;
+
+sealed class ${1:Checkout}(Func<string, int> quote, Func<string, int, string> place)
+{
+    public string Place(string cartId) => place(cartId, quote(cartId));
+}
+$0

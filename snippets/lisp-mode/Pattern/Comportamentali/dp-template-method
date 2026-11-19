@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Template Method — combinazione CLOS con metodo :around
+# key: dp-template-method
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Mantieni fissa la sequenza dei passaggi e rendi sostituibili i passaggi specifici.
+
+(defclass ${1:importer} () ())
+(defclass object-importer ($1) ())
+
+(defgeneric parse-items (importer input))
+(defmethod parse-items ((importer object-importer) input)
+  (declare (ignore importer))
+  (coerce input 'list))
+
+(defgeneric import-items (importer input))
+(defmethod import-items ((importer $1) input)
+  (parse-items importer input))
+(defmethod import-items :around ((importer $1) input)
+  (declare (ignore input))
+  (remove nil (call-next-method)))
+$0

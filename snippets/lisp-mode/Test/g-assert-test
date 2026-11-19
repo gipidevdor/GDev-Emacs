@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Test autonomo con assert e valori multipli
+# key: g-assert-test
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(defun ${1:run-tests} ()
+  (assert (= ${2:6} (reduce #'+ '(1 2 3))))
+  $0
+  t)

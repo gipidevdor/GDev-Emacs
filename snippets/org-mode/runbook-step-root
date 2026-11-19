@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: passo di procedura remoto, come amministratore (root)
+# key: <rbs
+# --
+#+begin_src sh :dir /ssh:${1:host}|sudo:$1:${2:/}
+$0
+#+end_src

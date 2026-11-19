@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Programma .NET con punto di ingresso e codice di uscita
+# key: g-main
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System;
+
+static class ${1:Program}
+{
+    static int Main(string[] args)
+    {
+        $0
+        Console.WriteLine("${2:Ready}");
+        return 0;
+    }
+}

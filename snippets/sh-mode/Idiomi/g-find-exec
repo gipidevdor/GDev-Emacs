@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Find con argomenti preservati e invocazioni raggruppate
+# key: g-find-exec
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# -exec ... {} + passa i percorsi come argomenti, senza analizzarne l'output.
+find "${1:.}" -type f -name '${2:*.txt}' -exec ${3:wc -l} {} +
+$0

@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+function ${1:dispatch}(request, handlers) {
+  for (const handle of handlers) {
+    const answer = handle(request);
+    if (answer !== undefined) return answer;
+  }
+  throw new RangeError(\`No handler for \${request}\`);
+}
+$0

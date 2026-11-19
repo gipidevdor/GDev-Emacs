@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: definizione di sistema ASDF
+# key: defsystem
+# --
+(defsystem "${1:nome}"
+  :description "${2:che cosa fa}"
+  :license "${3:GPL-3.0-or-later}"
+  :depends-on (${4})
+  :components ((:module "src"
+                :components ((:file "package")
+                             (:file "${1:$(yas-text)}")))))

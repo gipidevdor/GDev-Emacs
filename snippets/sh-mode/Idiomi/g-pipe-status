@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Bash — cattura subito PIPESTATUS dopo una pipeline
+# key: g-pipe-status
+# group: Idiomi
+# condition: (or (eq major-mode 'bash-ts-mode) (eq (bound-and-true-p sh-shell) 'bash))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il comando successivo sovrascrive PIPESTATUS, quindi copialo subito.
+if ${1:printf '%s' data} | ${2:wc -c}; then
+    statuses=("\${PIPESTATUS[@]}")
+else
+    statuses=("\${PIPESTATUS[@]}")
+fi
+printf '%s\\n' "\${statuses[@]}"
+$0

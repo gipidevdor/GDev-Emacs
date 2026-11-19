@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Marker — conserva un intervallo durante modifiche al buffer
+# key: g-markers
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il marker finale avanza con le inserzioni eseguite al suo confine.
+(let ((start-marker (copy-marker ${1:start}))
+      (end-marker (copy-marker ${2:end} t)))
+  (unwind-protect
+      (progn
+        $0(buffer-substring-no-properties start-marker end-marker))
+    (set-marker start-marker nil)
+    (set-marker end-marker nil)))

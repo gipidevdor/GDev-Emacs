@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: std::exchange — consuma un handle sostituendolo con il valore vuoto
+# key: g-move-exchange
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <cstdio>
+#include <utility>
+
+int ${1:close_and_reset}(std::FILE*& handle) {
+    // Se fclose fallisce, handle è già azzerato e non va chiuso di nuovo.
+    auto* old = std::exchange(handle, nullptr);
+    return old ? std::fclose(old) : 0;
+}
+
+$0

@@ -1,0 +1,29 @@
+# Emacs Lisp compilato: lo produce `gdev sync', lo rimuove `gdev clean'.
+*.elc
+*.eln
+
+# Ciò che Emacs scrive mentre lavora sta fuori dalla copia di lavoro
+# (~/.local/state/gdev-emacs); queste righe fermano comunque i file vaganti.
+/elpa/
+/eln-cache/
+/auto-save-list/
+/tree-sitter/
+/var/
+*~
+\#*\#
+.#*
+
+# Archivio locale dell'assicurazione ingegneristica (database SQLite, 0600):
+# non è un sorgente.  Si ricostruisce dai file di testo e dalle esportazioni.
+/.gdev/
+
+# File di servizio del sistema operativo.
+.DS_Store
+
+# Mai fare commit di credenziali: il loro posto è il Portachiavi (Keychain).
+.authinfo
+.authinfo.gpg
+*.pem
+*.key
+.env
+.env.*

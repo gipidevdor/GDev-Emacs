@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Ports and Adapters — controller HTTP e porta del caso d'uso
+# key: dp-ports-and-adapters
+# group: Pattern.Architettura
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Definisci la porta dal punto di vista del dominio. Ogni adattatore la implementa al confine.
+
+interface ItemLookup {
+  label(id: string): string | undefined;
+}
+
+function ${1:itemHandler}(items: ItemLookup): (request: Request) => Response {
+  return (request) => {
+    const id = new URL(request.url).searchParams.get("id");
+    if (!id) return new Response("Missing id", { status: 400 });
+    const label = items.label(id);
+    return label === undefined
+      ? new Response("Not found", { status: 404 })
+      : Response.json({ id, label });
+  };
+}
+$0

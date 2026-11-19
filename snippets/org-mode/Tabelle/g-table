@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Tabella Org con colonna numerica e formula di somma
+# key: g-table
+# group: Tabelle
+# expand-env: ((yas-indent-line 'fixed))
+# --
+| Voce          | Valore |
+|---------------+--------|
+| ${1:Primo elemento} | ${2:2} |
+| ${3:Secondo elemento} | ${4:3} |
+|---------------+--------|
+| Totale        |        |
+#+TBLFM: @>\$2=vsum(@II..@III)
+$0

@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: React — componente TSX con Props e children
+# key: g-typed-component
+# group: Componenti
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import type { ReactNode } from "react";
+
+type ${1:Panel}Props = {
+  title: string;
+  children?: ReactNode;
+};
+
+export function $1({ title, children }: $1Props) {
+  return (
+    <section>
+      <h2>{title}</h2>
+      {children}
+      $0
+    </section>
+  );
+}

@@ -1,0 +1,35 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+import java.util.ArrayList;
+import java.util.List;
+
+final class ${1:Report} {
+    private final String title;
+    private final List<String> sections;
+
+    private $1(Builder builder) {
+        title = builder.title;
+        sections = List.copyOf(builder.sections);
+    }
+
+    static final class Builder {
+        private final String title;
+        private final List<String> sections = new ArrayList<>();
+
+        Builder(String title) { this.title = title; }
+
+        Builder add(String section) {
+            sections.add(section);
+            return this;
+        }
+
+        $1 build() { return new $1(this); }
+    }
+}
+$0

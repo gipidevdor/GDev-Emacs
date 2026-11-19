@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Proxy — accesso indiretto a un oggetto
+# key: dp-proxy
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Il chiamante passa per la stessa interfaccia. Il proxy controlla quando raggiungere il destinatario.
+
+use v5.36;
+
+sub ${1:lazy_reader} (\$load) {
+    my \$reader;
+    return sub (\$key) {
+        \$reader //= \$load->();
+        return \$reader->(\$key);
+    };
+}
+$0

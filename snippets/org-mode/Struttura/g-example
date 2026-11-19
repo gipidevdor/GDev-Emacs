@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Blocco Org di testo letterale
+# key: g-example
+# group: Struttura
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region t))
+# --
+#+begin_example
+$0
+#+end_example

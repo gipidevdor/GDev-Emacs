@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Actor — isolamento di uno stato mutabile
+# key: dp-actor
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Svolgi la modifica dentro l'attore per serializzare gli accessi allo stato.
+
+actor ${1:Inventory} {
+    private var stocks: [String: Int] = [:]
+
+    func restock(_ id: String, quantity: Int) {
+        guard quantity > 0 else { return }
+        stocks[id, default: 0] += quantity
+    }
+
+    func take(_ id: String) -> Bool {
+        guard let current = stocks[id], current > 0 else { return false }
+        stocks[id] = current - 1
+        return true
+    }
+}
+$0

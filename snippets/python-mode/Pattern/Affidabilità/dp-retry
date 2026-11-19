@@ -1,0 +1,37 @@
+# -*- mode: snippet -*-
+# name: Retry — tentativi finiti, backoff esponenziale e jitter
+# key: dp-retry
+# group: Pattern.Affidabilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ripeti operazioni idempotenti, con un limite e una decisione esplicita sugli errori ripetibili.
+
+import asyncio
+import random
+from collections.abc import Awaitable, Callable
+from typing import TypeVar
+
+T = TypeVar("T")
+
+
+async def ${1:retry}(
+    operation: Callable[[], Awaitable[T]],
+    retryable: Callable[[Exception], bool],
+    *,
+    attempts: int = ${2:4},
+    timeout: float = 5.0,
+) -> T:
+    if attempts < 1:
+        raise ValueError("Expected at least one attempt")
+    for attempt in range(attempts):
+        try:
+            async with asyncio.timeout(timeout):
+                return await operation()
+        except Exception as error:
+            if attempt + 1 == attempts or not retryable(error):
+                raise
+            await asyncio.sleep(random.uniform(0, min(2.0, 0.1 * 2 ** min(attempt, 5))))
+    raise AssertionError("Unreachable")
+
+
+$0

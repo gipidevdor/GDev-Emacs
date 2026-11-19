@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: When-let* — calcola solo finché i valori sono presenti
+# key: g-when-let
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il secondo binding è valutato soltanto se il buffer esiste.
+(when-let* ((buffer (get-buffer "${1:*Messages*}"))
+            (window (get-buffer-window buffer)))
+  $0(select-window window))

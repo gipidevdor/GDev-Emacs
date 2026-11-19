@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Libreria solo intestazioni con target INTERFACE
+# key: g-interface-library
+# group: Target
+# expand-env: ((yas-indent-line 'fixed))
+# --
+add_library(${1:headers} INTERFACE)
+target_include_directories($1 INTERFACE "\${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_features($1 INTERFACE cxx_std_${2:20})
+$0

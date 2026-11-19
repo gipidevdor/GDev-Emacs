@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Opzione di progetto con valore booleano configurabile
+# key: g-option
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+option(${1:EXAMPLE_BUILD_TOOLS} "${2:Build command-line tools}" OFF)
+if($1)
+  $0
+endif()

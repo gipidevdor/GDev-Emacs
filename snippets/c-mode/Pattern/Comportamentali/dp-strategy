@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+typedef int (*${1:Discount})(int amount, void *context);
+
+int total(int amount, $1 discount, void *context)
+{
+    return amount - discount(amount, context);
+}
+
+$0

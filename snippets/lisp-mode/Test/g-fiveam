@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: FiveAM — suite con test e asserzione
+# key: g-fiveam
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(5am:def-suite ${1:example-suite})
+(5am:in-suite $1)
+
+(5am:test ${2:basic-case}
+  (5am:is (= ${3:42} ${4:(* 6 7)}))
+  $0)

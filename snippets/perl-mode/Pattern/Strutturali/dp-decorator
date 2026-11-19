@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+use v5.36;
+use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
+
+sub ${1:timed} (\$operation, \$report) {
+    return sub (@args) {
+        my \$start = clock_gettime(CLOCK_MONOTONIC);
+        my \$value = \$operation->(@args);  # Explicitly a scalar-returning callable.
+        \$report->(clock_gettime(CLOCK_MONOTONIC) - \$start);
+        return \$value;
+    };
+}
+$0

@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Facade — ingresso unico a un sottosistema
+# key: dp-facade
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'ordine delle chiamate ai sottosistemi rimane in un unico punto.
+
+interface CheckoutServices {
+  quote(cartId: string): Promise<number>;
+  place(cartId: string, cents: number): Promise<string>;
+}
+
+function ${1:createCheckout}(services: CheckoutServices) {
+  return {
+    async checkout(cartId: string): Promise<string> {
+      return services.place(cartId, await services.quote(cartId));
+    },
+  };
+}
+$0

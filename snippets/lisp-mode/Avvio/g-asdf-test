@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Sistema ASDF con test-op collegato alla suite
+# key: g-asdf-test
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(asdf:defsystem "${1:example}"
+  :description "${2:Application library}"
+  :serial t
+  :components ((:file "package") (:file "main"))
+  :in-order-to ((test-op (test-op "$1/test"))))
+
+(asdf:defsystem "$1/test"
+  :depends-on ("$1")
+  :components ((:file "test"))
+  :perform (test-op (operation component)
+             (declare (ignore operation component))
+             (uiop:symbol-call :$1-test :run-tests)))
+$0

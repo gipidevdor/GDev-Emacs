@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Verifica di una mappa con satisfies e chiavi letterali
+# key: g-satisfies
+# group: Tipi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type Method = "GET" | "POST";
+type Route = { readonly path: string; readonly method: Method };
+
+const ${1:routes} = {
+  health: { path: "/health", method: "GET" },
+  submit: { path: "/submit", method: "POST" },
+} as const satisfies Record<string, Route>;
+$0

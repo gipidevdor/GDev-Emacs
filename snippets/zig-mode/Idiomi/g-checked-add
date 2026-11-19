@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Somma che restituisce un errore esplicito quando c'è overflow
+# key: g-checked-add
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+pub fn ${1:add}(first: u32, second: u32) error{Overflow}!u32 {
+    // @addWithOverflow restituisce il risultato e il bit di overflow.
+    const result = @addWithOverflow(first, second);
+    if (result[1] != 0) return error.Overflow;
+    $0
+    return result[0];
+}

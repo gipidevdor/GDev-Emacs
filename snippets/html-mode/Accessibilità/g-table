@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Tabella dati con didascalia e intestazioni
+# key: g-table
+# group: Accessibilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<table>
+  <caption>${1:Riepilogo}</caption>
+  <thead>
+    <tr><th scope="col">${2:Voce}</th><th scope="col">${3:Valore}</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">${4:Elemento}</th><td>${5:42}</td></tr>
+    $0
+  </tbody>
+</table>

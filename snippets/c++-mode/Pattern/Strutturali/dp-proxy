@@ -1,0 +1,37 @@
+# -*- mode: snippet -*-
+# name: Proxy — accesso indiretto a un oggetto
+# key: dp-proxy
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante passa per la stessa interfaccia. Il proxy controlla quando raggiungere il destinatario.
+
+#include <functional>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+struct Report {
+    virtual ~Report() = default;
+    virtual std::string render() const = 0;
+};
+
+class ${1:LazyReport} final : public Report {
+public:
+    using Loader = std::function<std::unique_ptr<Report>()>;
+
+    explicit $1(Loader load) : load_{std::move(load)} {}
+
+    std::string render() const override {
+        if (!report_) report_ = load_();
+        if (!report_) throw std::runtime_error("Report not available");
+        return report_->render();
+    }
+
+private:
+    Loader load_;
+    mutable std::unique_ptr<Report> report_; // Confine each proxy to one thread.
+};
+
+$0

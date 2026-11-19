@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Collect Result — arresto alla prima conversione fallita
+# key: g-collect-result
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+use std::num::ParseIntError;
+
+pub fn ${1:parse_counts}(input: &str) -> Result<Vec<u32>, ParseIntError> {
+    // La raccolta visita i valori una sola volta e propaga il primo errore.
+    $0
+    input.split_whitespace().map(str::parse).collect()
+}

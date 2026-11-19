@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Dialog nativo con form method=dialog per la chiusura
+# key: g-dialog
+# group: Interazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<dialog id="${1:settings}" aria-labelledby="$1-title">
+  <h2 id="$1-title">${2:Impostazioni}</h2>
+  $0
+  <form method="dialog">
+    <button type="submit" autofocus>Chiudi</button>
+  </form>
+</dialog>

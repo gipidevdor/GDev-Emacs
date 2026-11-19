@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Satisfies — valida una forma lasciando il tipo inferito
+# key: g-satisfies-narrow
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+type Endpoint = { url: string; retry?: number };
+
+// satisfies verifica Endpoint e lascia url al tipo letterale indicato da as const.
+const ${1:health} = { url: "/health" } as const satisfies Endpoint;
+$0

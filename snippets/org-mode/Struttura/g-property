@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Cassetto proprietà leggibile dagli strumenti Org
+# key: g-property
+# group: Struttura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+:PROPERTIES:
+:${1:CATEGORY}: ${2:project}
+:END:
+$0

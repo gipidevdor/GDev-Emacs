@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: CMakePresets.json — configurazione Debug, build e test
+# key: g-cmake-presets
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "${1:debug}",
+      "generator": "Ninja",
+      "binaryDir": "\${sourceDir}/build/\${presetName}",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "$1", "configurePreset": "$1" }
+  ],
+  "testPresets": [
+    {
+      "name": "$1",
+      "configurePreset": "$1",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}$0

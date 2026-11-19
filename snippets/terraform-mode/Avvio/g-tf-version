@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Versione minima di Terraform per il modulo
+# key: g-tf-version
+# group: Avvio
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+terraform {
+  required_version = ">= ${1:1.6.0}"
+}
+$0

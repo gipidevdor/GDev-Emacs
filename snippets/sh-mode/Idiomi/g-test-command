@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Verifica uno stato di uscita con if
+# key: g-test-command
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# if valuta lo stato del comando direttamente.
+if ${1:test -r input.txt}; then
+    $0:
+else
+    printf '%s\\n' 'Input unavailable' >&2
+fi

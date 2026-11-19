@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Value Object — identità per valore con record (Java 16+)
+# key: dp-value-object
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Verifica l'invariante alla costruzione e confronta i contenuti per uguaglianza.
+
+record ${1:Money}(long cents, java.util.Currency currency) {
+    $1 {
+        java.util.Objects.requireNonNull(currency);
+        if (cents < 0) throw new IllegalArgumentException("Negative price");
+    }
+}
+$0

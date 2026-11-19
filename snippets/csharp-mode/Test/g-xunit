@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: xUnit — test parametrico con InlineData
+# key: g-xunit
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using Xunit;
+
+public sealed class ${1:ParserTests}
+{
+    [Theory]
+    [InlineData("42", 42)]
+    [InlineData("7", 7)]
+    public void ${2:ParsesCount}(string input, int expected)
+    {
+        Assert.Equal(expected, int.Parse(input));
+        $0
+    }
+}

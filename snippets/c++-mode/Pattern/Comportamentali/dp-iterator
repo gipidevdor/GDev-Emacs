@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Iterator — vista ranges che attraversa la collezione
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+#include <ranges>
+#include <vector>
+
+class ${1:Scores} {
+public:
+    auto passing() const & {
+        return values_ | std::views::filter([](int score) { return score >= ${2:60}; });
+    }
+
+    // The view borrows values_ and must not outlive this object.
+    auto passing() const && = delete;
+
+    void add(int score) { values_.push_back(score); }
+
+private:
+    std::vector<int> values_;
+};
+
+$0

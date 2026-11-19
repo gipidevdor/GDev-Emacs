@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Restringi unknown in catch prima di leggere il messaggio
+# key: g-narrow-unknown
+# group: Idiomi
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+try {
+  $0JSON.parse("${1:invalid JSON}");
+} catch (error: unknown) {
+  // In JavaScript si può lanciare anche un valore che non deriva da Error.
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(message);
+}

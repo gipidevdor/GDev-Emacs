@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Record immutabile con copia non distruttiva
+# key: g-record
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+sealed record ${1:Options}(string Queue, int Attempts);
+
+static class Defaults
+{
+    public static readonly $1 Standard = new("standard", 3);
+
+    // with copia il record. I campi referenziati restano condivisi.
+    public static $1 Urgent() => Standard with { Queue = "urgent" };
+}
+$0

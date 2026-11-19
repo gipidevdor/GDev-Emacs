@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: package.json — package ESM privato e runner di test Node
+# key: g-package-json
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{
+  "name": "${1:example}",
+  "version": "${2:0.1.0}",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}$0

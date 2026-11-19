@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Labels — ricorsione confinata alla funzione
+# key: g-local-function
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; LABELS rende WALK visibile anche dentro il suo corpo ricorsivo.
+(defun ${1:tree-leaves} (tree)
+  (labels ((walk (node accumulator)
+             (cond ((null node) accumulator)
+                   ((atom node) (cons node accumulator))
+                   (t (walk (car node) (walk (cdr node) accumulator))))))
+    $0
+    (walk tree nil)))

@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Decisione architetturale — contesto, decisione e conseguenze
+# key: g-adr
+# group: Progetto
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# ${1:Titolo della decisione}
+
+Stato: ${2:Proposta}
+
+## Contesto
+
+${3:Quale problema dobbiamo risolvere?}
+
+## Decisione
+
+$0
+
+## Conseguenze
+
+${4:Quali effetti e costi derivano dalla decisione?}

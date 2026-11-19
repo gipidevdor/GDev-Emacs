@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+pub fn ${1:total}(amount: u32, discount: impl FnOnce(u32) -> u32) -> Option<u32> {
+    amount.checked_sub(discount(amount))
+}
+
+pub fn ten_percent(amount: u32) -> u32 {
+    amount / 10
+}
+$0

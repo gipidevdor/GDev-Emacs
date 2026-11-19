@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Prototype — istanze da un modello
+# key: dp-prototype
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Deriva l'istanza dal modello. Copia anche i campi mutabili che devono restare indipendenti.
+
+from dataclasses import dataclass, replace
+
+
+@dataclass(frozen=True)
+class ${1:Job}:
+    queue: str
+    timeout_seconds: float
+
+
+${2:default_job} = $1(queue="default", timeout_seconds=30)
+${3:urgent_job} = replace($2, queue="urgent", timeout_seconds=5)
+$0

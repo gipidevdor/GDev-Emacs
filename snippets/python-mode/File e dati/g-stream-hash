@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: SHA-256 di un file senza caricarlo in memoria
+# key: g-stream-hash
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import hashlib
+from pathlib import Path
+
+with Path("${1:document.bin}").open("rb") as stream:
+    ${2:digest} = hashlib.file_digest(stream, "sha256").hexdigest()
+$0

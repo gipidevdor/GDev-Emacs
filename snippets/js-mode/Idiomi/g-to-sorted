@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Ordinamento copiato con comparatore numerico
+# key: g-to-sorted
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// toSorted restituisce una copia ordinata e conserva l'array d'ingresso.
+const ${1:sorted} = ${2:[4, 10, 2]}.toSorted((a, b) => a - b);
+$0

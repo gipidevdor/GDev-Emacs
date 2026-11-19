@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Scope Guard — ripristina uno stato con il distruttore
+# key: dp-scope-exit
+# group: Pattern.Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// La guardia vive nello scope in cui lo stato deve essere ripristinato.
+
+#include <functional>
+
+void ${1:while_busy}(bool& busy, const std::function<void()>& operation) {
+    const struct Restore {
+        bool& target;
+        bool previous;
+        ~Restore() { target = previous; }
+    } restore{busy, busy};
+    busy = true;
+    operation();
+    $0
+}

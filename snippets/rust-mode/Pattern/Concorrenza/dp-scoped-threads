@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Structured Concurrency — thread con prestiti e join
+# key: dp-scoped-threads
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// I thread possono prendere in prestito dati perché il padre li attende prima di uscire.
+
+use std::thread;
+
+pub fn ${1:sum_halves}(values: &[u16]) -> thread::Result<u64> {
+    let (first, second) = values.split_at(values.len() / 2);
+    thread::scope(|scope| {
+        let left = scope.spawn(|| first.iter().copied().map(u64::from).sum::<u64>());
+        let right = scope.spawn(|| second.iter().copied().map(u64::from).sum::<u64>());
+        let (left, right) = (left.join(), right.join());
+        Ok(left? + right?)
+    })
+}
+$0

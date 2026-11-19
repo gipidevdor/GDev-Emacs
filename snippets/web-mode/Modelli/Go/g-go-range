@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Go html/template — ciclo con ramo per la lista vuota
+# key: g-go-range
+# group: Modelli.Go
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<ul>
+  {{ range .${1:Items} }}
+    <li>{{ .${2:Label} }}</li>
+  {{ else }}
+    <li>${3:Nessun elemento.}</li>
+  {{ end }}
+</ul>
+$0

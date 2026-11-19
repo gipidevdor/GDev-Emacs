@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+use v5.36;
+
+package ${1:ReportBuilder} {
+    sub new (\$class, \$title) {
+        return bless { title => \$title, sections => [] }, \$class;
+    }
+
+    sub add (\$self, \$section) {
+        push \$self->{sections}->@*, \$section;
+        return \$self;
+    }
+
+    sub build (\$self) {
+        return { title => \$self->{title}, sections => [\$self->{sections}->@*] };
+    }
+}
+
+my \$${2:report} = $1->new('Summary')->add('Results')->build;
+$0

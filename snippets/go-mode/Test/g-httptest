@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: HTTP test — handler in memoria e asserzione sul codice
+# key: g-httptest
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+package ${1:example}
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func Test${2:Health}(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+	request := httptest.NewRequest(http.MethodGet, "/${3:health}", nil)
+	result := httptest.NewRecorder()
+	handler.ServeHTTP(result, request)
+	if result.Code != http.StatusNoContent {
+		t.Errorf("unexpected status: %d", result.Code)
+	}
+	$0
+}

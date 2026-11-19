@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Lambda con cattura inizializzata per movimento
+# key: g-lambda-capture
+# group: Controllo
+# expand-env: ((yas-indent-line 'fixed))
+# --
+auto ${1:handler} = [value = std::move(${2:item})]() {
+    $0
+    return value;
+};

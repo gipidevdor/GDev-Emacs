@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: std::async con launch::async e propagazione delle eccezioni
+# key: g-future
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <future>
+
+[[nodiscard]] int ${1:compute}() {
+    auto pending = std::async(std::launch::async, [] { return ${2:42}; });
+    return pending.get();
+}
+
+$0

@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+struct legacy_sensor {
+    void *state;
+    double (*fahrenheit)(void *state);
+};
+
+double ${1:read_celsius}(const struct legacy_sensor *sensor)
+{
+    return (sensor->fahrenheit(sensor->state) - 32.0) * 5.0 / 9.0;
+}
+
+$0

@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Facade — ingresso unico a un sottosistema
+# key: dp-facade
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'ordine delle chiamate ai sottosistemi rimane in un unico punto.
+
+#include <functional>
+#include <string>
+#include <utility>
+
+class ${1:Checkout} {
+public:
+    using Quote = std::function<int(const std::string&)>;
+    using Place = std::function<std::string(const std::string&, int)>;
+
+    $1(Quote quote, Place place) : quote_{std::move(quote)}, place_{std::move(place)} {}
+
+    std::string place_order(const std::string& cart_id) const {
+        return place_(cart_id, quote_(cart_id));
+    }
+
+private:
+    Quote quote_;
+    Place place_;
+};
+
+$0

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Destructuring — rinomina un campo e raccogli il resto
+# key: g-destructure
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il default nella destructuring si applica a undefined.
+const { id: ${1:identifier}, label = "Untitled", ...details } = ${2:record};
+$0

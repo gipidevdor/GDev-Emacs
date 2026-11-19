@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Saga — compensazioni in ordine inverso e errori di recupero
+# key: dp-saga
+# group: Pattern.Sistemi distribuiti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Compensa in ordine inverso i passi conclusi. La versione in memoria vive quanto il processo.
+
+from collections.abc import Callable, Iterable
+
+
+def ${1:run_saga}(
+    steps: Iterable[tuple[Callable[[], None], Callable[[], None]]],
+) -> None:
+    """In-process orchestration. Each completed step must be compensatable."""
+    compensations = []
+    try:
+        for execute, compensate in steps:
+            execute()
+            compensations.append(compensate)
+    except Exception as failure:
+        failures = [failure]
+        for compensate in reversed(compensations):
+            try:
+                compensate()
+            except Exception as error:
+                failures.append(error)
+        if len(failures) > 1:
+            raise ExceptionGroup("Saga and compensation failed", failures) from failure
+        raise
+
+
+$0

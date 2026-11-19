@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Precondizione lifecycle con messaggio del dominio
+# key: g-tf-precondition
+# group: Risorse
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+variable "${1:label}" {
+  type     = string
+  nullable = false
+}
+
+resource "terraform_data" "${2:example}" {
+  input = var.$1
+
+  lifecycle {
+    precondition {
+      condition     = length(trimspace(var.$1)) > 0
+      error_message = "The label must contain non-whitespace characters."
+    }
+  }
+  $0
+}

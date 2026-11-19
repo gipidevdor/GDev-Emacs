@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Executor con thread virtuali (Java 21+)
+# key: g-virtual-threads
+# group: Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
+
+final class ${1:Jobs} {
+    static <T> T run(Callable<T> job) throws InterruptedException, ExecutionException {
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            $0
+            return executor.submit(job).get();
+        }
+    }
+}

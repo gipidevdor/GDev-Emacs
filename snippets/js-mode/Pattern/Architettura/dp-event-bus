@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Event Bus — canali con EventTarget e disiscrizione
+# key: dp-event-bus
+# group: Pattern.Architettura
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Disiscrivi il destinatario quando lo scope non è più attivo.
+
+function ${1:createBus}() {
+  const bus = new EventTarget();
+  return {
+    on(topic, listener) {
+      const receive = (event) => listener(event.detail);
+      bus.addEventListener(topic, receive);
+      return () => bus.removeEventListener(topic, receive);
+    },
+    emit(topic, payload) {
+      bus.dispatchEvent(new CustomEvent(topic, { detail: payload }));
+    },
+  };
+}
+$0

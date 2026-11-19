@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Python — metadati pyproject con dipendenze e backend di build
+# key: g-pyproject
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "${1:example}"
+version = "${2:0.1.0}"
+description = "${3:Package description}"
+requires-python = ">=3.11"
+dependencies = []
+$0

@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Struttura con navigazione, contenuto e collegamento di salto
+# key: g-landmarks
+# group: Accessibilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<a class="skip-link" href="#${1:contenuto}">Vai al contenuto</a>
+<header>
+  <nav aria-label="${2:Navigazione principale}">
+    <a href="/">Home</a>
+  </nav>
+</header>
+<main id="$1" tabindex="-1">
+  $0
+</main>
+<footer><p>${3:Informazioni sul sito}</p></footer>

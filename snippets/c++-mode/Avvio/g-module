@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Interfaccia di modulo C++20 con esportazione
+# key: g-module
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+export module ${1:example.math};
+
+export int ${2:answer}() {
+    $0
+    return 42;
+}

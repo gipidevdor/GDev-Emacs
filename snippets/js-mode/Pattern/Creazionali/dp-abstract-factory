@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Abstract Factory — famiglie di prodotti
+# key: dp-abstract-factory
+# group: Pattern.Creazionali
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Fornisci la fabbrica al chiamante per mantenere coerenti i prodotti della stessa famiglia.
+
+const ${1:textNotifications} = {
+  createFormatter: () => ({ format: (message) => \`[info] \${message}\` }),
+  createSender: () => ({ send: (message) => console.info(message) }),
+};
+
+function ${2:notify}(factory, message) {
+  const { format } = factory.createFormatter();
+  factory.createSender().send(format(message));
+}
+$0

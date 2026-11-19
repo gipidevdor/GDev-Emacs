@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Cache-Aside — cache per chiave con scadenza e invalidazione
+# key: dp-cache-aside
+# group: Pattern.Dati
+# condition: (or (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)) (not (derived-mode-p 'typescript-ts-base-mode 'typescript-mode)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Carica soltanto alla prima lettura o alla scadenza e invalida dopo una scrittura riuscita.
+
+function ${1:createCache}(load, ttlMs = ${2:30000}) {
+  const entries = new Map();
+  return {
+    get(key) {
+      const hit = entries.get(key);
+      if (hit && hit.expiresAt > performance.now()) return hit.value;
+      const value = load(key);
+      entries.set(key, { value, expiresAt: performance.now() + ttlMs });
+      return value;
+    },
+    invalidate(key) {
+      entries.delete(key);
+    },
+  };
+}
+$0

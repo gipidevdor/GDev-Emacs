@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Deno.serve — risposta JSON con rotta e 404
+# key: g-deno-serve
+# group: Rete
+# expand-env: ((yas-indent-line 'fixed))
+# --
+Deno.serve({ port: ${1:8000}, hostname: "127.0.0.1" }, (request) => {
+  const url = new URL(request.url);
+  if (request.method === "GET" && url.pathname === "/${2:health}") {
+    return Response.json({ status: "ok" });
+  }
+  return new Response("Not found", { status: 404 });
+});
+$0

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Guardia di inclusione e dichiarazioni di intestazione
+# key: g-include-guard
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#ifndef ${1:PROJECT_ITEM_H}
+#define $1
+
+$0
+
+#endif /* $1 */

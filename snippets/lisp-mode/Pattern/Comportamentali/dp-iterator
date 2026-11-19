@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Iterator — attraversamento incrementale
+# key: dp-iterator
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Il consumatore avanza un elemento alla volta e può interrompere l'attraversamento in anticipo.
+
+(defun ${1:list-iterator} (items)
+  (let ((remaining items))
+    (lambda ()
+      (if remaining
+          (values (pop remaining) t)
+          (values nil nil)))))
+$0

@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: Lettura con getline e rilascio del buffer (POSIX)
+# key: g-read-lines
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+#include <stdlib.h>
+
+int ${1:read_lines}(const char *path)
+{
+    FILE *stream = fopen(path, "r");
+    if (stream == NULL) return -1;
+
+    char *line = NULL;
+    size_t capacity = 0;
+    int status = 0;
+    for (ssize_t length; (length = getline(&line, &capacity, stream)) >= 0;) {
+        if (fwrite(line, 1, (size_t)length, stdout) != (size_t)length) {
+            status = -1;
+            break;
+        }
+        $0
+    }
+    if (!feof(stream)) status = -1;
+    free(line);
+    if (fclose(stream) != 0) status = -1;
+    return status;
+}

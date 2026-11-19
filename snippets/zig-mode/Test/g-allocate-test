@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: Test di allocazione con controllo delle perdite
+# key: g-allocate-test
+# group: Test
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const std = @import("std");
+
+test "${1:allocated values are initialized}" {
+    const allocator = std.testing.allocator;
+    const buffer = try allocator.alloc(u8, 16);
+    defer allocator.free(buffer);
+    @memset(buffer, 0);
+    try std.testing.expectEqual(@as(u8, 0), buffer[0]);
+    $0
+}

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Chiave TOML con punti letterali
+# key: g-quoted-key
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le virgolette mantengono i punti nel nome della stessa chiave.
+"${1:app.display.name}" = "${2:Example}"
+$0

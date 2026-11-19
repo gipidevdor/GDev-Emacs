@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: NewType per distinguere identificatori
+# key: g-newtype
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+from typing import NewType
+
+${1:UserId} = NewType("$1", ${2:str})
+$0

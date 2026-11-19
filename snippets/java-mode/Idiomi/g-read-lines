@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Lettura pigra di file UTF-8 con try-with-resources
+# key: g-read-lines
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+final class ${1:FileLines} {
+    static long count(Path path) throws IOException {
+        // Lo stream di Files.lines possiede il file e va chiuso anche se count fallisce.
+        try (var lines = Files.lines(path)) {
+            $0
+            return lines.count();
+        }
+    }
+}

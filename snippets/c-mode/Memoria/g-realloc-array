@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Ridimensionamento senza perdere l'allocazione precedente
+# key: g-realloc-array
+# group: Memoria
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+bool ${1:resize_values}(int **values, size_t count)
+{
+    if (count == 0 || count > SIZE_MAX / sizeof **values) return false;
+    int *next = realloc(*values, count * sizeof **values);
+    if (next == NULL) return false;
+    *values = next;
+    return true;
+}
+
+$0

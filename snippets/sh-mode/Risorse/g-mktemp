@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: File temporaneo con trap di rilascio
+# key: g-mktemp
+# group: Risorse
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#!/bin/sh
+# Registra l'uscita subito dopo aver acquisito il file.
+tmp=\$(mktemp "\${TMPDIR:-/tmp}/${1:work}.XXXXXXXX") || exit 1
+trap 'rm -f -- "\$tmp"' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+$0

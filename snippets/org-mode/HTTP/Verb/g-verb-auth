@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Verb — intestazione Bearer tramite auth-source
+# key: g-verb-auth
+# group: HTTP.Verb
+# expand-env: ((yas-indent-line 'fixed))
+# --
+* ${1:API esempio} :verb:
+template https://${2:api.example.org}
+Authorization: Bearer {{(or (auth-source-pick-first-password :host "$2") (user-error "Manca la credenziale per $2"))}}
+Accept: application/json
+
+** ${3:Profilo}
+get /${4:profile}
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: GitHub Actions — matrice di esecuzione Linux e macOS
+# key: g-github-matrix
+# group: Automazione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+strategy:
+  fail-fast: false
+  matrix:
+    os: [ubuntu-latest, macos-latest]
+runs-on: \${{ matrix.os }}
+steps:
+  - run: ${1:uname -s}
+    $0

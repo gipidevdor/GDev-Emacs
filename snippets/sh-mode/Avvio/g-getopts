@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: CLI POSIX — opzioni brevi, shift e argomento obbligatorio
+# key: g-getopts
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+verbose=0
+while getopts ':v' option; do
+    case "\$option" in
+        v) verbose=1 ;;
+        *) printf '%s\\n' "Usage: \$0 [-v] INPUT" >&2; exit 2 ;;
+    esac
+done
+# OPTIND indica la prima posizione che non appartiene alle opzioni.
+shift "\$((OPTIND - 1))"
+input=\${1:?Usage: script [-v] INPUT}
+$0

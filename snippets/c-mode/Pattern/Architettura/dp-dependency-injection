@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Dependency Injection — adattatore con contesto e puntatore a funzione
+# key: dp-dependency-injection
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Collega la dipendenza nel punto di composizione. Il caso d'uso può così ricevere un sostituto.
+
+struct ${1:logger} {
+    void *context;
+    void (*write)(void *context, const char *message);
+};
+
+void report_ready(const struct $1 *logger)
+{
+    logger->write(logger->context, "${2:Ready}");
+}
+
+$0

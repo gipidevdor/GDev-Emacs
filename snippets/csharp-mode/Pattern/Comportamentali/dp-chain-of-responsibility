@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Chain of Responsibility — catena di gestori
+# key: dp-chain-of-responsibility
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Un gestore indica se ha elaborato la richiesta. Il primo che la gestisce termina la catena.
+
+using System;
+using System.Collections.Generic;
+
+static class ${1:Dispatcher}
+{
+    public static string? Dispatch(string request, IEnumerable<Func<string, string?>> handlers)
+    {
+        foreach (var handle in handlers)
+        {
+            if (handle(request) is { } result) return result;
+        }
+        return null;
+    }
+}
+$0

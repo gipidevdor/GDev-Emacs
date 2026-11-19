@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+using System;
+
+static class ${1:Pricing}
+{
+    public static int Total(int amount, Func<int, int> discount) => amount - discount(amount);
+    public static int TenPercent(int amount) => amount / 10;
+}
+$0

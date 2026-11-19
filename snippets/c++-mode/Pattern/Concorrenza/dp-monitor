@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Monitor — stato condiviso protetto da un mutex
+# key: dp-monitor
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Leggi e scrivi lo stato condiviso sotto lo stesso lock.
+
+#include <mutex>
+
+class ${1:Counter} {
+public:
+    void increment() {
+        const std::scoped_lock lock{mutex_};
+        ++value_;
+    }
+
+    [[nodiscard]] unsigned get() const {
+        const std::scoped_lock lock{mutex_};
+        return value_;
+    }
+
+private:
+    mutable std::mutex mutex_;
+    unsigned value_ = 0;
+};
+
+$0

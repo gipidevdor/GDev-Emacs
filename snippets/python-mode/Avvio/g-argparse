@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: CLI — parser, opzione e argomento Path (argparse)
+# key: g-argparse
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import argparse
+from pathlib import Path
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="${1:Process an input file}")
+    parser.add_argument("input", type=Path)
+    parser.add_argument("-v", "--verbose", action="store_true")
+    args = parser.parse_args()
+    $0
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

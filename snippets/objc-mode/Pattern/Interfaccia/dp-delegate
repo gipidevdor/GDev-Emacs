@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Delegate — protocollo e riferimento weak al destinatario (ARC)
+# key: dp-delegate
+# group: Pattern.Interfaccia
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il delegante non possiede il destinatario. Chi collega i due ne gestisce la durata.
+
+#import <Foundation/Foundation.h>
+
+@class ${1:Loader};
+@protocol $1Delegate <NSObject>
+- (void)loaderDidFinish:($1 *)loader;
+@end
+
+@interface $1 : NSObject
+@property (nonatomic, weak) id<$1Delegate> delegate;
+- (void)finish;
+@end
+
+@implementation $1
+- (void)finish
+{
+    [self.delegate loaderDidFinish:self];
+    $0
+}
+@end

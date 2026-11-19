@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Feature Flag — instrada il caso d'uso tramite una decisione iniettata
+# key: dp-feature-flag
+# group: Pattern.Affidabilità
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Valuta la decisione una volta per operazione e usa la stessa variante per tutta l'esecuzione.
+
+from collections.abc import Callable
+
+
+def ${1:checkout}(
+    cart_id: str,
+    enabled: Callable[[str, str], bool],
+    current: Callable[[str], str],
+    candidate: Callable[[str], str],
+) -> str:
+    implementation = candidate if enabled("${2:checkout-v2}", cart_id) else current
+    return implementation(cart_id)
+
+
+$0

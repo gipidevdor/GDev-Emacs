@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Array JSON di record
+# key: g-records
+# group: Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[
+  {
+    "id": "${1:example}",
+    "label": "${2:Example}"
+  }
+]$0

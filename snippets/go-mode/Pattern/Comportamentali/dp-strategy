@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Strategy — algoritmi intercambiabili
+# key: dp-strategy
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante sceglie l'algoritmo. Il contesto decide quando applicarlo.
+
+package ${1:example}
+
+type Discount func(cents int) int
+
+func ${2:Total}(cents int, discount Discount) int {
+	return cents - discount(cents)
+}
+
+func TenPercent(cents int) int { return cents / 10 }
+$0

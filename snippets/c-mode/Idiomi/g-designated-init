@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Inizializza soltanto i campi espliciti con designatori
+# key: g-designated-init
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+struct ${1:options} {
+    int retries;
+    int verbose;
+};
+
+// I campi omessi sono inizializzati a zero anche quando cambia il loro ordine.
+struct $1 ${2:default_options} = { .retries = ${3:3} };
+$0

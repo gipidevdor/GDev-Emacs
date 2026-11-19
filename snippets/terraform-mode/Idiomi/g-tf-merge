@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Merge — applica override come ultimo elemento
+# key: g-tf-merge
+# group: Idiomi
+# condition: (not (or (and buffer-file-name (string-suffix-p ".tfvars" buffer-file-name t)) (and buffer-file-name (string-suffix-p ".tftest.hcl" buffer-file-name t))))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+locals {
+  base = { environment = "development", application = "${1:example}" }
+  overrides = { environment = "${2:production}" }
+
+  # Una chiave negli override prevale sul valore base, a livello della mappa.
+  tags = merge(local.base, local.overrides)
+}
+$0

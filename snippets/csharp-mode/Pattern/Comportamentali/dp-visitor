@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Visitor — operazioni su più tipi
+# key: dp-visitor
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Le operazioni sono esterne ai dati. Ogni forma determina quale operazione invocare.
+
+using System;
+
+interface IShape { T Accept<T>(IVisitor<T> visitor); }
+interface IVisitor<T> { T Visit(Circle shape); T Visit(Square shape); }
+
+sealed record Circle(double Radius) : IShape
+{
+    public T Accept<T>(IVisitor<T> visitor) => visitor.Visit(this);
+}
+
+sealed record Square(double Side) : IShape
+{
+    public T Accept<T>(IVisitor<T> visitor) => visitor.Visit(this);
+}
+
+sealed class ${1:Area} : IVisitor<double>
+{
+    public double Visit(Circle circle) => Math.PI * circle.Radius * circle.Radius;
+    public double Visit(Square square) => square.Side * square.Side;
+}
+$0

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Bridge — astrazione e implementazione indipendenti
+# key: dp-bridge
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// L'astrazione può evolvere indipendentemente dall'implementazione che riceve.
+
+interface IRenderer { string Heading(string title); }
+
+sealed class Markdown : IRenderer
+{
+    public string Heading(string title) => \$"# {title}";
+}
+
+sealed class ${1:Report}(string title)
+{
+    public string Render(IRenderer renderer) => renderer.Heading(title);
+}
+$0

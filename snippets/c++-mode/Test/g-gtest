@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: GoogleTest — test con aspettativa di uguaglianza
+# key: g-gtest
+# group: Test
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <gtest/gtest.h>
+
+TEST(${1:ParserTest}, ${2:ParsesValidInput}) {
+    EXPECT_EQ(${3:42}, ${4:6 * 7});
+    $0
+}

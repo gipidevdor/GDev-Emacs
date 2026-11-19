@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Result — valore e stato tramite valori multipli
+# key: dp-result
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Rendi rappresentabile il fallimento insieme al successo, così il chiamante può gestire entrambi.
+
+(defun ${1:parse-count} (text)
+  (multiple-value-bind (value end) (parse-integer text :junk-allowed t)
+    (if (and value (= end (length text)) (not (minusp value)))
+        (values value nil)
+        (values nil :invalid-count))))
+$0

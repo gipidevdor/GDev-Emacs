@@ -1,0 +1,179 @@
+#!/bin/sh
+# gdev-bootstrap-macos: prepara GDev-Emacs su un Mac, da zero a pronto.
+# Copyright (C) 2026 Giacomo Picchiarelli
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Ogni passo prima controlla, poi fa solo ciò che manca: rieseguire lo script
+# di preparazione (bootstrap) è sicuro, e così un Mac nuovo si mette in pari.
+#
+#   1. Command Line Tools e Homebrew presenti
+#   2. Pacchetti Homebrew del Brewfile (Emacs, strumenti, caratteri)
+#   3. Moduli Perl del cpanfile, nel perl attivo
+#   4. Quicklisp e la HyperSpec locale (offline), per SBCL; il carattere SF Mono
+#   5. ~/.config/emacs -> questa copia di lavoro, ~/.local/bin/gdev -> bin/gdev
+#   6. gdev install: configurazione privata, ambiente, pacchetti, grammatiche
+#
+# Opzioni:  --skip-brew  --skip-perl  --skip-lisp  (saltano i passi 2, 3, 4)
+#
+# Nessun segreto viene letto o scritto: le chiavi API vanno a mano nel
+# Portachiavi (Keychain); le istruzioni sono alla fine dei messaggi.
+
+set -eu
+
+root=$(cd "$(dirname "$0")/.." && pwd -P)
+skip_brew=no
+skip_perl=no
+skip_lisp=no
+for argument in "$@"; do
+    case $argument in
+        --skip-brew) skip_brew=yes ;;
+        --skip-perl) skip_perl=yes ;;
+        --skip-lisp) skip_lisp=yes ;;
+        -h | --help)
+            sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0
+            ;;
+        *)
+            echo "Opzione sconosciuta: $argument (vedi --help)" >&2
+            exit 2
+            ;;
+    esac
+done
+
+step() { printf '\n\033[1m▸ %s\033[0m\n' "$1"; }
+note() { printf '  %s\n' "$1"; }
+fail() {
+    printf '  \033[31m%s\033[0m\n' "$1" >&2
+    exit 1
+}
+
+[ "$(uname -s)" = Darwin ] || fail "Questo script è per macOS."
+
+# 1. Prerequisiti -------------------------------------------------------------
+
+step "Prerequisiti"
+if xcode-select -p >/dev/null 2>&1; then
+    note "Command Line Tools: $(xcode-select -p)"
+else
+    fail "Installa prima i Command Line Tools: xcode-select --install"
+fi
+if ! command -v brew >/dev/null 2>&1; then
+    for prefix in /opt/homebrew /usr/local; do
+        [ -x "$prefix/bin/brew" ] && eval "$("$prefix/bin/brew" shellenv)" && break
+    done
+fi
+command -v brew >/dev/null 2>&1 ||
+    fail "Installa prima Homebrew (https://brew.sh), poi riesegui questo script."
+note "Homebrew: $(brew --prefix)"
+
+# 2. Pacchetti Homebrew -------------------------------------------------------
+
+step "Pacchetti Homebrew (Brewfile)"
+if [ $skip_brew = yes ]; then
+    note "saltato"
+elif brew bundle check --file="$root/Brewfile" >/dev/null 2>&1; then
+    note "tutti installati"
+else
+    brew bundle --file="$root/Brewfile"
+fi
+
+# 3. Moduli Perl --------------------------------------------------------------
+
+step "Moduli Perl (cpanfile)"
+if [ $skip_perl = yes ]; then
+    note "saltato"
+elif ! command -v cpanm >/dev/null 2>&1; then
+    note "cpanm non trovato: brew install cpanminus, poi riesegui lo script"
+elif perl -MPerl::LanguageServer -MPerl::Tidy -MPerl::Critic -MDevel::NYTProf -MDevel::Cover \
+    -e1 >/dev/null 2>&1; then
+    note "tutti installati per $(command -v perl)"
+else
+    note "installazione in $(command -v perl)"
+    (cd "$root" && cpanm --notest --installdeps .)
+fi
+
+# 4. Common Lisp: Quicklisp e la HyperSpec ------------------------------------
+
+step "Quicklisp e HyperSpec (SBCL)"
+if [ $skip_lisp = yes ]; then
+    note "saltato"
+elif ! command -v sbcl >/dev/null 2>&1; then
+    note "sbcl non trovato: brew install sbcl, poi riesegui lo script"
+elif [ -d "$HOME/quicklisp/dists/quicklisp/software" ] &&
+    ls -d "$HOME"/quicklisp/dists/quicklisp/software/clhs-* >/dev/null 2>&1; then
+    note "già installati in ~/quicklisp"
+else
+    installer=$(mktemp -d)/quicklisp.lisp
+    if [ ! -f "$HOME/quicklisp/setup.lisp" ]; then
+        note "scaricamento dell'installatore di Quicklisp da beta.quicklisp.org"
+        curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o "$installer"
+        sbcl --non-interactive --load "$installer" \
+            --eval '(quicklisp-quickstart:install)' >/dev/null
+    fi
+    sbcl --non-interactive --load "$HOME/quicklisp/setup.lisp" \
+        --eval '(ql:quickload "clhs" :silent t)' >/dev/null
+    note "Quicklisp installato in ~/quicklisp, con la HyperSpec locale (offline)"
+fi
+
+# 4b. SF Mono -------------------------------------------------------------------
+
+# SF Mono è incluso in macOS dentro Terminale, ma non è installato per le
+# altre app: una copia nella cartella dei caratteri dell'utente basta, senza
+# password di amministratore.
+step "Carattere SF Mono"
+sf_source=/System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts
+if ls "$HOME"/Library/Fonts/SF-Mono-Regular.otf >/dev/null 2>&1; then
+    note "già disponibile"
+elif [ -d "$sf_source" ]; then
+    mkdir -p "$HOME/Library/Fonts"
+    cp "$sf_source"/SF-Mono-*.otf "$HOME/Library/Fonts/"
+    note "copiato da Terminale in ~/Library/Fonts"
+else
+    note "non trovato in Terminale: GDev-Emacs userà Menlo"
+fi
+
+# 5. Collegamenti -------------------------------------------------------------
+
+step "Collegamenti"
+config_home=${XDG_CONFIG_HOME:-$HOME/.config}
+mkdir -p "$config_home" "$HOME/.local/bin"
+if [ -L "$config_home/emacs" ] && [ "$(cd "$config_home/emacs" && pwd -P)" = "$root" ]; then
+    note "$config_home/emacs -> $root"
+elif [ -e "$config_home/emacs" ]; then
+    fail "$config_home/emacs esiste e non è questa copia di lavoro: spostalo altrove e riesegui."
+else
+    ln -s "$root" "$config_home/emacs"
+    note "collegato $config_home/emacs -> $root"
+fi
+for shadow in "$HOME/.emacs" "$HOME/.emacs.el" "$HOME/.emacs.d"; do
+    [ -e "$shadow" ] && note "attenzione: $shadow esiste e ha la precedenza su ~/.config/emacs; spostalo altrove"
+done
+ln -sf "$root/bin/gdev" "$HOME/.local/bin/gdev"
+note "collegato ~/.local/bin/gdev -> bin/gdev"
+case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ;;
+    *) note "aggiungi ~/.local/bin al PATH nel profilo della shell per usare gdev ovunque" ;;
+esac
+
+# 6. GDev-Emacs ---------------------------------------------------------------
+
+step "GDev-Emacs"
+if ! "$root/bin/gdev" install; then
+    echo "Installazione GDev-Emacs non completata. Correggi l’errore indicato e ripeti il comando." >&2
+    exit 1
+fi
+
+cat <<'EOF'
+
+Pronto.  Avvia Emacs dal Dock o da Spotlight.
+
+I segreti non vanno mai nei file.  Salva ciascuno, una volta sola, nel
+Portachiavi (Keychain):
+
+  Claude (C-c a):   security add-internet-password -a apikey -s api.anthropic.com -w
+  Forge (GitHub):   security add-internet-password -a "UTENTE^forge" -s api.github.com -w
+
+L'opzione -w senza valore chiede il segreto senza mostrarlo.
+Claude Code (C-c a c) usa un proprio accesso: esegui `claude' una volta in un
+terminale.
+EOF

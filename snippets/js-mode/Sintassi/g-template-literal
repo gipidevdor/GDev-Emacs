@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Stringa modello JavaScript con interpolazione
+# key: g-template-literal
+# group: Sintassi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const ${1:message} = \`Hello, \${${2:"reader"}}!\`;$0

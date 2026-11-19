@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+interface Temperature {
+  celsius(): number;
+}
+
+interface LegacySensor {
+  fahrenheit(): number;
+}
+
+function ${1:celsiusSensor}(legacy: LegacySensor): Temperature {
+  return { celsius: () => (legacy.fahrenheit() - 32) * 5 / 9 };
+}
+$0

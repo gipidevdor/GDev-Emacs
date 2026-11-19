@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Value Object — uguaglianza per valore e invariante
+# key: dp-value-object
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Verifica l'invariante alla costruzione e confronta i contenuti per uguaglianza.
+
+#include <cstdint>
+#include <stdexcept>
+
+class ${1:Price} {
+public:
+    explicit $1(std::int64_t cents) : cents_{cents} {
+        if (cents < 0) throw std::invalid_argument("Negative price");
+    }
+
+    [[nodiscard]] std::int64_t cents() const noexcept { return cents_; }
+    bool operator==(const $1&) const = default;
+
+private:
+    std::int64_t cents_;
+};
+
+$0

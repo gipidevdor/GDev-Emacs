@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Spostamento di intervalli sovrapposti con memmove
+# key: g-memmove
+# group: Memoria
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stddef.h>
+#include <string.h>
+
+void ${1:remove_first}(int *items, size_t length)
+{
+    if (length > 1) {
+        memmove(items, items + 1, (length - 1) * sizeof *items);
+    }
+    $0
+}

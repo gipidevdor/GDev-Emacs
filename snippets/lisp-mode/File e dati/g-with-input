@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: With-open-file — lettura con rilascio implicito
+# key: g-with-input
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+(with-open-file (${1:input} #P"${2:input.txt}" :direction :input :external-format :utf-8)
+  (loop for line = (read-line $1 nil nil)
+        while line
+        do $0(write-line line)))

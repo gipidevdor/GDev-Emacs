@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Jinja — macro riusabile per una scheda
+# key: g-jinja-macro
+# group: Modelli.Jinja e Django
+# expand-env: ((yas-indent-line 'fixed))
+# --
+{% macro ${1:card}(title, description) %}
+<article>
+  <h2>{{ title }}</h2>
+  <p>{{ description }}</p>
+  $0
+</article>
+{% endmacro %}

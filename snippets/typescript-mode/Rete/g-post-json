@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Fetch POST con payload JSON e controllo della risposta
+# key: g-post-json
+# group: Rete
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+async function ${1:postJson}(url: URL, payload: unknown, signal: AbortSignal): Promise<Response> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal,
+  });
+  if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+  return response;
+}
+$0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: type-multiline-comment
+# key: *ty
+# condition: (nth 4 (syntax-ppss))
+# Modificato da GDev il 15 novembre 2026 per la modalità JavaScript nativa.
+# --
+* @type {${type}}

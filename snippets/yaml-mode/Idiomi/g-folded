@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Blocco folded per un paragrafo distribuito su righe
+# key: g-folded
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# >- unisce con spazi le righe del paragrafo e rimuove il newline finale.
+${1:description}: >-
+  ${2:First part of a sentence}
+  ${3:continuing on the next source line.}
+  $0

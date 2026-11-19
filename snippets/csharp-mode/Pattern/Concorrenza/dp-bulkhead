@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: Bulkhead — semaforo asincrono e rilascio anche su eccezione
+# key: dp-bulkhead
+# group: Pattern.Concorrenza
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Dai un limite esplicito alle risorse concorrenti per circoscrivere il lavoro ammesso.
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+sealed class ${1:Bulkhead} : IDisposable
+{
+    private readonly SemaphoreSlim slots;
+
+    public $1(int maxConcurrency) => slots = new(maxConcurrency, maxConcurrency);
+
+    public async Task<T> Run<T>(Func<CancellationToken, Task<T>> work, CancellationToken cancellation)
+    {
+        await slots.WaitAsync(cancellation);
+        try { return await work(cancellation); }
+        finally { slots.Release(); }
+    }
+
+    // Dispose after submitted tasks have completed.
+    public void Dispose() => slots.Dispose();
+}
+$0

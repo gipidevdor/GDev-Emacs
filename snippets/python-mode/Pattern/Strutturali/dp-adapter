@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+from typing import Protocol
+
+
+class Temperature(Protocol):
+    def celsius(self) -> float: ...
+
+
+class LegacySensor(Protocol):
+    def fahrenheit(self) -> float: ...
+
+
+class ${1:CelsiusAdapter}:
+    def __init__(self, sensor: LegacySensor) -> None:
+        self._sensor = sensor
+
+    def celsius(self) -> float:
+        return (self._sensor.fahrenheit() - 32) * 5 / 9
+
+
+$0

@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Pytest — cartella dei test e opzioni in pyproject.toml
+# key: g-pytest
+# group: Progetti
+# expand-env: ((yas-indent-line 'fixed))
+# --
+[tool.pytest.ini_options]
+testpaths = ["${1:tests}"]
+addopts = ["-ra", "--strict-markers"]
+$0

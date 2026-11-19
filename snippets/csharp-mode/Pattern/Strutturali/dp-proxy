@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Proxy — accesso indiretto a un oggetto
+# key: dp-proxy
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il chiamante passa per la stessa interfaccia. Il proxy controlla quando raggiungere il destinatario.
+
+using System;
+
+interface IReport { string Render(); }
+
+sealed class ${1:LazyReport}(Func<IReport> load) : IReport
+{
+    private readonly Lazy<IReport> target = new(load);
+
+    public string Render() => target.Value.Render();
+}
+$0

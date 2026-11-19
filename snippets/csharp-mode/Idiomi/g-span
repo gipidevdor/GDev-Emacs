@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: ReadOnlySpan — vista senza copia su una parte della stringa
+# key: g-span
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+using System;
+
+static class ${1:Labels}
+{
+    public static ReadOnlySpan<char> BeforeColon(ReadOnlySpan<char> text)
+    {
+        // Il range restituisce una vista sulla memoria originale.
+        var index = text.IndexOf(':');
+        $0
+        return index < 0 ? text : text[..index];
+    }
+}

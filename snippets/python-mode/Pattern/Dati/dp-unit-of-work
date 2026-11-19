@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Unit of Work — commit, rollback e rilascio della connessione
+# key: dp-unit-of-work
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Le operazioni devono usare la stessa connessione fino a commit o rollback.
+
+import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
+
+
+@contextmanager
+def ${1:unit_of_work}(path: str) -> Iterator[sqlite3.Connection]:
+    connection = sqlite3.connect(path)
+    try:
+        with connection:
+            connection.execute("BEGIN")
+            yield connection
+    finally:
+        connection.close()
+
+
+$0

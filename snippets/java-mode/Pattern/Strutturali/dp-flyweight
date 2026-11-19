@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Flyweight — condivisione di stato immutabile
+# key: dp-flyweight
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Condividi solo i dati intrinseci e immutabili. Tieni lo stato di ogni uso fuori dalla cache.
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+final class ${1:StylePool} {
+    private final ConcurrentMap<String, Style> styles = new ConcurrentHashMap<>();
+
+    Style get(String font) { return styles.computeIfAbsent(font, Style::new); }
+
+    static final class Style {
+        final String font;
+        Style(String font) { this.font = font; }
+    }
+}
+$0

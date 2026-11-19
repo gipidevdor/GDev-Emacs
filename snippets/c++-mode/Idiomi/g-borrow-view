@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: String view — passa testo senza prolungarne la durata
+# key: g-borrow-view
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <string_view>
+
+// La vista restituita condivide la durata del testo passato dal chiamante.
+constexpr std::string_view ${1:before_separator}(std::string_view text) {
+    return text.substr(0, text.find('${2::}'));
+}
+
+$0

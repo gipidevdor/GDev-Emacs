@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Pipeline — trasforma e filtra con map e grep
+# key: dp-pipeline
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Ogni fase riceve l'uscita di quella a monte. Conserva la produzione incrementale quando possibile.
+
+use v5.36;
+
+sub ${1:records} (@lines) {
+    return grep { length && !/^#/ }
+           map { s/^\\s+|\\s+\$//gr } @lines;
+}
+$0

@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Kubernetes — Service interno che seleziona un'app
+# key: g-kube-service
+# group: Distribuzione
+# expand-env: ((yas-indent-line 'fixed))
+# --
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${1:example}
+spec:
+  type: ClusterIP
+  selector:
+    app: $1
+  ports:
+    - name: http
+      port: ${2:80}
+      targetPort: ${3:http}
+  $0

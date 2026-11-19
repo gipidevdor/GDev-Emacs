@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Espansione che rende obbligatorio un argomento
+# key: g-required-param
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# :? termina lo script con un messaggio se il valore è assente o vuoto.
+${1:input}=\${1:?${2:Usage: script INPUT}}
+$0

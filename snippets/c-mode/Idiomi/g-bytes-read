@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Fread — distingue EOF, errore e lettura completa
+# key: g-bytes-read
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <stddef.h>
+#include <stdio.h>
+
+int ${1:read_exact}(FILE *stream, unsigned char *output, size_t length)
+{
+    // Ogni elemento ha dimensione un byte: il ritorno è il numero di byte letti.
+    size_t read = fread(output, 1, length, stream);
+    if (read == length) return 0;
+    return ferror(stream) ? -1 : 1;
+}
+
+$0

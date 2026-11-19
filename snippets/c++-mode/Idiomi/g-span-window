@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Span subspan — disegna una finestra dopo avere verificato gli indici
+# key: g-span-window
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <cstddef>
+#include <span>
+#include <stdexcept>
+
+std::span<const int> ${1:window}(std::span<const int> input, std::size_t offset, std::size_t count) {
+    // Sottrai solo dopo avere verificato offset per evitare underflow e somma fuori range.
+    if (offset > input.size() || count > input.size() - offset) {
+        throw std::out_of_range("Invalid span window");
+    }
+    return input.subspan(offset, count);
+}
+
+$0

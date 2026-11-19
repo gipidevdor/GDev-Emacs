@@ -1,0 +1,63 @@
+#!/bin/sh
+# gdev: gestisce GDev-Emacs da un terminale (install, sync, doctor...).
+# Copyright (C) 2026 Giacomo Picchiarelli
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Esegue i comandi di manutenzione in un processo Emacs batch;
+# `gdev help' elenca i comandi.  Imposta EMACS per scegliere l'eseguibile di
+# Emacs.
+
+set -eu
+
+# Segue i collegamenti simbolici (~/.local/bin/gdev -> .../bin/gdev) fino
+# alla copia di lavoro.
+self=$0
+while [ -L "$self" ]; do
+    target=$(readlink "$self")
+    case $target in
+        /*) self=$target ;;
+        *) self=$(dirname "$self")/$target ;;
+    esac
+done
+root=$(cd "$(dirname "$self")/.." && pwd -P)
+
+if [ -z "${EMACS:-}" ]; then
+    for candidate in \
+        /Applications/Emacs.app/Contents/MacOS/Emacs \
+        "$HOME/Applications/Emacs.app/Contents/MacOS/Emacs"; do
+        if [ -x "$candidate" ]; then
+            EMACS=$candidate
+            break
+        fi
+    done
+fi
+if [ -z "${EMACS:-}" ]; then
+    EMACS=$(command -v emacs || true)
+fi
+if [ -z "$EMACS" ]; then
+    echo "gdev: Emacs non trovato; installalo o imposta EMACS" >&2
+    exit 1
+fi
+
+if [ "${1:-}" = "--profile" ]; then
+    case "${2:-}" in
+        ""|*[!a-zA-Z0-9_-]*) echo "gdev: indica un nome di profilo valido" >&2; exit 2 ;;
+    esac
+    export GDEV_PROFILE="$2"
+    shift 2
+fi
+
+if [ "${1:-}" = "emacs" ]; then
+    shift
+    exec "$EMACS" --init-directory "$root" "$@"
+fi
+
+if [ "${1:-}" = "agent" ]; then
+    shift
+    exec "$EMACS" --batch -Q -l "$root/lisp/gdev-agent-interface.el" \
+        -f gdev-agent-interface-main "$@"
+fi
+
+exec "$EMACS" --batch -Q \
+    -l "$root/bin/gdev-cli-entry.el" \
+    -f gdev-cli-entry "$@"

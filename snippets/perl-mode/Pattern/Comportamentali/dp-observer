@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+use v5.36;
+
+sub ${1:new_topic} () {
+    my %listeners;
+    my \$next_id = 0;
+
+    return {
+        subscribe => sub (\$listener) {
+            my \$id = ++\$next_id;
+            \$listeners{\$id} = \$listener;
+            return sub { delete \$listeners{\$id} };
+        },
+        publish => sub (\$message) {
+            my @snapshot = values %listeners;
+            \$_->(\$message) for @snapshot;
+        },
+    };
+}
+$0

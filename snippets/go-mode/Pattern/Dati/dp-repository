@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Repository — interfaccia piccola al confine del caso d'uso
+# key: dp-repository
+# group: Pattern.Dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il caso d'uso parla il contratto del dominio. Il repository traduce le operazioni verso lo storage.
+
+package ${1:example}
+
+import "context"
+
+type Item struct{ ID, Label string }
+
+type ${2:ItemStore} interface {
+	Find(ctx context.Context, id string) (item Item, exists bool, err error)
+}
+$0

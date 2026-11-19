@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Definizione di struttura con alias typedef
+# key: g-typedef-struct
+# group: Tipi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+typedef struct ${1:item} {
+    ${2:int} ${3:value};
+} $1;
+
+$0

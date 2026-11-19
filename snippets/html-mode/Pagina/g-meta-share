@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Metadati Open Graph per l'anteprima locale della pagina
+# key: g-meta-share
+# group: Pagina
+# expand-env: ((yas-indent-line 'fixed))
+# --
+<meta property="og:title" content="${1:Titolo}">
+<meta property="og:description" content="${2:Descrizione}">
+<meta property="og:image" content="${3:https://example.org/preview.jpg}">
+<meta property="og:type" content="website">
+$0

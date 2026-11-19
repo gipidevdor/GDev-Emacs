@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+interface IMessage { string Text(); }
+
+sealed class ${1:TaggedMessage}(IMessage inner) : IMessage
+{
+    public string Text() => \$"[${2:info}] {inner.Text()}";
+}
+$0

@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: Adapter — traduzione di un'interfaccia
+# key: dp-adapter
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Traduci il contratto al confine e incapsula i dettagli del componente esistente.
+
+package ${1:example}
+
+import "io"
+
+type WriteFunc func([]byte) (int, error)
+
+func (write WriteFunc) Write(data []byte) (int, error) {
+	return write(data)
+}
+
+var _ io.Writer = WriteFunc(nil)
+$0

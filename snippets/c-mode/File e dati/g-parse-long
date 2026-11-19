@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Parsing di un intero con strtol e controllo degli errori
+# key: g-parse-long
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+#include <errno.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+bool ${1:parse_long}(const char *text, long *value)
+{
+    char *end;
+    errno = 0;
+    long result = strtol(text, &end, 10);
+    if (errno != 0 || end == text || *end != '\\0') return false;
+    *value = result;
+    return true;
+}
+
+$0

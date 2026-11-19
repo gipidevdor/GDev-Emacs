@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: passo di procedura su una macchina remota (host)
+# key: <rb
+# --
+#+begin_src sh :dir /ssh:${1:host}:${2:/}
+$0
+#+end_src

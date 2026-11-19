@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Factory Method — creazione delegata
+# key: dp-factory-method
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Il flusso chiamante usa il contratto del prodotto. Il punto di creazione decide l'implementazione.
+
+interface Writer {
+    String write(String text);
+}
+
+abstract class Exporter {
+    final String render(String text) { return createWriter().write(text); }
+    protected abstract Writer createWriter();
+}
+
+final class ${1:MarkdownExporter} extends Exporter {
+    @Override
+    protected Writer createWriter() { return text -> "# " + text; }
+}
+$0

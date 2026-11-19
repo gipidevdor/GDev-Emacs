@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[mcp_servers.gdev]
+command = "sh"
+args = ["-c", 'root=$(git rev-parse --show-toplevel) && exec "$root/bin/gdev-mcp"']

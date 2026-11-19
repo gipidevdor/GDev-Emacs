@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Value Object — valore immutabile con invarianti
+# key: dp-value-object
+# group: Pattern.Dominio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Verifica l'invariante alla costruzione e confronta i contenuti per uguaglianza.
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class ${1:Money}:
+    cents: int
+    currency: str
+
+    def __post_init__(self) -> None:
+        if self.cents < 0 or len(self.currency) != 3 or not self.currency.isupper():
+            raise ValueError("Expected non-negative cents and an uppercase currency code")
+
+    def __add__(self, other: "$1") -> "$1":
+        if self.currency != other.currency:
+            raise ValueError("Currencies differ")
+        return $1(self.cents + other.cents, self.currency)
+
+
+$0

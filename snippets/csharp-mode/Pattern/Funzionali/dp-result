@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: Result — record con alternativa per successo ed errore
+# key: dp-result
+# group: Pattern.Funzionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Rendi rappresentabile il fallimento insieme al successo, così il chiamante può gestire entrambi.
+
+abstract record Result<T>
+{
+    private Result() { }
+
+    public sealed record Ok(T Value) : Result<T>;
+    public sealed record Error(string Reason) : Result<T>;
+}
+
+static class ${1:Parser}
+{
+    public static Result<int> Count(string input) =>
+        int.TryParse(input, out var value) && value >= 0
+            ? new Result<int>.Ok(value)
+            : new Result<int>.Error("Expected a non-negative integer");
+}
+$0

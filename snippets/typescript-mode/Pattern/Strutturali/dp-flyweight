@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: Flyweight — condivisione di stato immutabile
+# key: dp-flyweight
+# group: Pattern.Strutturali
+# condition: (not (and buffer-file-name (string-suffix-p ".jsx" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Condividi solo i dati intrinseci e immutabili. Tieni lo stato di ogni uso fuori dalla cache.
+
+type ${1:TextStyle} = Readonly<{ font: string; size: number }>;
+const styles = new Map<string, $1>();
+
+function textStyle(font: string, size: number): $1 {
+  const key = JSON.stringify([font, size]);
+  const existing = styles.get(key);
+  if (existing) return existing;
+  const style = Object.freeze({ font, size });
+  styles.set(key, style);
+  return style;
+}
+$0

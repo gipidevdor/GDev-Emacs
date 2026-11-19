@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: Tagged Union — stato e valore associato nello stesso tipo
+# key: dp-tagged-union
+# group: Pattern.Dominio
+# condition: (not (and buffer-file-name (string-suffix-p ".zon" buffer-file-name t)))
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Ogni ramo possiede il proprio tipo di dati. Lo switch controlla il tag prima di estrarre il valore.
+
+pub const ${1:LoadState} = union(enum) {
+    idle,
+    loaded: []const u8,
+    failed: anyerror,
+};
+
+pub fn label(state: $1) []const u8 {
+    return switch (state) {
+        .idle => "idle",
+        .loaded => |value| value,
+        .failed => |err| @errorName(err),
+    };
+}
+$0

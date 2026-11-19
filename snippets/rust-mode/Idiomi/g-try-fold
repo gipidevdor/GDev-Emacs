@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Try_fold — riduzione che si interrompe in caso di errore
+# key: g-try-fold
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+pub fn ${1:sum_checked}(values: impl IntoIterator<Item = u64>) -> Option<u64> {
+    // checked_add restituisce None all'overflow, fermando subito l'iteratore.
+    $0
+    values.into_iter().try_fold(0_u64, u64::checked_add)
+}

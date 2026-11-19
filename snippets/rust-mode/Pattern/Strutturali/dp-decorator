@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Decorator — composizione di responsabilità
+# key: dp-decorator
+# group: Pattern.Strutturali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Chi usa l'operazione conserva lo stesso contratto anche quando la avvolgi con altro comportamento.
+
+use std::time::{Duration, Instant};
+
+pub fn ${1:timed}<T, R>(
+    operation: impl Fn(T) -> R,
+    report: impl Fn(Duration),
+) -> impl Fn(T) -> R {
+    move |argument| {
+        let start = Instant::now();
+        let result = operation(argument);
+        report(start.elapsed());
+        result
+    }
+}
+$0

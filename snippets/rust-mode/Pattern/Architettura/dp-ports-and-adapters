@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Ports and Adapters — trait del dominio e adattatore in memoria
+# key: dp-ports-and-adapters
+# group: Pattern.Architettura
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Definisci la porta dal punto di vista del dominio. Ogni adattatore la implementa al confine.
+
+pub trait ${1:ItemLookup} {
+    fn label(&self, id: &str) -> Option<&str>;
+}
+
+pub fn label_or_unknown<'a>(store: &'a impl $1, id: &str) -> &'a str {
+    store.label(id).unwrap_or("unknown")
+}
+
+impl $1 for std::collections::HashMap<String, String> {
+    fn label(&self, id: &str) -> Option<&str> {
+        self.get(id).map(String::as_str)
+    }
+}
+$0

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: React — aggiornamento funzionale basato sullo stato precedente
+# key: g-set-state
+# group: Idiomi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import { useState } from "react";
+
+export function ${1:Counter}() {
+  const [count, setCount] = useState(0);
+  // L'aggiornamento riceve il valore corrente anche se React raggruppa gli eventi.
+  return <button onClick={() => setCount((current) => current + 1)}>{count}</button>;
+}
+$0

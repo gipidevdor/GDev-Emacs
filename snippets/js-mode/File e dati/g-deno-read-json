@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Deno — leggi JSON da un file
+# key: g-deno-read-json
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+const input = new URL("./${1:settings.json}", import.meta.url);
+const ${2:settings} = JSON.parse(await Deno.readTextFile(input));
+$0

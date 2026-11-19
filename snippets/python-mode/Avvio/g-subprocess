@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Sottoprocesso con argomenti separati, timeout e controllo
+# key: g-subprocess
+# group: Avvio
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import subprocess
+
+${1:result} = subprocess.run(
+    [${2:"git", "status", "--short"}],
+    check=True, text=True, capture_output=True, timeout=${3:10},
+)
+$0

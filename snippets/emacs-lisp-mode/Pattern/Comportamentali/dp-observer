@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+;; Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+(defvar ${1:example-updated-hook} nil
+  "Functions called after an example is updated.")
+
+(defun ${2:publish-update} ()
+  "Notify listeners that an update completed."
+  (run-hooks '$1))
+$0

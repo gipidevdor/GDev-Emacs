@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Mermaid — diagramma di sequenza con due partecipanti
+# key: g-mermaid-sequence
+# group: Diagrammi
+# expand-env: ((yas-indent-line 'fixed))
+# --
+\`\`\`mermaid
+sequenceDiagram
+    participant A as ${1:Client}
+    participant B as ${2:Servizio}
+    A->>B: ${3:Richiesta}
+    B-->>A: ${4:Risposta}
+    $0
+\`\`\`

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Ordinamento per membro con proiezione
+# key: g-sort-projection
+# group: Contenitori
+# expand-env: ((yas-indent-line 'fixed))
+# --
+std::ranges::sort(${1:items}, {}, &${2:Item}::${3:name});$0

@@ -1,0 +1,40 @@
+# -*- mode: snippet -*-
+# name: Observer — iscrizione alle notifiche
+# key: dp-observer
+# group: Pattern.Comportamentali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+// Conserva la funzione o il token della sottoscrizione per disiscriverti al termine dell'uso.
+
+#include <cstddef>
+#include <functional>
+#include <map>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+class ${1:Subject} {
+public:
+    using Listener = std::function<void(std::string_view)>;
+
+    std::size_t subscribe(Listener listener) {
+        const auto token = next_++;
+        listeners_.emplace(token, std::move(listener));
+        return token;
+    }
+
+    void unsubscribe(std::size_t token) { listeners_.erase(token); }
+
+    void publish(std::string_view message) const {
+        std::vector<Listener> snapshot;
+        snapshot.reserve(listeners_.size());
+        for (const auto& entry : listeners_) snapshot.push_back(entry.second);
+        for (const auto& listener : snapshot) listener(message);
+    }
+
+private:
+    std::size_t next_ = 0;
+    std::map<std::size_t, Listener> listeners_;
+};
+
+$0

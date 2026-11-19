@@ -1,0 +1,27 @@
+# -*- mode: snippet -*-
+# name: Scrittura atomica di un file nella stessa cartella
+# key: g-atomic-write
+# group: File e dati
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import os
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+
+def ${1:write_text_atomically}(path: Path, content: str) -> None:
+    with NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent, delete=False
+    ) as stream:
+        temporary = Path(stream.name)
+        try:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+            stream.close()
+            os.replace(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+
+$0

@@ -1,0 +1,33 @@
+# -*- mode: snippet -*-
+# name: Builder — costruzione a passi
+# key: dp-builder
+# group: Pattern.Creazionali
+# expand-env: ((yas-indent-line 'fixed))
+# --
+# Tieni lo stato parziale nel builder e restituisci un risultato indipendente a costruzione completata.
+
+from dataclasses import dataclass
+from typing import Self
+
+
+@dataclass(frozen=True)
+class ${1:Report}:
+    title: str
+    sections: tuple[str, ...]
+
+
+class $1Builder:
+    def __init__(self, title: str) -> None:
+        self._title = title
+        self._sections: list[str] = []
+
+    def add(self, section: str) -> Self:
+        self._sections.append(section)
+        return self
+
+    def build(self) -> $1:
+        return $1(self._title, tuple(self._sections))
+
+
+${2:report} = $1Builder("${3:Summary}").add("${4:Results}").build()
+$0
