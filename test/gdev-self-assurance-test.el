@@ -13,6 +13,21 @@
   "Leggi il contratto distribuito come dati, senza valutarlo."
   (gdev-standards-read (gdev-config-file ".gdev-assurance/self-check.eld")))
 
+(defun gdev-test-self-assurance--script-checks (project requirement)
+  "Ricava i controlli di script effettivamente eseguiti dalla procedura.
+I casi ERT usano il loro nome registrato, anche quando provengono da BDD."
+  (let ((procedure (seq-find (lambda (row)
+                               (equal (plist-get requirement :procedure) (plist-get row :id)))
+                             (plist-get project :procedures))) checks)
+    (dolist (step (plist-get procedure :steps))
+      (with-temp-buffer
+        (insert-file-contents (gdev-config-file (plist-get step :plan)))
+        (let ((plan (json-parse-buffer :object-type 'alist :array-type 'list)))
+          (dolist (action (alist-get 'passi plan))
+            (when (equal "progetto-test-python" (alist-get 'azione action))
+              (push (alist-get 'file (alist-get 'argomenti action)) checks))))))
+    (delete-dups checks)))
+
 (ert-deftest gdev-test-self-assurance-contract-has-current-references-and-executable-traces ()
   (let ((contract (gdev-test-self-assurance--contract)) ids)
     (should (equal 1 (plist-get contract :version)))
@@ -37,7 +52,8 @@
       (should (plist-get requirement :tests))
       (dolist (test (plist-get requirement :tests))
         (cond ((member test '("project" "model" "project-report" "documents")))
-              ((string-prefix-p "test/" test) (should (file-regular-p (gdev-config-file test))))
+              ((member test (gdev-test-self-assurance--script-checks project requirement))
+               (should (file-regular-p (gdev-config-file test))))
               (t (should (ert-test-boundp (intern-soft test)))))))))))
 
 (ert-deftest gdev-test-self-assurance-applies-its-engine-to-distributed-sources ()

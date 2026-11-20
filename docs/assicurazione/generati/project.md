@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:d25d183e279562bfd06b71bce3681d443284e56173883bc04961e8187342a0af -->
+<!-- Generato da GDev; non modificare. Fonti sha256:08d0d68390ec8ef3ae0450c857ef34ac8804ccb05a3d42e05356b6e2c386277b -->
 
 # GDev-Emacs
 
@@ -61,7 +61,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | .gdev-assurance/procedures/reliability.lavorazione | a27c887bb8a0d031ceec8aad16d599de819bcef8c7d46d81cb59f144d12cd87d |
 | .gdev-assurance/procedures/report.lavorazione | 94e25f7ca453bd2e3ab0d8c521ee5533cbd9e61091b94182e1f19809586996ef |
 | .gdev-assurance/procedures/verify.lavorazione | bf32cbe2d2dadf344adeaf4618449a7af7fea78056d296f3e369ec9b0e5990a8 |
-| .gdev-assurance/project.eld | ea4ee018a8c4ac3b1116a57a2055cd0e605a02e8cb8ea14f4c74bef30489ad3b |
+| .gdev-assurance/project.eld | 72f74e9f6ec8ea82beda79d171a49407a49b8348cb0b368efe593f09ded4a36d |
 | .gdev-assurance/self-check.eld | f0767277ab2135acbfbbf9d327d3e2bcc4e66cadf1c6f8df46d68dabc70d3467 |
 | .gdev-assurance/snippets/configuration.tmpl | 4c215718ce36097f4c0babfd4b6953f76e4548a2d72a34e2a738182874ffc495 |
 | .gdev-assurance/snippets/documentation.tmpl | e7dad1613b67b1be991a666e5b111e9a6b1a0f318129143d491f1d2d09522695 |
@@ -145,9 +145,10 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | modules/ui/workbench/gdev-search.el | d258f452e41e92ed27e96da5a0d445f9b36d735624d83127a23338e16fd8caa5 |
 | templates/assurance/catalog.eld | 755eb786cf469f677074359db2cc59a91f5ac185f98301d1312921ac05c979a2 |
 | test/behavior/project.feature | 68a6b530dd0ee51541c23b8ec7d1f47ac7ce3c55ebfc30ebff136d57b7caa729 |
+| test/gdev-project-bdd-test.el | 44f1f247b85bd9bcfccc5a8110c8e997df133edc3d5f2920ba11ab0ef0380a7f |
 | test/gdev-reliability-test.py | 1903c98796ef047fbdce5b541cbe939a0093a52c316d3162938b851928ac682b |
 | test/gdev-reliability-worker.el | 9abc5583b4e4a3496ed2b5da42ac7654c1dc005e7b5f0b40062b31dc2b439907 |
-| test/gdev-self-assurance-test.el | b91a42de8809028d6230d7ab1378f79ad1a63fe6a573a7c4900ef138c9da2ddc |
+| test/gdev-self-assurance-test.el | 683a8b099a392fe2a65f973c1fb70973cea5b74b3699b3c61eb9a7e6588707a1 |
 | test/requirements-project-build.txt | 4c06121ce11e45bd57ded71af974982c8d8c2d211689b37b6a4d0bd23646c7be |
 | vendor/elpa/consult-3.10/consult-imenu.el | b517dca651e85dbe493b952f372785cc84d4b12d0dd8045f861790c1526fa653 |
 | vendor/pacchetti.el | 345b6d6481836d76e884a2ac66ef0838d8080ab74a2d02f0d09bc447edc48b36 |

@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:19a56af5a1c22da1b4e0f2b1703b9c33d09145110be67c4267e8195da1ae1219 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:b0ee7597e18eeed4b50cf8a9f775913bb473c14063457c5bb8179ccd3a68bbb4 -->
 
 # Analisi dei rischi
 
@@ -374,7 +374,7 @@
                 "gdev-agent-interface-headless-procedure-failure-is-an-error"
                 "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
                 "test/gdev-cli-contract-test.py"))
-   (:id "GDEV-P14" :version 1
+   (:id "GDEV-P14" :version 2
         :statement "Le operazioni di progetto devono riconoscere il contesto dai manifesti, attivare gli adattatori necessari e preparare gli artefatti richiesti prima dell'esecuzione effettiva. Le scelte esplicite prevalgono sulle deduzioni; errori, annullamenti e risposte superate non producono un successo."
         :origin "Mandato dell'utente sull'ergonomia e l'autoconfigurazione per ogni tipo di progetto, inclusi Cpp, Perl e Python"
         :rationale "Governare l'integrazione automatica con un contratto tematico comune ed esiti osservabili"
@@ -387,7 +387,7 @@
                   "modules/tools/build/config.el" "modules/tools/build/gdev-make.el"
                   "modules/tools/build/gdev-project-control.el" "modules/tools/build/gdev-mise.el"
                   "modules/lang/python/config.el" ".gdev-project.eld"
-                  "test/behavior/project.feature" "test/requirements-project-build.txt"
+                  "test/behavior/project.feature" "test/gdev-project-bdd-test.el" "test/requirements-project-build.txt"
                   "docs/operazioni-progetto.md")
         :tests ("gdev-test-make-recognizes-folders-without-git-for-every-marker"
                 "gdev-test-make-default-build-produces-a-real-executable"
@@ -400,7 +400,11 @@
                 "gdev-test-project-operation-model-detects-false-readiness-and-success"
                 "gdev-test-project-operation-model-detects-an-unclassified-provider"
                 "gdev-test-project-operation-control-is-passive-and-actions-retain-root"
-                "test/gdev-project-bdd-test.el")))
+                "gdev-test-behavior-project-compilazione-cpp-senza-git-e-con-obiettivo-predefinito"
+                "gdev-test-behavior-project-preparazione-automatica-dei-test-perl"
+                "gdev-test-behavior-project-compilazione-dei-sorgenti-python"
+                "gdev-test-behavior-project-test-python-dalla-cartella-senza-un-documento-aperto"
+                "gdev-test-behavior-project-un-errore-di-compilazione-conserva-il-percorso-di-recupero")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs

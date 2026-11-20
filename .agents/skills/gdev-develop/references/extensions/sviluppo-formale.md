@@ -41,6 +41,12 @@ comandi e nelle viste. Il canale agente non si promuove cambiando nome.
 Il nucleo locale non autentica la persona: per un vincolo esterno servono
 ricevute e firmatari effettivamente configurati nel controllo remoto.
 
+In `:tests` collega i nomi effettivamente rendicontati dalla procedura.
+Ogni scenario BDD è un caso ERT registrato: il percorso del file Elisp
+che lo contiene non costituisce un esito di esecuzione. I controlli di
+script usano invece il percorso riportato dall'adattatore che li esegue.
+La presenza del file e il successo dei suoi casi sono verifiche distinte.
+
 Quando cambia un modulo dell'assicurazione, esegui anche le entrate
 `gdev-coverage-assurance` e `gdev-coverage-assurance-extensions` da
 `test/gdev-coverage.el`. Verifica che il selettore della suite strumentata
