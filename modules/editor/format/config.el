@@ -50,7 +50,10 @@
 
 (defun gdev-format--changed (&rest _changes)
   "Interrompi il lavoro il cui testo di partenza è appena cambiato."
-  (gdev-format--cancel))
+  (when (and gdev-format--process
+             (/= (process-get gdev-format--process 'gdev-format--source-tick)
+                 (buffer-chars-modified-tick)))
+    (gdev-format--cancel)))
 
 (defun gdev-format--release (output directory)
   "Rilascia il buffer OUTPUT e la cartella temporanea DIRECTORY."
@@ -90,6 +93,7 @@
                  :sentinel (lambda (child event)
                              (when (memq (process-status child) '(exit signal failed))
                                (process-put child 'gdev-format--pending-event event)))))
+          (process-put process 'gdev-format--source-tick tick)
           (setq gdev-format--process process)
           (add-hook 'kill-buffer-hook #'gdev-format--cancel nil t)
           (add-hook 'change-major-mode-hook #'gdev-format--cancel nil t)

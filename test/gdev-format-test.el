@@ -152,6 +152,17 @@
       (gdev-format-test--wait process)
       (should (equal (buffer-string) "prova\naggiunta\n")))))
 
+(ert-deftest gdev-test-behavior-format-property-changes-keep-pending ()
+  "Cambiare le facce senza modificare i caratteri conserva il lavoro."
+  (gdev-format-test--with-formatter
+    (let ((process (start)) (tick (buffer-chars-modified-tick)))
+      (put-text-property 1 3 'face 'bold)
+      (should (= tick (buffer-chars-modified-tick)))
+      (should (process-live-p process))
+      (release)
+      (gdev-format-test--wait process)
+      (should (equal (buffer-string) "PROVA\n")))))
+
 (ert-deftest gdev-test-behavior-format-closing-source-releases-output ()
   "Chiudere il documento termina il processo senza lasciare il suo buffer."
   (gdev-format-test--with-formatter

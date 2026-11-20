@@ -86,6 +86,9 @@ per completare quella verifica.
   consegna della notifica finale. Usa un gate esplicito per ordinare gli
   eventi; se la prova fallisce, termina il figlio e rilascia le sue risorse
   nella pulizia, dopo le asserzioni.
+- `after-change-functions` si attiva anche per le sole proprietà del testo.
+  Prima di annullare un risultato legato ai caratteri confronta
+  `buffer-chars-modified-tick`; prova separatamente testo e facce.
 - `format-mode-line` restituisce una stringa vuota senza una finestra
   grafica. Verifica la struttura del formato con un percorritore che segua
   le regole di `mode-line-format`: una lista che inizia con un simbolo è un

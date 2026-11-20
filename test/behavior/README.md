@@ -19,7 +19,7 @@ selezione della modalità nelle prove successive.
 | Colonne | Casi Monaco per spazi, TAB, testo e documento vuoto | 8 insiemi di colonne in un test |
 | Completamento, definizioni e rinomina | Fourslash TypeScript con Eglot e il vero `deno lsp` configurato dal modulo JavaScript | 6 test; includono completamento assente, oscuramento dei nomi e JSDoc |
 | Flussi BDD | [editor.feature](editor.feature), in italiano; Buttercup, Gherkin GDev ed ERT | 20 scenari |
-| Formattazione | Comandi pubblici GDev con processi locali e sincronizzazione esplicita; risposte LSP simulate | 12 contratti su richieste superate, modifica e chiusura del documento, cambio di modalità, annullamento, errori e consegna del risultato; una regressione aggiuntiva verifica il testo finale |
+| Formattazione | Comandi pubblici GDev con processi locali e sincronizzazione esplicita; risposte LSP simulate | 13 contratti su richieste superate, modifica e chiusura del documento, proprietà del testo, cambio di modalità, annullamento, errori e consegna del risultato; una regressione aggiuntiva verifica il testo finale |
 | Contratti dei test | Impronte e licenze, oracoli incompleti, Unicode, errori e passi pendenti, pulizia, outline, registrazione completa delle feature, tabelle grandi e caricamento locale dei fork | Test di controllo dedicati |
 
 Gli scenari BDD coprono salvataggio normale e vuoto, conservazione del
