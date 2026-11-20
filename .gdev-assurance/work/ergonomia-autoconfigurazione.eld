@@ -32,5 +32,6 @@
               "Un controllo tematico collega i sistemi e le capacità distribuite a osservazioni, stati, azioni e prove; i limiti di inferenza sono espliciti"
               "Invarianti di radice, precedenza, isolamento, freschezza, unicità e conservazione delle scelte sono verificati su modelli finiti e casi reali"
               "Tastiera, menu e pannello condividono il servizio e sono verificati nella finestra nativa")
- :artifacts ("docs/ergonomia-verifica.md")
- :revisions nil)
+ :artifacts ("docs/assicurazione/generati/project.md"
+             ".gdev/assurance/reports/reliability.json")
+ :revisions ("Il documento di ergonomia è un input mantenuto con i sorgenti; gli artefatti della verifica sono le uscite effettive di GDEV-VERIFY."))

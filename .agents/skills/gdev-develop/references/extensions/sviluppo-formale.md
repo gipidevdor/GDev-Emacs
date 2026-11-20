@@ -47,6 +47,12 @@ che lo contiene non costituisce un esito di esecuzione. I controlli di
 script usano invece il percorso riportato dall'adattatore che li esegue.
 La presenza del file e il successo dei suoi casi sono verifiche distinte.
 
+In `:artifacts` della scheda indica le uscite dichiarate dalla procedura
+che le produce. Una guida mantenuta a mano è un input della lavorazione;
+la sua presenza non la rende un'uscita della verifica. Controlla anche
+`PROJECT-VERIFICATION`: i singoli requisiti soddisfatti non garantiscono
+che tutti gli artefatti richiesti siano stati prodotti.
+
 Quando cambia un modulo dell'assicurazione, esegui anche le entrate
 `gdev-coverage-assurance` e `gdev-coverage-assurance-extensions` da
 `test/gdev-coverage.el`. Verifica che il selettore della suite strumentata
