@@ -4,6 +4,9 @@ Il corpus è caricato da `test/gdev-test.el`, fa parte della suite ordinaria
 e ha un passaggio CI obbligatorio dopo l'installazione delle grammatiche.
 I casi ERT iniziano con `gdev-test-behavior-`. Non occorrono Cucumber,
 Node, npm o download durante l'esecuzione dei test.
+Ogni caso registrato isola le associazioni di file e interpreti che alcuni
+modi Tree-sitter di Emacs 30 aggiungono all'attivazione, conservando la
+selezione della modalità nelle prove successive.
 
 ## Copertura
 

@@ -27,6 +27,8 @@
                (path (expand-file-name "documento.ts" root))
                (default-directory root)
                (process-environment (copy-sequence process-environment))
+               (auto-mode-alist (copy-tree auto-mode-alist))
+               (interpreter-mode-alist (copy-tree interpreter-mode-alist))
                (eglot-server-programs (copy-tree eglot-server-programs))
                (eglot-sync-connect t)
                (eglot-connect-timeout 10)
@@ -105,7 +107,11 @@
    "renameFunctionParameter1"
    (lambda (code markers)
      (goto-char (cdr (assoc "" markers)))
-     (eglot-rename "renamed")
+     ;; Il comando interattivo risolve anche il backend delle nuove
+     ;; versioni di Eglot. Solo il nome digitato viene fornito dalla prova.
+     (cl-letf (((symbol-function 'read-from-minibuffer) (lambda (&rest _) "renamed")))
+       (let ((this-command 'eglot-rename))
+         (call-interactively #'eglot-rename)))
      (let ((expected (replace-regexp-in-string "\\_<p\\_>" "renamed" code)))
        (should-not (equal expected code))
        (should (equal (buffer-string) expected))

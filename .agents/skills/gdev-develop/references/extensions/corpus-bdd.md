@@ -20,5 +20,7 @@ Copri anche annullamento, errore e pulizia quando l'azione li offre. Un passo
 non definito, ambiguo, pendente o ignorato non deve rendere verde la prova.
 Verifica la suite insieme alle altre: ganci, timer e variabili locali dei
 test precedenti possono rivelare interferenze assenti nell'esecuzione mirata.
+Isola anche `auto-mode-alist` e `interpreter-mode-alist` nei casi registrati:
+in Emacs 30 l'entrata in alcuni modi Tree-sitter aggiunge associazioni globali.
 Ripeti la compilazione nativa dopo modifiche ai fork e verifica il caricamento
 a freddo, in una copia isolata. Conserva soltanto le evidenze utili.

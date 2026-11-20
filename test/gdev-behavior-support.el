@@ -178,7 +178,15 @@ Restituisci (TESTO CURSORI REGIONI), con posizioni Emacs da uno."
 (defun gdev-behavior-register (name documentation body &rest tags)
   "Registra un test ERT NAME con DOCUMENTATION, BODY e TAGS."
   (ert-set-test name (make-ert-test :name name :documentation documentation
-                                  :body body :tags (cons 'behavior tags))))
+                                  :body (lambda ()
+                                          ;; In Emacs 30 alcuni modi Tree-sitter
+                                          ;; registrano le estensioni all'entrata.
+                                          ;; Non cambiare la scelta dei file per
+                                          ;; i test eseguiti dopo questo corpus.
+                                          (let ((auto-mode-alist (copy-tree auto-mode-alist))
+                                                (interpreter-mode-alist (copy-tree interpreter-mode-alist)))
+                                            (funcall body)))
+                                  :tags (cons 'behavior tags))))
 
 (provide 'gdev-behavior-support)
 ;;; gdev-behavior-support.el ends here
