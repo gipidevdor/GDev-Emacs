@@ -244,14 +244,13 @@ server) e controlli."
 
 (defun gdev-trust-project (root)
   "Autorizza l'ambiente e gli strumenti del progetto locale ROOT."
-  (interactive (list (gdev-project-root)))
+  (interactive (list (gdev-project-operation-context-root)))
   (when (file-remote-p root)
     (user-error "Scegli una cartella locale"))
   (let ((directory (file-name-as-directory (file-truename root))))
     (when (yes-or-no-p (format "Autorizzare gli strumenti e l’ambiente di %s? " directory))
       (customize-save-variable 'gdev-trusted-projects (cons directory (remove directory gdev-trusted-projects)))
-      (gdev-use-project-tools)
-      (message "Cartella autorizzata. Riapri gli altri documenti per applicare l’ambiente."))))
+      (gdev-refresh-project-environment directory))))
 
 (defun gdev-project-tool-path (root)
   "Restituisce quali `gdev-project-tool-directories' esistono in ROOT.
@@ -264,6 +263,47 @@ controlli su file locali, circa 60 microsecondi."
 
 (defvar-local gdev--project-tools-applied nil
   "Non nil se `gdev-use-project-tools' ha già agito su questo buffer.")
+
+(defvar-local gdev--project-environment-base nil
+  "Ambiente e percorso del documento prima dei fornitori di progetto.")
+
+(defvar gdev-project-environment-refresh-functions nil
+  "Funzioni che invalidano le osservazioni dell'ambiente di una radice.")
+(defvar gdev-project-environment-reset-hook nil
+  "Fornitori che dimenticano l'ambiente precedente del documento.")
+(defvar gdev-project-environment-status)
+(defvar gdev-project-environment-detail)
+
+(autoload 'gdev-project-operation-context-root "gdev-project-types")
+
+(defun gdev-reset-project-environment ()
+  "Ripristina l'ambiente iniziale del documento e scarta i risultati attesi."
+  (when gdev--project-environment-base
+    (setq-local process-environment (copy-sequence (car gdev--project-environment-base))
+                exec-path (copy-sequence (cadr gdev--project-environment-base))))
+  (setq gdev--project-tools-applied nil
+        gdev-project-environment-status nil gdev-project-environment-detail nil)
+  (run-hooks 'gdev-project-environment-reset-hook))
+
+(defun gdev-refresh-project-environment (&optional root)
+  "Riprova l'ambiente di ROOT e aggiorna i documenti già aperti.
+Conserva l'autorizzazione della cartella e le impostazioni personali."
+  (interactive)
+  (require 'gdev-project-types)
+  (let* ((root (or root (gdev-project-operation-context-root)))
+         (count 0))
+    (unless (gdev-project-trusted-p root)
+      (user-error "Autorizza prima gli strumenti della cartella: %s" root))
+    (run-hook-with-args 'gdev-project-environment-refresh-functions root)
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (and (not (file-remote-p default-directory))
+                   (file-equal-p root (gdev-project-operation-context-root)))
+          (gdev-reset-project-environment)
+          (gdev-use-project-tools root)
+          (when (and (bound-and-true-p envrc-mode) (fboundp 'envrc-reload)) (envrc-reload))
+          (cl-incf count))))
+    (message "Ambiente del progetto aggiornato per %d documenti" count)))
 
 (defvar gdev-project-environment-functions nil
   "Funzioni che preparano l'ambiente di un buffer di progetto.
@@ -284,6 +324,8 @@ sono `pending', `ready' e `failed'.")
 (defvar-local gdev-project-environment-detail nil
   "Causa, in una riga, per cui l'ambiente del documento non è disponibile.")
 
+(autoload 'gdev-project-operation-decision "gdev-project-operations")
+
 (defun gdev-project-environment-ready-p ()
   "Indica se i comandi possono usare l'ambiente di questo documento.
 Con direnv in esecuzione l'ambiente non è ancora pronto: un comando
@@ -293,8 +335,8 @@ partirebbe con il percorso di ricerca globale."
 
 (defun gdev-require-project-environment ()
   "Interrompi il comando se l'ambiente del documento non è disponibile."
-  (pcase gdev-project-environment-status
-    ('failed (user-error "Ambiente del progetto non disponibile%s. Riapri il documento per riprovare"
+  (pcase (gdev-project-operation-decision t gdev-project-environment-status t t nil t)
+    ('blocked (user-error "Ambiente del progetto non disponibile%s. Usa Aggiorna ambiente del progetto per riprovare"
                          (if gdev-project-environment-detail
                              (format " (%s)" gdev-project-environment-detail)
                            "")))
@@ -320,21 +362,27 @@ cartella TRAMP, dove il comando poi gira."
                                          (cl-remove-if (lambda (entry) (member entry directories)) path))
                                  path-separator)))))
 
-(defun gdev-use-project-tools ()
+(defun gdev-use-project-tools (&optional project-root)
   "Dà a questo buffer l'ambiente del suo progetto.
 Prima le funzioni di `gdev-project-environment-functions', poi le cartelle
 di strumenti del progetto in testa al percorso di ricerca.  Solo file
 locali: interrogare un host remoto a ogni apertura sarebbe lento.  Una
-seconda chiamata nello stesso buffer non fa nulla."
-  (when-let* (((not gdev--project-tools-applied))
+seconda chiamata rilegge le osservazioni dei fornitori e gli strumenti locali."
+  (when (and gdev--project-tools-applied
+             (or (not (equal gdev--project-tools-applied (or project-root (gdev-project-operation-context-root))))
+                 (not (gdev-project-trusted-p gdev--project-tools-applied))))
+    (gdev-reset-project-environment))
+  (when-let* (
               ;; Senza cartelle autorizzate nessun progetto può dare strumenti:
               ;; `project-current' a ogni file aperto sarebbe lavoro inutile.
               (gdev-trusted-projects)
-              (file buffer-file-name)
+              (file (or project-root buffer-file-name))
               ((not (file-remote-p file)))
-              (root (gdev-project-root))
+              (root (or project-root (gdev-project-operation-context-root)))
               ((gdev-project-trusted-p root)))
-    (setq gdev--project-tools-applied t)
+    (unless gdev--project-environment-base
+      (setq gdev--project-environment-base (list (copy-sequence process-environment) (copy-sequence exec-path))))
+    (setq gdev--project-tools-applied root)
     (run-hook-with-args 'gdev-project-environment-functions root)
     (gdev-prepend-project-tools root)))
 

@@ -108,6 +108,37 @@ class CliContracts(unittest.TestCase):
                 if observed["cache"]:
                     self.assertEqual(Path(observed["cache"]).parent, temporary)
 
+    def test_project_test_command_isolates_state_and_finishes_hooks_before_cleanup(self):
+        record = self.directory / "test-command.json"
+        bootstrap = f"""(progn
+          (setq native-comp-jit-compilation nil native-comp-enable-subr-trampolines nil)
+          (advice-add 'load :around
+            (lambda (original file &rest arguments)
+              (if (string-suffix-p \"test/gdev-test.el\" file)
+                  (progn
+                    (fset 'ert-run-tests-batch (lambda (&rest _) (string-to-number (getenv \"GDEV_TEST_FAKE_FAILURES\"))))
+                    (fset 'ert-stats-completed-unexpected #'identity)
+                    (add-hook 'kill-emacs-hook
+                      (lambda ()
+                        (with-temp-file {json.dumps(str(record))}
+                          (insert (json-serialize
+                            (list :state user-emacs-directory :exists (if (file-directory-p user-emacs-directory) t :false)))))))
+                    t)
+                (apply original file arguments)))))"""
+        wrapper = self.directory / "emacs-test-command.sh"
+        wrapper.write_text("#!/bin/sh\nexec " + shlex.quote(EMACS) + " --eval " + shlex.quote(bootstrap) + ' "$@"\n')
+        wrapper.chmod(0o700)
+        self.env["EMACS"] = str(wrapper)
+        for failures in (0, 1):
+            with self.subTest(failures=failures):
+                self.env["GDEV_TEST_FAKE_FAILURES"] = str(failures)
+                result = self.cli("test", check=False)
+                self.assertEqual(result.returncode, failures, result.stdout + result.stderr)
+                observed = json.loads(record.read_text())
+                self.assertTrue(observed["exists"], "Gli hook terminano prima della pulizia")
+                self.assertNotEqual(Path(observed["state"]), self.state)
+                self.assertFalse(Path(observed["state"]).exists())
+
     def test_agent_formal_plan_does_not_load_editor_views(self):
         guard = """(progn
           (setq native-comp-jit-compilation nil native-comp-enable-subr-trampolines nil)

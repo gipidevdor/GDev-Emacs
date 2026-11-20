@@ -1,0 +1,4 @@
+# Strumenti esterni di prova; licenze MIT. Nessuna dipendenza Lisp aggiunta.
+build==1.4.4
+setuptools==80.9.0
+wheel==0.48.0

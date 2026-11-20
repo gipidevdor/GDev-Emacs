@@ -35,6 +35,8 @@ per la versione fissata e verificata.
 4. Trasforma la soluzione scelta in una modifica verificabile. Conserva un solo punto di verità per ogni comportamento. Riusa i comandi, le facce e le primitive di Emacs già presenti. Documenta il motivo di ogni nuova dipendenza.
 5. Prima di chiudere il lavoro, confronta il risultato con il flusso iniziale e controlla i casi limite pertinenti. Riporta le verifiche eseguite sul codice finale, con i limiti effettivi e le decisioni di interazione prese durante il lavoro.
 
+Per le operazioni di progetto usa il [contratto tematico](docs/operazioni-progetto.md#contratto-tematico-e-modello-finito): radice comune, manifesti e scelte esplicite, preparazione, processo reale, esito e recupero. Registra ogni nuovo fornitore in `gdev-project-operation-contracts` e verifica anche l'uso dalla cartella senza un sorgente aperto. Un catalogo di capacità non sostituisce una prova di esecuzione.
+
 ## Criteri per interfaccia e interazione
 
 - Ogni buffer visibile deve avere un pulsante × per chiuderlo, incluse le viste future e quelle senza schede. Usa la X della scheda o quella comune del Workbench. Il clic deve agire sulla vista indicata e rispettare le protezioni per le modifiche non salvate. Il minibuffer mantiene il normale comando di annullamento.

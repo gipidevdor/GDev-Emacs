@@ -40,7 +40,7 @@
 
 (gdev-language-register-tree-sitter 'python-mode 'python-ts-mode 'python)
 
-(defvar python-shell-interpreter)
+(defvar python-shell-interpreter "python3")
 (defvar python-shell-buffer-name)
 (defvar python-indent-guess-indent-offset-verbose)
 (defvar python-base-mode-map)
@@ -61,8 +61,7 @@
 (defconst gdev-python-modes '(python-mode python-ts-mode)
   "Modalità principali del codice Python.")
 
-(setq python-indent-guess-indent-offset-verbose nil
-      python-shell-interpreter "python3")
+(setq python-indent-guess-indent-offset-verbose nil)
 
 (require 'gdev-project-types)
 
@@ -324,14 +323,20 @@ PREFIX avvia il modulo dei test tramite uno strumento come coverage."
   (let ((python (gdev-python--interpreter root)))
     (pcase action
       ('test (gdev-python--test-command root))
-      ('build (gdev-command-line python "-m" "build"))
+      ('build
+       (if (gdev-project-file-exists-p root "pyproject.toml" "setup.py" "setup.cfg")
+           (gdev-command-line python "-m" "build")
+         ;; Python meno recenti riusano il bytecode dalla sola data al secondo.
+         ;; Una compilazione esplicita deve leggere anche modifiche ravvicinate.
+         (gdev-command-line python "-m" "compileall" "-q" "-f" "-x"
+                            "(^|[/\\\\])(\\.git|\\.venv|venv|node_modules|__pycache__)([/\\\\]|$)" ".")))
       ('configure
        (when (file-exists-p (expand-file-name ".venv" root))
          (user-error "La cartella .venv esiste già"))
        (gdev-command-line python "-m" "venv" ".venv")))))
 
 (defun gdev-python-build ()
-  "Genera i pacchetti distribuibili del progetto Python."
+  "Costruisci i pacchetti Python, o il bytecode dei progetti senza pacchetti."
   (interactive)
   (let ((root (gdev-python-root)))
     (gdev-compile (gdev-python-project-command 'build root)

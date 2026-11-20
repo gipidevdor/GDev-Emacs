@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:30e852b8f9a26d170d4ae5293268523d2761fe87d33f7b850d79c24987aeff21 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:7bd72deb0c4106e6538623478a9c241bf23617c939961b066c7d38466089fc91 -->
 
 # Manutenzione
 
@@ -237,7 +237,7 @@ gdev assurance model-check
 ```
 
 `pypdf` serve soltanto al rigeneratore e alle verifiche PDF, mai all'avvio di
-Emacs. Il modello finito esplora 364 casi dei predicati di stato, attore e
-prontezza, con controesempi se un invariante è violato. Verifica il perimetro
+Emacs. Il modello finito esplora 522 casi: 364 del ciclo formale e 158 delle
+[operazioni di progetto](../../operazioni-progetto.md), con controesempi se un invariante è violato. Verifica il perimetro
 dichiarato; non è una prova matematica dell'intero programma, del sistema
 operativo o di SQLite e non attribuisce approvazioni umane o certificazioni.

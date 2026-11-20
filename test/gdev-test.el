@@ -21,6 +21,9 @@
 
 (require 'ert)
 (require 'cl-lib)
+(require 'treesit)
+(when-let* ((directory (getenv "GDEV_TEST_GRAMMARS")))
+  (add-to-list 'treesit-extra-load-path directory))
 
 (defvar gdev-config-directory)          ; early-init.el
 (defvar gdev-system-monitor--network-baseline)
@@ -61,6 +64,7 @@
 (load (gdev-config-file "test/gdev-perl-debug-test.el") nil t t)
 (load (gdev-config-file "test/gdev-perl-gud-test.el") nil t t)
 (load (gdev-config-file "test/gdev-cmake-test.el") nil t t)
+(load (gdev-config-file "test/gdev-make-test.el") nil t t)
 (load (gdev-config-file "test/gdev-mise-test.el") nil t t)
 (load (gdev-config-file "test/gdev-launch-test.el") nil t t)
 (load (gdev-config-file "test/gdev-hyperfine-test.el") nil t t)
@@ -4739,6 +4743,8 @@ installerebbero pacchetti dentro il repository."
 (load (gdev-config-file "test/gdev-ergonomics-test.el") nil t t)
 (load (gdev-config-file "test/gdev-graph-test.el") nil t t)
 (load (gdev-config-file "test/gdev-auto-modules-test.el") nil t t)
+(load (gdev-config-file "test/gdev-project-operations-test.el") nil t t)
+(load (gdev-config-file "test/gdev-project-bdd-test.el") nil t t)
 (load (gdev-config-file "test/gdev-xcode-test.el") nil t t)
 
 ;;; gdev-test.el ends here

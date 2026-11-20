@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:d6b525ec9d265ba0fa2beeab38913b021c28ff11592e8045d585afd9593c0d57 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:2cfc8b7682946f92ced156b5a4fd6bf342ebaba0c970d6d08e6abd0222402d09 -->
 
 # Requisiti
 
@@ -40,6 +40,8 @@ per la versione fissata e verificata.
 3. Per effetti visivi o interazioni con più soluzioni plausibili, riproduci il caso e realizza prototipi isolati prima di cambiare l'implementazione. Confrontali sugli stessi dati e alla stessa dimensione. Scegli in base a leggibilità, facilità d'uso, costo di manutenzione e prestazioni. Conserva le catture essenziali quando servono a mostrare la differenza.
 4. Trasforma la soluzione scelta in una modifica verificabile. Conserva un solo punto di verità per ogni comportamento. Riusa i comandi, le facce e le primitive di Emacs già presenti. Documenta il motivo di ogni nuova dipendenza.
 5. Prima di chiudere il lavoro, confronta il risultato con il flusso iniziale e controlla i casi limite pertinenti. Riporta le verifiche eseguite sul codice finale, con i limiti effettivi e le decisioni di interazione prese durante il lavoro.
+
+Per le operazioni di progetto usa il [contratto tematico](../../operazioni-progetto.md#contratto-tematico-e-modello-finito): radice comune, manifesti e scelte esplicite, preparazione, processo reale, esito e recupero. Registra ogni nuovo fornitore in `gdev-project-operation-contracts` e verifica anche l'uso dalla cartella senza un sorgente aperto. Un catalogo di capacità non sostituisce una prova di esecuzione.
 
 ## Criteri per interfaccia e interazione
 
@@ -459,7 +461,34 @@ La verifica di copertura dello stato condiviso richiede tutte le righe strumenta
                 "gdev-agent-interface-headless-assurance-rejects-unsupported-actions"
                 "gdev-agent-interface-headless-procedure-failure-is-an-error"
                 "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
-                "test/gdev-cli-contract-test.py")))
+                "test/gdev-cli-contract-test.py"))
+   (:id "GDEV-P14" :version 1
+        :statement "Le operazioni di progetto devono riconoscere il contesto dai manifesti, attivare gli adattatori necessari e preparare gli artefatti richiesti prima dell'esecuzione effettiva. Le scelte esplicite prevalgono sulle deduzioni; errori, annullamenti e risposte superate non producono un successo."
+        :origin "Mandato dell'utente sull'ergonomia e l'autoconfigurazione per ogni tipo di progetto, inclusi Cpp, Perl e Python"
+        :rationale "Governare l'integrazione automatica con un contratto tematico comune ed esiti osservabili"
+        :category functional :priority must :criticality high :owner "Manutentori di GDev"
+        :status accepted :applicability applicable :method test :procedure "GDEV-VERIFY"
+        :acceptance "Cartelle senza Git e sottocartelle usano la radice corretta. Make conserva il proprio obiettivo predefinito, espone attività e variabili senza riscrivere i sorgenti. Perl prepara e costruisce prima dei test; Python costruisce pacchetti o bytecode. Il controllo comune è passivo e offre recupero; il modello finito rileva falsi successi e fornitori privi di contratto."
+        :sources ("lisp/gdev-project-types.el" "lisp/gdev-project-operations.el"
+                  "lisp/gdev-auto-modules.el" "lisp/gdev-launch.el" "lisp/gdev-lib.el"
+                  "lisp/gdev-cli.el" "bin/gdev-cli-entry.el"
+                  "modules/tools/build/config.el" "modules/tools/build/gdev-make.el"
+                  "modules/tools/build/gdev-project-control.el" "modules/tools/build/gdev-mise.el"
+                  "modules/lang/python/config.el" ".gdev-project.eld"
+                  "test/behavior/project.feature" "test/requirements-project-build.txt"
+                  "docs/operazioni-progetto.md")
+        :tests ("gdev-test-make-recognizes-folders-without-git-for-every-marker"
+                "gdev-test-make-default-build-produces-a-real-executable"
+                "gdev-test-make-variables-are-data-and-persist-per-project"
+                "gdev-test-project-operation-declarations-refresh-and-respect-personal-choices"
+                "gdev-test-project-operation-activates-languages-without-a-document"
+                "gdev-test-project-operation-perl-generates-makefile-builds-and-tests"
+                "gdev-test-project-operation-python-compiles-sources-and-reports-errors"
+                "gdev-test-project-operation-python-builds-distributable-packages"
+                "gdev-test-project-operation-model-detects-false-readiness-and-success"
+                "gdev-test-project-operation-model-detects-an-unclassified-provider"
+                "gdev-test-project-operation-control-is-passive-and-actions-retain-root"
+                "test/gdev-project-bdd-test.el")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
@@ -637,7 +666,7 @@ La verifica di copertura dello stato condiviso richiede tutte le righe strumenta
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13" "GDEV-P14")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")

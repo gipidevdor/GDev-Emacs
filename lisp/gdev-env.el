@@ -47,7 +47,7 @@ chiaro.  Le credenziali arrivano invece da auth-source."
 (defun gdev-env--apply (pairs)
   "Imposta ogni (NAME . VALUE) di PAIRS e ricostruisce `exec-path' da PATH."
   (pcase-dolist (`(,name . ,value) pairs)
-    (when (and value (member name gdev-env-variables)
+    (when (and (member name gdev-env-variables)
                (not (equal name "SSH_AUTH_SOCK")))
       (setenv name value)))
   (setq exec-path (append (parse-colon-path (getenv "PATH"))

@@ -108,7 +108,7 @@
 
 (ert-deftest gdev-test-project-finite-model-finds-unsafe-guards ()
   (should (eq t (alist-get 'ok (gdev-formal-check))))
-  (should (= 364 (alist-get 'cases (gdev-formal-check))))
+  (should (= 522 (alist-get 'cases (gdev-formal-check))))
   (cl-letf (((symbol-function 'gdev-project-ready-p) (lambda (&rest _) t)))
     (should (eq :false (alist-get 'ok (gdev-formal-check)))))
   (cl-letf (((symbol-function 'gdev-process--rule-human) (lambda (_) nil)))

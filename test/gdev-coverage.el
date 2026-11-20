@@ -103,7 +103,7 @@
   (gdev-coverage--run
    '("lisp/gdev-operation-history.el" "lisp/gdev-workspaces.el"
      "lisp/gdev-drafts.el" "lisp/gdev-compilation.el" "lisp/gdev-launch.el")
-   "\\(?:operation-history\\|workspace-\\|workspaces-\\|draft\\|gdev-test-launch-\\|gdev-test-xcode-\\|gdev-test-panel-session-\\|gdev-test-terminal-sessions-\\|gdev-test-debug-\\|gdev-test-lsp-refactor-\\|gdev-test-tabs-\\|gdev-test-run-view-\\|gdev-cpp-\\|gdev-cmake-test-\\)"
+   "\\(?:operation-history\\|workspace-\\|workspaces-\\|draft\\|gdev-test-launch-\\|gdev-test-project-operation-\\|gdev-test-xcode-\\|gdev-test-panel-session-\\|gdev-test-terminal-sessions-\\|gdev-test-debug-\\|gdev-test-lsp-refactor-\\|gdev-test-tabs-\\|gdev-test-run-view-\\|gdev-cpp-\\|gdev-cmake-test-\\)"
    t))
 
 (defun gdev-coverage-assurance ()

@@ -25,18 +25,32 @@
   (gdev-cli-main))
 
 (defun gdev-cli-entry ()
-  "Esegui la CLI, isolando l'inventario prima di leggere early-init.el."
-  (kill-emacs
-   (if (equal (car command-line-args-left) "audit")
-       (let ((directory (make-temp-file "gdev-audit-" t))
-             (process-environment (copy-sequence process-environment)))
-         (unwind-protect
-             (progn
-               (setenv "GDEV_PROFILE" nil)
-               (setenv "GDEV_STATE_DIR" (expand-file-name "stato" directory))
-               (setenv "GDEV_USER_DIR" (expand-file-name "configurazione" directory))
-               (gdev-cli-entry--run))
-           (delete-directory directory t)))
-     (gdev-cli-entry--run))))
+  "Isola inventario e test prima di leggere early-init.el."
+  (let ((kill-emacs-hook kill-emacs-hook))
+    (kill-emacs
+     (if (member (car command-line-args-left) '("audit" "test"))
+         (let ((directory (make-temp-file "gdev-audit-" t))
+               (process-environment (copy-sequence process-environment)))
+           (unwind-protect
+               (progn
+                 (when (and (equal (car command-line-args-left) "test")
+                            (not (getenv "GDEV_TEST_GRAMMARS")))
+                   (let* ((base (or (getenv "GDEV_STATE_DIR")
+                                    (expand-file-name "gdev-emacs/" (or (getenv "XDG_STATE_HOME")
+                                                                        "~/.local/state/"))))
+                          (profile (getenv "GDEV_PROFILE"))
+                          (state (if profile (expand-file-name (concat "profiles/" profile) base) base))
+                          (grammars (expand-file-name "tree-sitter/" state)))
+                     (when (file-directory-p grammars) (setenv "GDEV_TEST_GRAMMARS" grammars))))
+                 (setenv "GDEV_PROFILE" nil)
+                 (setenv "GDEV_STATE_DIR" (expand-file-name "stato" directory))
+                 (setenv "GDEV_USER_DIR" (expand-file-name "configurazione" directory))
+                 (gdev-cli-entry--run))
+             ;; I moduli possono registrare salvataggi durante i test. Devono
+             ;; terminare prima che lo stato temporaneo venga rimosso.
+             (with-demoted-errors "Chiusura della prova: %S" (run-hooks 'kill-emacs-hook))
+             (setq kill-emacs-hook nil)
+             (delete-directory directory t)))
+       (gdev-cli-entry--run)))))
 
 ;;; gdev-cli-entry.el ends here

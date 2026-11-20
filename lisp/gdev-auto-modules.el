@@ -17,6 +17,8 @@
 (declare-function gdev-module--failure "gdev-modules" (category module))
 (declare-function gdev-module--configured-declaration "gdev-modules" (category module))
 (declare-function gdev-modules-suggest-language "gdev-modules" ())
+(declare-function gdev-project-build-system "gdev-project-types" (root python))
+(defvar gdev-project-language-markers)
 
 (defconst gdev-auto-modules-catalogue
   '((swift (("\\.swift\\'" . swift-mode)) ((swift-mode . "swift-mode") (swift-repl-mode . "swift-mode-repl")))
@@ -207,6 +209,20 @@ OWNER predefinito è il buffer corrente. Le scelte private non cambiano."
   (let ((lease (make-symbol "lease")))
     `(let ((,lease (gdev-auto-modules-acquire ,(car spec) ,(cadr spec) (make-symbol "lavorazione"))))
        (unwind-protect (progn ,@body) (gdev-auto-modules-release ,lease)))))
+
+(defun gdev-auto-modules-call-for-project (root function)
+  "Chiama FUNCTION con il linguaggio richiesto dal progetto ROOT.
+Vale anche senza un documento del linguaggio aperto. La compilazione
+trasferisce una propria concessione al processo, fino al suo termine."
+  (require 'gdev-project-types)
+  (let* ((system (gdev-project-build-system root t))
+         (module (if (eq system 'python) 'python
+                   (unless system
+                     (car (seq-find (lambda (entry) (funcall (cadr entry) root))
+                                    gdev-project-language-markers)))))
+         (lease (and module (gdev-auto-modules-acquire :lang module (make-symbol "progetto")))))
+    (let ((gdev-auto-modules--lease (or lease gdev-auto-modules--lease)))
+      (unwind-protect (funcall function) (gdev-auto-modules-release lease)))))
 
 (defun gdev-auto-modules--release-buffer ()
   "Rilascia il vecchio linguaggio dopo una scelta esplicita di altra modalità."

@@ -18,6 +18,7 @@
 (require 'gdev-workspace-roots)
 (require 'gdev-workspace-state)
 (require 'gdev-xcode)
+(require 'gdev-project-operations)
 
 (declare-function gdev-python--interpreter "../modules/lang/python/config" (root))
 (declare-function gdev-debug-launch-profile "../modules/tools/debugger/config"
@@ -38,8 +39,7 @@ REMOTA è assoluta e LOCALE può essere relativa a RADICE.
   :group 'gdev)
 
 (defconst gdev-launch--phases
-  '((configure . :configure) (build . :build) (test . :test)
-    (run . :run) (clean . :clean) (debug . :debug)))
+  gdev-project-operation-phases)
 
 (defvar gdev-launch-selection-change-hook nil
   "Hook eseguito dopo aver scelto un profilo nello spazio corrente.")
@@ -52,25 +52,46 @@ REMOTA è assoluta e LOCALE può essere relativa a RADICE.
 (defvar gdev-launch--native-profiles (make-hash-table :test #'equal)
   "Profili automatici locali per radice; non modifica le scelte personali.")
 
-(defun gdev-launch--configured-profiles (root)
+(defvar gdev-launch--project-profiles (make-hash-table :test #'equal)
+  "Profili dichiarati dai progetti e verificati durante apertura o azioni.")
+
+(defun gdev-launch--personal-profiles (root)
   "Leggi i profili personali di ROOT."
   (let ((directory (gdev-launch--directory root)))
     (cdr (seq-find (lambda (entry) (equal directory (gdev-launch--directory (car entry)))) gdev-launch-profiles))))
+
+(defun gdev-launch--configured-profiles (root)
+  "Profili effettivi di ROOT: scelta personale, poi dichiarazione del progetto."
+  (or (gdev-launch--personal-profiles root)
+      (plist-get (gethash (gdev-launch--directory root) gdev-launch--project-profiles) :profiles)))
 
 (defun gdev-launch-refresh-native-profile (&optional directory)
   "Rileggi i metadati del progetto di DIRECTORY durante un'azione o apertura.
 Le viste leggono l'indice in memoria, senza scansioni o processi esterni."
   (let* ((directory (or directory default-directory))
-         (root (gdev-launch--directory
-                (or (gdev-workspace-root-for directory (gdev-workspace-roots))
-                    (gdev-project-root directory))))
-         (previous (gethash root gdev-launch--native-profiles))
+         (project (gdev-project-root directory))
+         (boundary (or (gdev-workspace-root-for directory (gdev-workspace-roots))
+                       (unless (equal project (gdev-launch--directory directory)) project)))
+         (root (gdev-project-operation-root directory boundary))
+         (previous (gdev-launch-profiles-for root))
+         (old-root (gdev-launch-profile-root directory))
+         ;; Anche la rimozione dell'unico manifesto può cambiare la radice.
+         (_ (when (and old-root (not (equal old-root root))
+                       (string-prefix-p old-root (gdev-launch--directory directory)))
+              (remhash old-root gdev-launch--project-profiles)
+              (remhash old-root gdev-launch--native-profiles)))
+         ;; Togli le osservazioni precedenti prima di validare il nuovo file.
+         (_ (remhash root gdev-launch--project-profiles))
+         (_ (remhash root gdev-launch--native-profiles))
+         (declared (unless (gdev-launch--personal-profiles root)
+                     (gdev-project-operations-read root #'gdev-launch--options)))
+         (_ (when declared (puthash root declared gdev-launch--project-profiles)))
          (profile (and (not (gdev-launch--configured-profiles root)) (gdev-xcode-profile root))))
     (if profile (puthash root (list profile) gdev-launch--native-profiles)
       (remhash root gdev-launch--native-profiles))
-    (unless (equal previous (and profile (list profile)))
+    (unless (equal previous (gdev-launch-profiles-for root))
       (run-hooks 'gdev-launch-selection-change-hook))
-    (and profile root)))
+    (and (or profile declared) root)))
 
 (defun gdev-launch--file-opened ()
   "Prepara il profilo del documento senza avviare programmi."
@@ -92,7 +113,8 @@ Le viste leggono l'indice in memoria, senza scansioni o processi esterni."
   "Trova la radice con profili più vicina a DIRECTORY o allo spazio."
   (let ((directory (or directory (gdev-default-directory))))
     (or (gdev-workspace-root-for
-         directory (mapcar (lambda (entry) (gdev-launch--directory (car entry))) gdev-launch-profiles))
+         directory (append (mapcar (lambda (entry) (gdev-launch--directory (car entry))) gdev-launch-profiles)
+                           (hash-table-keys gdev-launch--project-profiles)))
         (gdev-workspace-root-for directory (hash-table-keys gdev-launch--native-profiles))
         (when gdev-layout-mode
           (let ((workspace (gdev-workspace-directory directory)))
@@ -106,6 +128,10 @@ Le viste leggono l'indice in memoria, senza scansioni o processi esterni."
                      gdev-launch--standalone-selections)))
       (or (when-let* ((name (alist-get root choices nil nil #'equal)))
             (assoc name (gdev-launch-profiles-for root)))
+          (unless (gdev-launch--personal-profiles root)
+            (let* ((declared (gethash root gdev-launch--project-profiles))
+                   (default (plist-get declared :default)))
+              (assoc default (plist-get declared :profiles))))
           (unless (gdev-launch--configured-profiles root)
             (car (gethash (gdev-launch--directory root) gdev-launch--native-profiles)))))))
 
@@ -232,7 +258,7 @@ Con KEYS uguale a t accetta tutte le chiavi di tipo keyword."
   (interactive
    (list (when-let* ((editor (and gdev-layout-mode (gdev-layout-editor))))
            (with-current-buffer (window-buffer editor) (gdev-launch-profile-root)))))
-  (unless (and root (gdev-launch--configured-profiles root))
+  (unless (and root (gdev-launch--personal-profiles root))
     (gdev-launch-refresh-native-profile (or root (gdev-default-directory))))
   (let* ((root (or root (gdev-launch-profile-root)))
          (profiles (gdev-launch-profiles-for root))
@@ -369,8 +395,12 @@ Con EXECUTABLE richiedi anche il permesso di esecuzione."
   "Esegui PHASE del profilo attivo e restituisci un valore non nil.
 Con ASK-OPTIONS modifica gli argomenti per questa operazione."
   (let ((current (gdev-launch-profile-root)))
-    (unless (and current (gdev-launch--configured-profiles current))
+    (unless (and current (gdev-launch--personal-profiles current))
       (gdev-launch-refresh-native-profile (gdev-default-directory))))
+  (when-let* ((root (gdev-launch-profile-root))
+              ((gdev-launch-profiles-for root))
+              ((not (gdev-launch-selected root))))
+    (gdev-launch-select-profile root))
   (when-let* ((root (gdev-launch-profile-root))
               (profile (gdev-launch-selected root)))
     (let* ((options (gdev-launch--options profile root))
@@ -382,6 +412,7 @@ Con ASK-OPTIONS modifica gli argomenti per questa operazione."
                  (gethash root gdev-launch--native-profiles))
         (user-error "Lo schema «%s» non dichiara l'operazione %s" (car profile) phase))
       (when (or command legacy-run)
+        (gdev-use-project-tools root)
         (gdev-require-project-environment)
         (let* ((directory (gdev-launch--directory
                            (expand-file-name (or (plist-get options :cwd) ".") root)))

@@ -6,6 +6,7 @@
 ;; usati dal nucleo con invarianti indipendenti. Non dimostra il runtime Lisp.
 ;;; Code:
 (require 'gdev-project-store)
+(require 'gdev-project-operations)
 
 (defun gdev-formal-check ()
   "Esplora il modello finito delle autorizzazioni e della validità delle prove."
@@ -37,13 +38,17 @@
         (when (and (memq from '(PROPOSED CLASSIFIED ANALYZED AUTHORIZED IMPLEMENTING))
                    (memq to '(APPROVED BASELINED)) (gdev-process-allowed-p from to))
           (push `((property . "no-lifecycle-shortcut") (from . ,(symbol-name from)) (to . ,(symbol-name to))) counterexamples))))
-    `((schema_version . 1) (method . "exhaustive-finite-model") (cases . ,cases)
-      (ok . ,(if counterexamples :false t)) (counterexamples . ,(vconcat (nreverse counterexamples)))
-      (scope . "14 stati, 4 tipi di attore, 8 combinazioni di completezza/freschezza/verifica e tutte le coppie di stati")
-      (assumptions . ["Predicati del nucleo non ridefiniti durante la verifica."
-                      "I fatti di ingresso sono calcolati correttamente dagli adattatori, verificati separatamente dai test di integrazione."])
-      (limitations . ["Non prova autenticazione, correttezza di SQLite, sistema operativo o tutto il programma Lisp."])
-      (human_approval . "NOT_VERIFIED"))))
+    (let ((operations (gdev-project-operation-model-check)))
+      (cl-incf cases (alist-get 'cases operations))
+      (setq counterexamples (append counterexamples (append (alist-get 'counterexamples operations) nil)))
+      `((schema_version . 1) (method . "exhaustive-finite-model") (cases . ,cases)
+        (ok . ,(if counterexamples :false t)) (counterexamples . ,(vconcat (nreverse counterexamples)))
+        (scope . "Ciclo formale delle lavorazioni e modello operativo dei progetti")
+        (project_operations . ,operations)
+        (assumptions . ["Predicati del nucleo non ridefiniti durante la verifica."
+                        "I fatti di ingresso sono calcolati correttamente dagli adattatori, verificati separatamente dai test di integrazione."])
+        (limitations . ["Non prova autenticazione, correttezza di SQLite, sistema operativo o tutto il programma Lisp."])
+        (human_approval . "NOT_VERIFIED")))))
 
 (provide 'gdev-formal)
 ;;; gdev-formal.el ends here

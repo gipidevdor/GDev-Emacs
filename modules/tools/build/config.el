@@ -34,10 +34,23 @@
 (require 'gdev-layout)
 (require 'gdev-workspace-roots)
 (require 'gdev-commands)
+(require 'gdev-auto-modules)
 (require 'compile)
 (require 'json)
 
 (declare-function gdev-python-project-command "../../lang/python/config")
+(declare-function gdev-make-command "gdev-make" (root action &optional goal))
+(declare-function gdev-make-inspect "gdev-make" (root))
+(declare-function gdev-make-configure "gdev-make" (root))
+(declare-function gdev-project-control-compilation-finished "gdev-project-control" (buffer status))
+(let ((library (gdev-config-file "modules/tools/build/gdev-make")))
+  (autoload 'gdev-make-command library)
+  (autoload 'gdev-make-inspect library)
+  (autoload 'gdev-make-configure library))
+(let ((library (gdev-config-file "modules/tools/build/gdev-project-control")))
+  (autoload 'gdev-project-control-show library nil t)
+  (autoload 'gdev-project-control-compilation-finished library))
+(add-hook 'compilation-finish-functions #'gdev-project-control-compilation-finished)
 (defvar project-kill-buffers-display-buffer-list)
 (defvar project-switch-commands)
 (defvar savehist-additional-variables)
@@ -172,6 +185,24 @@ Imposta le attività nel config.el privato."
 
 (defvar gdev-project-task-history nil)
 
+(defun gdev-build-configured-tasks (root)
+  "Leggi le attività personali di ROOT senza interrogare programmi."
+  (copy-tree
+                (cdr (seq-find (lambda (entry)
+                                 (equal (expand-file-name (file-name-as-directory (car entry))) root))
+                               gdev-project-tasks))))
+
+(defun gdev-build-project-tasks (root)
+  "Leggi le attività personali e quelle dichiarate dal motore di ROOT.
+Una voce personale con lo stesso nome conserva la precedenza. Make
+viene interrogato qui, durante una richiesta, mai nel ridisegno."
+  (let ((tasks (gdev-build-configured-tasks root)))
+    (when (and (file-directory-p root) (eq (gdev-build-system root) 'make))
+      (dolist (target (plist-get (gdev-make-inspect root) :targets))
+        (unless (assoc target tasks)
+          (setq tasks (append tasks (list (cons target (gdev-make-command root 'build target))))))))
+    tasks))
+
 (defun gdev-run-project-task (&optional repeat)
   "Scegli un'attività configurata ed eseguila nel pannello del progetto.
 Con REPEAT usa l'ultima attività eseguita in questo progetto."
@@ -180,13 +211,13 @@ Con REPEAT usa l'ultima attività eseguita in questo progetto."
          (directory (or (gdev-workspace-directory)
                         (and editor (buffer-local-value 'default-directory (window-buffer editor)))
                         default-directory))
-         (root (gdev-project-root directory))
+         (root (gdev-project-operation-root directory
+                                            (unless (equal (gdev-project-root directory) directory)
+                                              (gdev-project-root directory))))
          (key (file-name-as-directory (abbreviate-file-name root)))
-         (tasks (cdr (seq-find (lambda (entry)
-                                 (equal (expand-file-name (file-name-as-directory (car entry))) root))
-                               gdev-project-tasks))))
+         (tasks (gdev-build-project-tasks root)))
     (unless tasks
-      (user-error "Aggiungi le attività di %s a gdev-project-tasks nelle Preferenze" key))
+      (user-error "Nessuna attività rilevata in %s. Usa Configura compilazione o le Preferenze del progetto" key))
     (let* ((last (gdev-build--get :last-task root))
            (name (if repeat
                      (or last (user-error "Scegli prima un'attività in questo progetto"))
@@ -199,7 +230,7 @@ Con REPEAT usa l'ultima attività eseguita in questo progetto."
                       "Scegli un'attività del progetto: %s") name))
       (when (process-live-p (get-buffer-process (format "*%s*" output)))
         (user-error "L'attività «%s» è già in esecuzione" name))
-      (prog1 (gdev-compile command output root)
+      (prog1 (gdev-build-compile command output root (gdev-build-scope root nil))
         (gdev-build--put :last-task name root)))))
 
 (defun gdev-repeat-project-task ()
@@ -736,13 +767,15 @@ Il valore predefinito di ROOT è la radice di `gdev-build--root'."
   (let* ((default-directory root)
          (system (gdev-build-system root))
          (key (cdr (assq system '((cmake . :target) (meson . :meson-target)
-                                  (ninja . :ninja-target))))))
+                                  (ninja . :ninja-target) (make . :make-target))))))
     (when key
       (let* ((targets
               (pcase system
                 ('cmake (gdev-cmake-targets root))
                 ('meson (mapcar (lambda (target) (alist-get 'name target))
                                 (gdev-build--meson-targets root)))
+                ('make (condition-case err (plist-get (gdev-make-inspect root) :targets)
+                         (user-error (message "%s" (error-message-string err)) nil)))
                 ('ninja
                  (cl-loop for line in (process-lines-ignore-status "ninja" "-t" "targets" "all")
                           when (string-match "^\\(.*\\): [^ ]+$" line)
@@ -775,16 +808,14 @@ Il valore predefinito di ROOT è la radice di `gdev-build--root'."
          (`(cmake ,_) (gdev-cmake--command action root cmake))
          (`(meson ,_) (gdev-build--meson-command action root directory))
          (`(ninja ,_) (gdev-build--ninja-command action root))
-         (`(make ,(or 'configure 'build)) (gdev-command-line "make" "-j" jobs))
-         (`(make test) (gdev-command-line "make" "test"))
-         (`(make clean) (gdev-command-line "make" "clean"))
-         (`(perl-make configure) "perl Makefile.PL")
-         (`(perl-make build) (concat "perl Makefile.PL && make -j " jobs))
-         (`(perl-build configure) "perl Build.PL")
-         (`(perl-build build) "perl Build.PL && ./Build")
-         (`(,(or 'perl-make 'perl-build 'perl-prove) test) (gdev-command-line "prove" "-lr" "-j" jobs "t"))
-         (`(perl-make clean) "make clean")
-         (`(perl-build clean) "./Build clean")
+         (`(make ,(or 'build 'test 'clean)) (gdev-make-command root action))
+         (`(perl-make ,_)
+          (gdev-build--generated-command root action "Makefile" "perl Makefile.PL"
+                                          (unless (eq action 'configure) (gdev-make-command root action))))
+         (`(perl-build ,_)
+          (gdev-build--generated-command root action "Build" "perl Build.PL"
+                                          (pcase action ('build "./Build") ('test "./Build test") ('clean "./Build clean"))))
+         (`(perl-prove test) (gdev-command-line "prove" "-lr" "-j" jobs "t"))
          (`(perl-prove build) "find lib -name '*.pm' -exec perl -Ilib -c {} \\;")
          (`(deno build) "deno task build")
          (`(deno test) "deno test")
@@ -804,9 +835,22 @@ Il valore predefinito di ROOT è la radice di `gdev-build--root'."
                                 nil 'compile-history))))
      scope)))
 
+(defun gdev-build--generated-command (root action artifact prepare command)
+  "Prepara ARTIFACT con PREPARE prima di COMMAND per ACTION in ROOT.
+Un errore della preparazione arresta la catena. La pulizia non crea un
+nuovo albero; il motore gestisce poi l'invalidazione dei propri metadati."
+  (let ((exists (file-exists-p (expand-file-name artifact root))))
+    (when (and (eq action 'clean) (not exists))
+      (user-error "Il progetto non è ancora configurato: nessun albero da pulire"))
+    (if (eq action 'configure) prepare
+      (unless command (user-error "Operazione non disponibile: %s" action))
+      (if exists command (concat prepare " && " command)))))
+
 (defun gdev-build--command (action &optional root)
   "Restituisci il comando per ACTION nel progetto ROOT."
-  (car (gdev-build--command-scope action root)))
+  (let ((root (or root (gdev-build--root))))
+    (gdev-auto-modules-call-for-project
+     root (lambda () (car (gdev-build--command-scope action root))))))
 
 (defun gdev-build--outermost (directory project markers)
   "Trova la cartella più esterna con MARKERS tra DIRECTORY e PROJECT.
@@ -826,27 +870,27 @@ file: la radice della compilazione è la più esterna, non la più vicina."
   (or (bound-and-true-p project-current-directory-override)
       ;; Il linguaggio sceglie solo per il documento, non per «Cambia progetto».
       (when-let* ((resolver (gdev-handler :build-root))) (funcall resolver))
-      (let ((project (gdev-project-root))
-            (markers '("CMakeLists.txt" "meson.build" "build.ninja")))
-        (or (when (apply #'gdev-project-file-exists-p project markers) project)
-            (let ((folder (gdev-workspace-directory)))
-              (when (and folder (apply #'gdev-project-file-exists-p folder markers)) folder))
-            ;; Un progetto CMake in una sottocartella del repository.
-            (gdev-build--outermost default-directory project markers)
-            (when (equal project (file-name-as-directory (expand-file-name default-directory)))
-              (locate-dominating-file
-               project (lambda (directory) (apply #'gdev-project-file-exists-p directory markers))))
-            project))))
+      (let* ((project (gdev-project-root))
+             (workspace (gdev-workspace-directory))
+             (boundary (cond
+                        ((and workspace (string-prefix-p workspace default-directory)) workspace)
+                        ((not (equal project (file-name-as-directory (expand-file-name default-directory))))
+                         project))))
+        (gdev-project-operation-root default-directory boundary))))
 
 (defun gdev-build--run (action)
   "Esegue ACTION per il progetto corrente nel suo buffer di compilazione."
-  (gdev-require-project-environment)
   (let* ((profile (car (gdev-launch-selected (gdev-launch-profile-root))))
          (root (gdev-build--root))
          (default-directory root))
-    (pcase-let ((`(,command . ,scope) (gdev-build--command-scope action root)))
-      (setq-local compile-command command)
-      (gdev-build-start command root scope (eq action 'build) profile))))
+    (gdev-use-project-tools root)
+    (gdev-require-project-environment)
+    (gdev-auto-modules-call-for-project
+     root
+     (lambda ()
+       (pcase-let ((`(,command . ,scope) (gdev-build--command-scope action root)))
+         (setq-local compile-command command)
+         (gdev-build-start command root scope (eq action 'build) profile))))))
 
 (defun gdev-build-configure (&optional choose-preset from-user)
   "Configura il progetto.
@@ -857,6 +901,8 @@ Con FROM-USER, vero da tastiera e menu, agisce sul documento attivo."
   (gdev-call-for-document
    (lambda ()
      (or (gdev-launch-dispatch 'configure choose-preset)
+         (when (eq (gdev-build-system (gdev-build--root)) 'make)
+           (gdev-make-configure (gdev-build--root)) t)
          (progn
            (when choose-preset
              (let* ((root (gdev-build--root))
@@ -1022,13 +1068,15 @@ identificata da NAME, o dal nome del programma."
 ;; Caricate al bisogno con `autoload': dichiarale al compilatore.
 (declare-function gdev-mise--prepare-folder "gdev-mise" (folder))
 (declare-function gdev-mise-apply "gdev-mise" (root))
+(declare-function gdev-mise-refresh "gdev-mise" (root))
 
 (let ((library (gdev-config-file "modules/tools/build/gdev-mise")))
   (autoload 'gdev-mise-environment library)
-  (when (gdev-find-executable "mise")
-    (autoload 'gdev-mise--prepare-folder library)
-    (autoload 'gdev-mise-apply library)
-    (add-hook 'gdev-open-folder-hook #'gdev-mise--prepare-folder)
-    (add-hook 'gdev-project-environment-functions #'gdev-mise-apply)))
+  (autoload 'gdev-mise--prepare-folder library)
+  (autoload 'gdev-mise-apply library)
+  (autoload 'gdev-mise-refresh library)
+  (add-hook 'gdev-open-folder-hook #'gdev-mise--prepare-folder)
+  (add-hook 'gdev-project-environment-refresh-functions #'gdev-mise-refresh)
+  (add-hook 'gdev-project-environment-functions #'gdev-mise-apply))
 
 ;;; config.el ends here

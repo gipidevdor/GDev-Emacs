@@ -359,10 +359,12 @@ scorciatoia completa."
      ["Cambia progetto…" project-switch-project]
      ["Apri file del progetto…" project-find-file :key-sequence "C-c p f"]
      ["Dipendenze del progetto" gdev-project-dependencies-show :key-sequence "C-c p e"]
+     ["Controlla progetto" gdev-project-control-show]
      ["Assicurazione del progetto" gdev-assurance-show :key-sequence "C-c p i"]
      ["Catalogo degli standard" gdev-assurance-catalog :key-sequence "C-c p I"]
      ["Apri spazio di lavoro…" tabspaces-open-or-create-project-and-workspace]
      ["Fidati di questa cartella…" gdev-trust-project :visible (not (file-remote-p default-directory))]
+     ["Aggiorna ambiente del progetto" gdev-refresh-project-environment]
      ["Aggiungi cartella allo spazio…" gdev-workspace-add-folder]
      ["Rimuovi cartella dallo spazio…" gdev-workspace-remove-folder
       :active (and (fboundp 'gdev-workspace-roots) (gdev-workspace-roots))]

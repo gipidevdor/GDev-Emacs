@@ -17,6 +17,7 @@
 (require 'gdev-layout)
 (require 'gdev-ui)
 (require 'gdev-workspace-state)
+(require 'gdev-project-operations)
 
 (declare-function gdev-close-document "gdev-commands" ())
 
@@ -152,18 +153,17 @@ Dopo una richiesta di interruzione l'esito è sempre «Interrotta»."
          (current (and location (gdev-workbench-operations--current
                                  operation (gdev-workspace-state-read
                                             'gdev-workbench-operations (cdr location))))))
-    (cond ((or (and (eq status 'exit) (= exit 130))
-               (and (eq status 'signal) (= exit 2))
-               (and current (eq (gdev-workbench-operation-state current) 'stopping)
-                    (not (= exit 0))))
-           (gdev-workbench-operation-report operation 'cancelled))
-          ((and (eq status 'exit) (= exit 0))
-           (gdev-workbench-operation-report operation 'completed))
-          (t (gdev-workbench-operation-report
-              operation 'failed (pcase status
-                                  ('exit (format "Codice %d" exit))
-                                  ('signal (format "Segnale %d" exit))
-                                  (_ (string-trim message))))))))
+    (pcase (gdev-project-operation-result
+            status exit (and current (eq (gdev-workbench-operation-state current) 'stopping)))
+      ('cancelled
+       (gdev-workbench-operation-report operation 'cancelled))
+      ('completed
+       (gdev-workbench-operation-report operation 'completed))
+      (_ (gdev-workbench-operation-report
+          operation 'failed (pcase status
+                              ('exit (format "Codice %d" exit))
+                              ('signal (format "Segnale %d" exit))
+                              (_ (string-trim message))))))))
 
 (defun gdev-workbench-operation-compilation-start (process)
   "Segui PROCESS tramite le normali notifiche di compilazione."

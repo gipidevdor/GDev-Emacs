@@ -28,6 +28,7 @@ e configurazione temporanei, anche se hai selezionato un profilo privato.
 | `key_routes` | Tasti GDev globali, dei linguaggi e delle mappe di modalità già caricate, con comando dichiarato ed effettivo |
 | `view_routes` | Azioni dichiarate dai profili contestuali delle viste |
 | `cli_commands`, `live_actions` | Azioni della riga di comando e dell'interfaccia per agenti |
+| `project_operation_contracts`, `project_operation_model` | Motori riconosciuti, capacità e verifica esaustiva dei predicati operativi |
 
 Nell'editor il comando effettivo dipende anche dal profilo privato,
 dal buffer, dalla selezione e dall'eventuale strumento aperto. Il menu

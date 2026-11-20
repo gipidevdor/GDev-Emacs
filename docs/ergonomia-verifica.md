@@ -93,3 +93,54 @@ Il controllo del Mac rileva ancora il blocco della sessione. I prototipi
 testuali e le misure non attestano il confronto visivo finale: temi,
 dimensioni e puntatore nella finestra nativa restano da verificare. Le prove
 automatiche di profilo, contrasto e interazione sono evidenze diverse.
+
+## Operazioni automatiche del progetto, 20 novembre 2026
+
+La lavorazione `GT-0006` e il requisito `GDEV-P14` aggiungono il
+[contratto operativo comune](operazioni-progetto.md). Il controllo segue
+manifesti, radice, adattatore, preparazione, processo effettivo, esito e
+recupero. L'inventario espone 19 contratti, comprendendo le operazioni
+dichiarate dal progetto; il modello rileva i tipi riconosciuti privi di
+contratto. Le 158 combinazioni operative si aggiungono alle 364 del ciclo
+formale, con controesempi verificati anche alterando i predicati.
+
+La riproduzione iniziale nella finestra nativa ha mostrato che **Progetto ›
+Compila** avviava realmente Make nella cartella di AlacreOS. La costruzione
+si arrestava perché il compilatore incrociato richiesto non era disponibile.
+Questo caso resta distinto dalle regressioni dell'IDE: il nuovo controllo
+offre configurazione e recupero, senza dedurre una toolchain sostitutiva dai
+nomi degli eseguibili. I sorgenti e le modifiche preesistenti di AlacreOS
+sono stati conservati.
+
+Le prove eseguono compilazioni C e C++, generazione e costruzione MakeMaker,
+test Perl, bytecode Python e distribuzioni wheel/sdist con il frontend
+PyPA reale. Cinque scenari Gherkin esercitano i comandi pubblici dalla
+cartella e dalle sottocartelle, senza un sorgente aperto, incluso il
+recupero dopo un processo fallito. Le regressioni verificano anche precedenza
+personale, modifica e cancellazione dei manifesti, limiti del catalogo Make,
+aggiornamento dei documenti aperti e rimozione delle variabili obsolete.
+
+Una campagna completa locale ha superato 1.400 casi su 1.401, con il solo
+controllo del rapporto di affidabilità demandato alla campagna dedicata.
+Le successive prove mirate hanno superato 85 casi. La procedura formale
+registra il risultato conclusivo sul codice corrente, compresi gli ultimi
+casi aggiunti. Il corpus obbligatorio comprende i cinque nuovi scenari.
+Le coperture richieste restano al 100%: 61 righe dello stato condiviso e,
+nei flussi, 174/174, 507/507, 97/97, 91/91 e 300/300 righe strumentabili.
+
+La compilazione nella copia isolata produce 734 file bytecode e 191 nativi,
+senza errori o avvisi. Un avvio ordinario da terminale carica sei funzioni
+centrali del nuovo flusso in codice nativo, senza moduli falliti. Questa
+prova attesta avvio e caricamento; non è un controllo grafico. La ricerca
+della radice sul checkout GDev impiega circa 0,060 ms per chiamata su 1.000
+iterazioni, senza raccolte della memoria nella misura.
+
+La vista riusa il profilo documento, le facce semantiche e la chiusura
+comune. Le azioni sono su righe distinte, i percorsi completi vanno a capo
+e il ridisegno conserva il pulsante selezionato. Le prove automatiche
+verificano profilo, contrasto comune, assenza di processi durante osservazione
+e disegno, contesto delle azioni e conservazione della selezione.
+I tentativi successivi di ispezione grafica hanno ricevuto dallo strumento
+«Mac bloccato», anche dopo l'avvio di una finestra isolata. Il controllo
+visivo finale con puntatore, temi e dimensioni resta da completare; non è
+stato sostituito dalle prove batch o dall'avvio in terminale.

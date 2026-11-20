@@ -93,6 +93,12 @@ jobs:
         run: |
           ./bin/gdev docs
           git diff --exit-code -- docs/keymap.md
+      - name: Strumenti isolati per la costruzione di pacchetti Python
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/gdev-project-build"
+          "$RUNNER_TEMP/gdev-project-build/bin/python" -m pip install -r test/requirements-project-build.txt
+          echo "GDEV_TEST_PYTHON_BUILD=$RUNNER_TEMP/gdev-project-build/bin/python" >> "$GITHUB_ENV"
       - name: Prova di avvio (smoke test)
         env:
           GDEV_TEST_SMOKE: "1"

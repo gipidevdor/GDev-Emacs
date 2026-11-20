@@ -16,6 +16,7 @@
 (require 'json)
 (require 'seq)
 (require 'gdev-lib)
+(require 'gdev-project-types)
 
 (defconst gdev-mise-config-files
   '("mise.toml" ".mise.toml" "mise.local.toml" ".mise.local.toml"
@@ -32,6 +33,10 @@
 
 (defvar-local gdev-mise--buffer-request nil
   "Richiesta di mise da cui dipende l'ambiente di questo documento.")
+
+(defvar-local gdev-mise--original-values nil
+  "Valori precedenti delle variabili assegnate da mise in questo documento.")
+(defvar-local gdev-mise--original-path nil)
 
 (defun gdev-mise--config-directory (directory)
   "Restituisce la cartella più vicina sopra DIRECTORY con una configurazione mise.
@@ -55,12 +60,17 @@ già per la shell, e quindi per l'ambiente salvato da `gdev env'."
 
 (defun gdev-mise--install-env (environment)
   "Applica ENVIRONMENT nel documento corrente."
-  (setq-local process-environment
-              (append (mapcar (pcase-lambda (`(,name . ,value)) (format "%s=%s" name value))
-                              environment)
-                      process-environment))
-  (when-let* ((path (alist-get 'PATH environment)))
-    (setq-local exec-path (append (parse-colon-path path) (list exec-directory)))))
+  (setq-local process-environment (copy-sequence process-environment))
+  (unless gdev-mise--original-path (setq gdev-mise--original-path (copy-sequence exec-path)))
+  (dolist (entry environment)
+    (let ((name (symbol-name (car entry))))
+      (unless (assoc name gdev-mise--original-values)
+        (push (cons name (getenv name)) gdev-mise--original-values))))
+  (dolist (entry gdev-mise--original-values) (setenv (car entry) (cdr entry)))
+  (dolist (entry environment) (setenv (symbol-name (car entry)) (cdr entry)))
+  (setq-local exec-path (if-let* ((path (alist-get 'PATH environment)))
+                           (append (parse-colon-path path) (list exec-directory))
+                         (copy-sequence gdev-mise--original-path))))
 
 (defun gdev-mise--resume-document (directory request)
   "Aggiorna il documento corrente se attende ancora REQUEST di DIRECTORY."
@@ -70,7 +80,7 @@ già per la shell, e quindi per l'ambiente salvato da `gdev env'."
     (when-let* ((buffer-file-name)
                 ((not (file-remote-p buffer-file-name)))
                 ((not (bound-and-true-p envrc-mode)))
-                (root (gdev-project-root))
+                (root (gdev-project-operation-context-root))
                 ((gdev-project-trusted-p root)))
       (if (equal directory (gdev-mise--config-directory default-directory))
           (progn
@@ -172,6 +182,7 @@ già per la shell, e quindi per l'ambiente salvato da `gdev env'."
               (setf (gdev-mise--request-process request) process)
               (when (process-live-p process) (ignore-errors (process-send-eof process))))
           (file-error
+           (setf (gdev-mise--request-detail request) "mise non disponibile: aggiorna l'ambiente della shell o installa mise")
            (kill-buffer output)
            (kill-buffer errors)
            (gdev-mise--publish directory request 'failed)))
@@ -181,7 +192,7 @@ già per la shell, e quindi per l'ambiente salvato da `gdev env'."
   "Prepara in background l'ambiente della cartella locale FOLDER."
   (when-let* (((not (file-remote-p folder)))
               (directory (gdev-mise--config-directory folder))
-              ((gdev-project-trusted-p (gdev-project-root directory))))
+              ((gdev-project-trusted-p (gdev-project-operation-context-root directory))))
     (let ((process-environment (default-value 'process-environment))
           (exec-path (default-value 'exec-path)))
       (gdev-mise--start directory (gdev-mise--stamp directory)))))
@@ -197,15 +208,30 @@ Restituisci i valori già disponibili e lascia avanzare mise in background."
   "Prepara l'ambiente mise del documento corrente."
   (when-let* (((not (bound-and-true-p envrc-mode)))
               (directory (gdev-mise--config-directory default-directory))
-              ((gdev-project-trusted-p (gdev-project-root directory))))
+              ((gdev-project-trusted-p (gdev-project-operation-context-root directory))))
     (let* ((request (gdev-mise--start directory (gdev-mise--stamp directory)))
            (status (gdev-mise--request-status request)))
-      (setq-local gdev-project-environment-status status)
+      (setq-local gdev-project-environment-status status
+                  gdev-project-environment-detail (gdev-mise--request-detail request))
       (pcase status
         ('ready (gdev-mise--install-env (gdev-mise--request-environment request)))
         ('pending
          (setq-local gdev-mise--buffer-request request)
          (cl-pushnew (current-buffer) (gdev-mise--request-buffers request)))))))
+
+(defun gdev-mise-refresh (root)
+  "Invalida il risultato concluso di mise per ROOT.
+Conserva le richieste ancora attive."
+  (when-let* ((directory (gdev-mise--config-directory root))
+              (request (gethash directory gdev-mise--requests))
+              ((not (eq (gdev-mise--request-status request) 'pending))))
+    (remhash directory gdev-mise--requests)))
+
+(defun gdev-mise-reset-document ()
+  "Scarta la risposta attesa e i valori del contesto precedente."
+  (setq gdev-mise--buffer-request nil gdev-mise--original-values nil gdev-mise--original-path nil))
+
+(add-hook 'gdev-project-environment-reset-hook #'gdev-mise-reset-document)
 
 (provide 'gdev-mise)
 ;;; gdev-mise.el ends here

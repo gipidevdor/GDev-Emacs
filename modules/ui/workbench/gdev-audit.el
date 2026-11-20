@@ -18,6 +18,7 @@
 (require 'gdev-menu)
 (require 'gdev-keys)
 (require 'subr-x)
+(require 'gdev-project-operations)
 
 (defun gdev-audit--definitions (declarations)
   "Elenca i comandi interattivi fra le DECLARATIONS di GDev."
@@ -136,6 +137,13 @@
       (default_modules . ,(gdev-agent-interface--default-modules))
       (cli_commands . ,(gdev-agent-interface--checkout-commands))
       (live_actions . ,(vconcat (mapcar #'car gdev-agent-interface--live-actions)))
+      (project_operation_model . ,(gdev-project-operation-model-check))
+      (project_operation_contracts .
+       ,(vconcat (mapcar (pcase-lambda (`(,id ,name ,tool ,phases ,authority))
+                          `((id . ,(symbol-name id)) (name . ,name) (tool . ,(or tool :null))
+                            (phases . ,(vconcat (mapcar #'symbol-name phases)))
+                            (authority . ,(symbol-name authority))))
+                        gdev-project-operation-contracts)))
       (definitions . ,(vconcat (gdev-audit--definitions declarations)))
       (menu_routes . ,(vconcat (gdev-audit--menu-routes)))
       (key_routes . ,(vconcat (gdev-audit--key-routes mode-specs)

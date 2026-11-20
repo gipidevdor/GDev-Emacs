@@ -434,7 +434,7 @@
     (make-symbolic-link (directory-file-name root) link)
     (unwind-protect
         (cl-letf (((symbol-function 'customize-save-variable)
-                   (lambda (variable value) (setq saved (cons variable value))))
+                   (lambda (variable value) (setq saved (cons variable value)) (set variable value)))
                   ((symbol-function 'gdev-use-project-tools) #'ignore)
                   ((symbol-function 'message) #'ignore))
           (let ((gdev-trusted-projects nil))

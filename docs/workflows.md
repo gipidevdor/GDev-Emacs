@@ -7,6 +7,8 @@ In Emacs, **Strumenti › Tutti i comandi GDev** raccoglie i comandi dei moduli 
 e `C-h d m` apre l'aiuto del modulo che scegli.
 L'[inventario e la verifica dei flussi](ergonomia.md) affiancano ai comandi
 le loro entrate e gli esiti da controllare.
+La guida alle [operazioni automatiche del progetto](operazioni-progetto.md)
+descrive riconoscimento delle cartelle, Make, Perl, Python e recupero dell'ambiente.
 
 **Vai a** [Aprire un progetto](#progetti-e-spazi-di-lavoro) · [Compilare e fare debug](#esecuzione-compilazione-e-debug) · [Comporre una lavorazione](#lavorazioni) · [Usare Git](#hit-e-hithub) · [Scrivere un articolo](#scrivere-un-articolo)
 

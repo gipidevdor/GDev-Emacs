@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:04446b92809554271517551324b313135b849830503af4fa34e75445cf3d569f -->
+<!-- Generato da GDev; non modificare. Fonti sha256:590438f513d9040a0241e9ce2c5fe275dfad9f2031fb02423e05c6dd7452693b -->
 
 # Tracciabilità
 
@@ -373,7 +373,34 @@
                 "gdev-agent-interface-headless-assurance-rejects-unsupported-actions"
                 "gdev-agent-interface-headless-procedure-failure-is-an-error"
                 "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
-                "test/gdev-cli-contract-test.py")))
+                "test/gdev-cli-contract-test.py"))
+   (:id "GDEV-P14" :version 1
+        :statement "Le operazioni di progetto devono riconoscere il contesto dai manifesti, attivare gli adattatori necessari e preparare gli artefatti richiesti prima dell'esecuzione effettiva. Le scelte esplicite prevalgono sulle deduzioni; errori, annullamenti e risposte superate non producono un successo."
+        :origin "Mandato dell'utente sull'ergonomia e l'autoconfigurazione per ogni tipo di progetto, inclusi Cpp, Perl e Python"
+        :rationale "Governare l'integrazione automatica con un contratto tematico comune ed esiti osservabili"
+        :category functional :priority must :criticality high :owner "Manutentori di GDev"
+        :status accepted :applicability applicable :method test :procedure "GDEV-VERIFY"
+        :acceptance "Cartelle senza Git e sottocartelle usano la radice corretta. Make conserva il proprio obiettivo predefinito, espone attività e variabili senza riscrivere i sorgenti. Perl prepara e costruisce prima dei test; Python costruisce pacchetti o bytecode. Il controllo comune è passivo e offre recupero; il modello finito rileva falsi successi e fornitori privi di contratto."
+        :sources ("lisp/gdev-project-types.el" "lisp/gdev-project-operations.el"
+                  "lisp/gdev-auto-modules.el" "lisp/gdev-launch.el" "lisp/gdev-lib.el"
+                  "lisp/gdev-cli.el" "bin/gdev-cli-entry.el"
+                  "modules/tools/build/config.el" "modules/tools/build/gdev-make.el"
+                  "modules/tools/build/gdev-project-control.el" "modules/tools/build/gdev-mise.el"
+                  "modules/lang/python/config.el" ".gdev-project.eld"
+                  "test/behavior/project.feature" "test/requirements-project-build.txt"
+                  "docs/operazioni-progetto.md")
+        :tests ("gdev-test-make-recognizes-folders-without-git-for-every-marker"
+                "gdev-test-make-default-build-produces-a-real-executable"
+                "gdev-test-make-variables-are-data-and-persist-per-project"
+                "gdev-test-project-operation-declarations-refresh-and-respect-personal-choices"
+                "gdev-test-project-operation-activates-languages-without-a-document"
+                "gdev-test-project-operation-perl-generates-makefile-builds-and-tests"
+                "gdev-test-project-operation-python-compiles-sources-and-reports-errors"
+                "gdev-test-project-operation-python-builds-distributable-packages"
+                "gdev-test-project-operation-model-detects-false-readiness-and-success"
+                "gdev-test-project-operation-model-detects-an-unclassified-provider"
+                "gdev-test-project-operation-control-is-passive-and-actions-retain-root"
+                "test/gdev-project-bdd-test.el")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
@@ -551,7 +578,7 @@
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13" "GDEV-P14")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")
@@ -807,7 +834,7 @@
   (:target "iso-iec-ieee-29148#@document" :edition "2018")
   (:target "iso-iec-ieee-12207#@document" :edition "2026"))
  :project ".gdev-assurance/project.eld"
- :requirements ("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04" "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08" "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03" "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13")
+ :requirements ("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04" "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08" "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03" "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13" "GDEV-P14")
  :reliability-cases ("audit" "crashes" "migration_faults" "read" "resource" "workspace" "write_faults")
  :minimum-model-operations 1280 :minimum-crash-points 8 :minimum-sql-faults 16
  :minimum-mutations 7)

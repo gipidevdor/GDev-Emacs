@@ -33,6 +33,7 @@
 ;;   gdev bench [N]    misura N volte l'avvio grafico (5 se omesso)
 ;;   gdev docs         rigenera docs/keymap.md dalle mappe dei tasti
 ;;   gdev audit        inventario JSON di moduli, menu, tasti e viste
+;;   gdev test         esegue i test ERT con stato e configurazione temporanei
 ;;   gdev assurance SOTTOCOMANDO legge l'archivio di assicurazione del progetto
 ;;                     corrente, senza modificarlo: status, list [STATO],
 ;;                     show ID, verify, assess ID
@@ -74,6 +75,8 @@
 (declare-function gdev-doctor-run "gdev-doctor")
 (declare-function gdev-doctor-format "gdev-doctor")
 (declare-function gdev-fork-merge "gdev-fork-merge" (package base incoming))
+(declare-function ert-run-tests-batch "ert" (&optional selector))
+(declare-function ert-stats-completed-unexpected "ert" (stats))
 (declare-function comp-el-to-eln-filename "comp.c")
 (defvar comp-files-queue)
 (defvar comp-async-compilations)
@@ -711,6 +714,13 @@ Il nucleo carica da solo, senza moduli né pacchetti."
   (require 'gdev-assurance)
   (gdev-assurance-cli arguments))
 
+(defun gdev-cli-test ()
+  "Esegui il corpus ERT in stato e configurazione temporanei."
+  (gdev-env--add-tool-directories)
+  (load (gdev-config-file "test/gdev-test.el") nil t t)
+  (let ((stats (ert-run-tests-batch t)))
+    (if (zerop (ert-stats-completed-unexpected stats)) 0 1)))
+
 ;;;; Punto di ingresso
 
 (defun gdev-cli--operand-p (argument)
@@ -729,6 +739,7 @@ Il nucleo carica da solo, senza moduli né pacchetti."
      (:operands "PACCHETTO BASE NUOVO" 3 3 gdev-cli--operand-p))
     ("rollback" gdev-cli-rollback (:operands "[REVISIONE]" 0 1 gdev-cli--operand-p))
     ("doctor" gdev-cli-doctor)
+    ("test" gdev-cli-test)
     ("stato" gdev-cli-stato (:operands "verifica [FILE] | copie | copia [FILE] | recupera COPIA NUOVA_CARTELLA" 1 3 gdev-cli--operand-p))
     ("env" gdev-cli-env)
     ("compile" gdev-cli-compile (:flags "-w" "--native"))
