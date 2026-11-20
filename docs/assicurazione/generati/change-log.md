@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:b32a2e5363ccc8c92f1bb6af7b0362623b785f8d9870f79f8a0210616ba49ad5 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:e7208de2a6c569fd29df36bded02f753fb33cec444b1983a4fcaa404cc553ca3 -->
 
 # Registro delle modifiche
 
@@ -107,7 +107,7 @@ raccoglie edizioni, licenze e formati dei riferimenti normativi.
 
 - **M7 completata il 2026-11-18**: cinque controlli proposti per `high-assurance` e
   `critical` (indipendenza della verifica, revisione di una persona, valutazione
-  registrata prima della linea di base, autorizzazione e approvazione di persone
+  registrata prima del consolidamento, autorizzazione e approvazione di persone
   diverse, nessuna deroga) e quattro nuove forme di requisito per scriverli.
   Restano provvisori, da rivedere.
 
@@ -170,7 +170,7 @@ raccoglie edizioni, licenze e formati dei riferimenti normativi.
   configurazione lato server (protezione dei rami) che il repository non può
   imporre da solo.
 - **Esce quando**: un commit senza transazione autorizzata è rifiutato in
-  locale e in CI, e un progetto preesistente produce una linea di base
+  locale e in CI, e un progetto preesistente produce una versione di riferimento
   verificabile senza falsificare la storia.
 
 ### Fase E — Agenti e auto-applicazione
@@ -197,7 +197,7 @@ raccoglie edizioni, licenze e formati dei riferimenti normativi.
   saltare un controllo).
 - **Dipendenze**: Fase D.
 - **Esce quando**: ogni tentativo vietato fallisce lasciando traccia, e il
-  recupero da un archivio o da una linea di base danneggiati è documentato e
+  recupero da un archivio o da una versione di riferimento danneggiati è documentato e
   provato.
 
 ## Ordine e dipendenze

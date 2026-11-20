@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:897ef54c70b50a727699ae2a514370d63fce5878d6b5f286a5acd8772001c543 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:c421262ef8bd672cd5aaae79e066b422c165e437d336faf523fa516cc1237e07 -->
 
 # Rilascio
 
@@ -93,7 +93,7 @@ repository e sono verificate tramite impronte e rigenerazione dell'indice.
 # Assicurazione ingegneristica
 
 Il nucleo dell'assicurazione ingegneristica (Process Kernel) porta una
-modifica da una proposta a una linea di base attraverso stati ammessi, e
+modifica da una proposta a una versione di riferimento attraverso stati ammessi, e
 conserva per ogni passaggio chi l'ha compiuto, quando e con quali prove. Carica
 da solo, senza la configurazione di GDev, i moduli o un modello linguistico.
 
@@ -166,10 +166,10 @@ identificativi sono quelli dello schema dell'archivio.
 
 | Profilo | Controlli propri | Eredita |
 | --- | --- | --- |
-| `core` | GES-C01 autorizzazione di una persona prima dell'implementazione; GES-C02 catena di audit integra; GES-C03 approvazione di una persona prima della linea di base | |
+| `core` | GES-C01 autorizzazione di una persona prima dell'implementazione; GES-C02 catena di audit integra; GES-C03 approvazione di una persona prima del consolidamento | |
 | `quality` | GES-Q01 prova di verifica raccolta in `VERIFYING` | `core` |
 | `secure` | GES-S01 chi propone non autorizza; GES-S02 analisi del rischio registrata in `ANALYZED`; GES-S03 revisione registrata in `REVIEWING` | `quality` |
-| `high-assurance` | provvisorio: GES-H01 verifica registrata da chi non ha portato la transazione in `VERIFYING`; GES-H02 revisione registrata da una persona; GES-H03 valutazione registrata prima della linea di base | `secure` |
+| `high-assurance` | provvisorio: GES-H01 verifica registrata da chi non ha portato la transazione in `VERIFYING`; GES-H02 revisione registrata da una persona; GES-H03 valutazione registrata prima del consolidamento | `secure` |
 | `critical` | provvisorio: GES-K01 autorizzazione e approvazione di persone diverse; GES-K02 nessuna deroga | `high-assurance` |
 
 **I controlli di `high-assurance` e `critical` sono una proposta di GDev, da
@@ -503,9 +503,9 @@ sono finali. La tabella completa è `gdev-process-transitions`; ogni altra coppi
 | Regola | Effetto |
 | --- | --- |
 | Passaggi riservati | `AUTHORIZED`, `APPROVED`, `BASELINED`, `REJECTED`, `CANCELLED`, `SUSPENDED` e `SUPERSEDED` richiedono un attore umano. Un agente, la CI o il sistema non li compiono. |
-| Separazione dei ruoli | Dal profilo `secure` in su chi ha aperto la transazione non la autorizza, non la approva e non fissa la linea di base. |
+| Separazione dei ruoli | Dal profilo `secure` in su chi ha aperto la transazione non la autorizza, non la approva e non fissa la versione di riferimento. |
 | Ripresa | Da `BLOCKED` o `SUSPENDED` si torna solo allo stato di partenza. Un agente non rimuove un blocco; solo una persona riprende un lavoro sospeso. |
-| Sostituzione | Una linea di base si sostituisce con `gdev-process-supersede`, da una persona, con una transazione successiva già in `BASELINED`. |
+| Sostituzione | Una versione di riferimento si sostituisce con `gdev-process-supersede`, da una persona, con una transazione successiva già in `BASELINED`. |
 | Prove | Il nucleo fissa l'istante della prova. Una transazione in `BASELINED`, `REJECTED`, `CANCELLED` o `SUPERSEDED` non ne accetta di nuove. |
 | Canale | Se un canale lega `gdev-process-origin` a un tipo d'attore, chi dichiara un altro tipo è rifiutato. Le azioni che un agente esegue dall'editor (`eval`, `command`, `keys`) girano con l'origine `agent`. |
 | Controllo di passaggio | Da `VERIFYING` a `REVIEWING`, dal profilo `quality` in su, serve almeno una prova `fact` con origine `collected` registrata in `VERIFYING` dopo l'ultimo ingresso. Il profilo `core` non ha controlli. |

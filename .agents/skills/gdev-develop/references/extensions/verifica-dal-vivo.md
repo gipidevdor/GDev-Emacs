@@ -101,6 +101,10 @@ per completare quella verifica.
 - `test/gdev-test.el` carica già i file di prova: aggiungere `-l` sullo
   stesso file ridefinisce i test e interrompe l'esecuzione. Seleziona i
   test con l'espressione passata a `ert-run-tests-batch-and-exit`.
+- Per una sonda caricata con `-l` durante l'avvio ordinario, programma la
+  verifica con un timer breve e richiedi esplicitamente i moduli caricati
+  solo all'apertura delle viste. La sonda deve produrre un esito e terminare
+  l'istanza isolata; un messaggio di avvio non dimostra che sia stata eseguita.
 - Dimostra che una prova di regressione coglie il difetto: ripeti il test
   dopo aver sostituito la funzione corretta con `fset` a `ignore`, o dopo
   aver ripristinato il valore errato, e verifica che fallisca. Per

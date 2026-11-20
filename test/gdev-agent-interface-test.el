@@ -250,5 +250,97 @@
       (when (buffer-live-p buffer) (kill-buffer buffer))
       (delete-directory dir t))))
 
+(ert-deftest gdev-agent-interface-formal-discovery-does-not-evaluate-manifest ()
+  "La scoperta segnala il manifesto e indica come consultarne lo stato reale."
+  (let* ((gdev-agent-interface--root (file-name-as-directory (make-temp-file "gdev-agent-formal-" t)))
+         (root gdev-agent-interface--root))
+    (unwind-protect
+        (progn
+          (dolist (directory '("lisp" "templates" "modules" ".gdev-assurance"))
+            (make-directory (expand-file-name directory root) t))
+          (with-temp-file (expand-file-name "lisp/gdev-cli.el" root)
+            (insert "(defconst gdev-cli-commands '((\"prova\" . ignore)))"))
+          (with-temp-file (expand-file-name "templates/init.el" root)
+            (insert "(gdev! :ui prova)"))
+          (should (eq :false (alist-get 'manifest_present
+                                        (alist-get 'development (gdev-agent-interface-inventory "develop")))))
+          (with-temp-file (expand-file-name ".gdev-assurance/project.eld" root)
+            (insert "(error \"Il manifesto non è un programma\")"))
+          (let ((data (alist-get 'development (gdev-agent-interface-inventory "develop"))))
+            (should (eq t (alist-get 'manifest_present data)))
+            (should (equal "agent" (alist-get 'identity data)))
+            (should (string-match-p "gdev agente assicurazione" (alist-get 'agent_entry data))))
+          (should-not (file-exists-p (expand-file-name ".gdev" root))))
+      (delete-directory root t))))
+
+(ert-deftest gdev-agent-interface-headless-assurance-preserves-identity ()
+  "Il nome della persona non promuove il canale agente e i rifiuti restano in audit."
+  (require 'gdev-assurance-actions)
+  (let ((root (make-temp-file "gdev-agent-process-" t)))
+    (unwind-protect
+        (let ((id (gdev-assurance-agent-run root "apri" '("Prova formale" "quality") "persona")))
+          (gdev-assurance-agent-run root "avanza" (list id "classificata") "persona")
+          (gdev-assurance-agent-run root "avanza" (list id "in-analisi") "persona")
+          (should-error (gdev-assurance-agent-run root "avanza" (list id "autorizzata") "persona")
+                        :type 'gdev-process-refused)
+          (let* ((data (gdev-assurance-data "show" root id))
+                 (events (append (alist-get 'events data) nil))
+                 (refusal (car (last events))))
+            (should (equal "ANALYZED" (alist-get 'state (alist-get 'transaction data))))
+            (should (cl-every (lambda (event) (equal "agent" (alist-get 'actor_kind event))) events))
+            (should (equal "persona" (alist-get 'actor refusal)))
+            (should (equal "refusal" (alist-get 'kind refusal)))
+            (should (string-match-p "Autorizzata" (alist-get 'note refusal))))
+          (should (eq t (alist-get 'ok (gdev-assurance-data "verify" root)))))
+      (delete-directory root t))))
+
+(ert-deftest gdev-agent-interface-headless-assurance-rejects-unsupported-actions ()
+  "Un'operazione esclusa non crea un archivio né viene eseguita come persona."
+  (require 'gdev-assurance-actions)
+  (let ((root (make-temp-file "gdev-agent-denied-" t)))
+    (unwind-protect
+        (progn
+          (dolist (command '("confirm" "sign" "decision" "recover" "inesistente"))
+            (should-error (gdev-assurance-agent-run root command nil) :type 'user-error))
+          (should-error (gdev-assurance-action-run root "open" '("Prova" "quality") "x" 'robot)
+                        :type 'gdev-process-refused)
+          (should-not (file-exists-p (expand-file-name ".gdev" root)))
+          (let ((result (gdev-agent-interface--assurance-headless (list root "stato"))))
+            (should (eq t (alist-get 'ok result)))
+            (should (equal "agent" (alist-get 'actor_kind result)))
+            (should (eq :false (alist-get 'archive (alist-get 'data result)))))
+          (should-not (file-exists-p (expand-file-name ".gdev" root))))
+      (delete-directory root t))))
+
+(ert-deftest gdev-agent-interface-headless-procedure-failure-is-an-error ()
+  "Una procedura fallita o interrotta restituisce errore e conserva i dati."
+  (require 'gdev-assurance-actions)
+  (dolist (status '("FAILED" "CANCELLED"))
+    (cl-letf (((symbol-function 'gdev-assurance-agent-run)
+               (lambda (&rest _) (list (cons 'status status)))))
+      (let ((data (gdev-agent-interface--assurance-headless (list temporary-file-directory "esegui-procedura"))))
+        (should (eq :false (alist-get 'ok data)))
+        (should (equal status (alist-get 'status (alist-get 'data data))))
+        (should (stringp (alist-get 'error data)))))))
+
+(ert-deftest gdev-agent-interface-process-labels-are-italian-and-codes-stable ()
+  "Gli stati usano nomi italiani senza cambiare i codici persistiti."
+  (require 'gdev-assurance)
+  (dolist (state gdev-process-states)
+    (let ((label (gdev-assurance-label 'state state)))
+      (should-not (equal (symbol-name state) label))
+      (should (eq state (gdev-assurance-state-code label)))
+      (should (eq state (gdev-assurance-state-code (symbol-name state))))))
+  (should (equal "Consolidata" (gdev-assurance-label 'state 'BASELINED)))
+  (should (eq 'IMPLEMENTING (gdev-assurance-state-code "in-lavorazione")))
+  (should-error (gdev-assurance-state-code "stato inventato") :type 'user-error)
+  (let* ((data '((state . :null) (transactions . [((id . "GT-0001") (state . "IMPLEMENTING")
+                                                 (profile . "quality") (title . "Prova"))])))
+         (text (with-output-to-string (gdev-assurance--render-list data))))
+    (should (string-match-p "In lavorazione" text))
+    (should (string-match-p "Qualità" text))
+    (should-not (string-match-p "IMPLEMENTING" text))
+    (should (equal "IMPLEMENTING" (alist-get 'state (aref (alist-get 'transactions data) 0))))))
+
 (provide 'gdev-agent-interface-test)
 ;;; gdev-agent-interface-test.el ends here

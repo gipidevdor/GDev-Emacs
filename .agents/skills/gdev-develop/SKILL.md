@@ -11,7 +11,20 @@ description: Sviluppa e migliora GDev-Emacs nel suo repository. Usa questa skill
 
 Individua la radice di GDev-Emacs da `bin/gdev` e leggi `AGENTS.md` e le istruzioni applicabili alla zona da modificare. Controlla `git status --short --branch` e leggi le differenze pertinenti prima di scrivere. Includi nella base di lavoro le modifiche già presenti e isola le tue quando si sovrappongono.
 
-Dalla radice esegui `./bin/gdev agent develop` oppure chiama lo strumento MCP `gdev_discover` in modalità `develop`. Verifica che `root` corrisponda al checkout su cui lavori. Usa `interfaces`, `cli_commands` e `modules` per scegliere le fonti e gli strumenti pertinenti. `default_modules` descrive il modello distribuito. Con un prefisso, per esempio `./bin/gdev agent develop gdev-search-`, ottieni anche i simboli corrispondenti con file, riga e indicazione dei comandi interattivi. Apri il sorgente per verificare il percorso chiamato e i relativi vincoli.
+Dalla radice esegui `./bin/gdev agente sviluppo` oppure chiama lo strumento MCP `gdev_discover` in modalità `develop`. Verifica che `root` corrisponda al checkout su cui lavori. Usa `interfaces`, `cli_commands` e `modules` per scegliere le fonti e gli strumenti pertinenti. `default_modules` descrive il modello distribuito. Con un prefisso, per esempio `./bin/gdev agente sviluppo gdev-search-`, ottieni anche i simboli corrispondenti con file, riga e indicazione dei comandi interattivi. Apri il sorgente per verificare il percorso chiamato e i relativi vincoli.
+
+Usa `./bin/gdev agente uso` per il lavoro in un progetto. Le forme tecniche
+`./bin/gdev agent develop` e `./bin/gdev agent use` restano disponibili. Se `development.manifest_present` è vero, leggi
+il progetto formale e la lavorazione attraverso `gdev agente assicurazione
+RADICE progetto`, `elenca`, `scheda ID` e `valuta ID`. Questa entrata funziona
+con l'editor chiuso e registra le azioni con il tipo agente.
+
+Prima del codice di produzione prepara o seleziona una lavorazione, collega
+scheda e istantanea e registra analisi e autorizzazione. Segui il ciclo
+descritto in [Progetto formale e mandato degli agenti](references/extensions/sviluppo-formale.md).
+Il profilo dell'utente può essere usato su suo mandato esplicito: conserva
+decisione, esecutore e ambito nell'audit. Mantieni distinta l'autorizzazione
+a eseguire da una revisione effettivamente svolta dalla persona.
 
 Rileggi il catalogo dopo un cambio di revisione o un intervento sulle dichiarazioni esposte. Se la revisione o l'installazione di Emacs non espone il comando, parti da `bin/gdev`, `lisp/gdev-cli.el`, `templates/init.el` e dal codice pertinente. Per aggiornare i sorgenti serve che l'utente abbia chiesto l'aggiornamento.
 

@@ -42,6 +42,7 @@
 (declare-function gdev-lavorazione-agent-richiesta "gdev-lavorazione-agent" (action &rest arguments))
 (declare-function gdev-agent-control-request "gdev-agent-control" (action &rest arguments))
 (defvar gdev-layout-mode)
+(declare-function gdev-assurance-agent-run "gdev-assurance-actions" (root command operands &optional actor))
 
 (defun gdev-agent-interface--read (file visit &optional needle)
   "Passa a VISIT le forme al livello superiore di FILE con le loro righe.
@@ -216,7 +217,13 @@ Con NEEDLE, salta i file in cui la stringa è assente."
                                     `((action . ,action) (arity . ,arity)))
                                   gdev-agent-interface--live-actions))))
    (when (string= mode "develop")
-     (list (cons 'modules (gdev-agent-interface--modules))))
+     (list (cons 'modules (gdev-agent-interface--modules))
+           (cons 'development
+                 `((project_manifest . ".gdev-assurance/project.eld")
+                   (manifest_present . ,(if (file-regular-p (expand-file-name ".gdev-assurance/project.eld" gdev-agent-interface--root)) t :false))
+                   (workflow . "docs/assicurazione/progetto-formale.md")
+                   (agent_entry . "gdev agente assicurazione RADICE OPERAZIONE [ARGOMENTI]")
+                   (identity . "agent")))))
    (when prefix (list (cons 'symbols (gdev-agent-interface--symbols prefix))))))
 
 (defun gdev-agent-interface--error (message-text)
@@ -224,6 +231,23 @@ Con NEEDLE, salta i file in cui la stringa è assente."
   `((schema_version . ,gdev-agent-interface--schema-version)
     (ok . :false)
     (error . ,message-text)))
+
+(defun gdev-agent-interface--assurance-headless (arguments)
+  "Esegui una richiesta formale senza editor, descritta da ARGUMENTS."
+  (unless (>= (length arguments) 2)
+    (user-error "Uso: gdev agente assicurazione RADICE OPERAZIONE [ARGOMENTI]"))
+  (add-to-list 'load-path (expand-file-name "lisp" gdev-agent-interface--root))
+  (require 'gdev-assurance-actions)
+  (let* ((root (pop arguments)) (command (pop arguments))
+         (result (gdev-assurance-agent-run root command arguments))
+         (status (and (listp result) (alist-get 'status result)))
+         (failed (member status '("FAILED" "CANCELLED"))))
+    (append
+     `((schema_version . ,gdev-agent-interface--schema-version)
+       (ok . ,(if failed :false t)) (root . ,root)
+       (actor_kind . "agent")
+       (data . ,(if (symbolp result) (symbol-name result) result)))
+     (when failed (list (cons 'error "La procedura non è riuscita; consulta il giornale della lavorazione"))))))
 
 (defun gdev-agent-interface--status ()
   "Restituisci i dati di navigazione della finestra editor attiva."
@@ -462,11 +486,14 @@ Questa funzione restituisce JSON, anche in caso di errore."
         (json-parse-string (decode-coding-string (base64-decode-string reply) 'utf-8-unix)
                            :object-type 'alist :null-object :null :false-object :false)))))
 
-(defun gdev-agent-interface-main ()
-  "Stampa un oggetto JSON e termina con stato diverso da zero in caso di errore."
+(defun gdev-agent-interface-cli ()
+  "Stampa un oggetto JSON e restituisci il codice di uscita della richiesta."
   (set-terminal-coding-system 'utf-8-unix)
-  (let* ((arguments command-line-args-left)
+  (let* ((arguments (prog1 command-line-args-left (setq command-line-args-left nil)))
          (mode (pop arguments))
+         (mode (or (cdr (assoc mode '(("sviluppo" . "develop") ("uso" . "use")
+                                     ("dal-vivo" . "live") ("assicurazione" . "assurance"))))
+                   mode))
          (response
           (condition-case err
               (pcase mode
@@ -475,20 +502,25 @@ Questa funzione restituisce JSON, anche in caso di errore."
                              (and (= (length arguments) 1)
                                   (not (string-empty-p (car arguments)))
                                   (not (string-prefix-p "--" (car arguments)))))
-                   (user-error "Uso: gdev agent develop [PREFISSO]"))
+                   (user-error "Uso: gdev agente sviluppo [PREFISSO]"))
                  (gdev-agent-interface-inventory mode (car arguments)))
                 ("use"
-                 (when arguments (user-error "Uso: gdev agent use"))
+                 (when arguments (user-error "Uso: gdev agente uso"))
                  (gdev-agent-interface-inventory mode))
                 ("live" (gdev-agent-interface--live (pop arguments) (pop arguments) arguments))
-                (_ (user-error "Uso: gdev agent develop [PREFISSO] | use | live SOCKET AZIONE [ARGOMENTI]")))
+                ("assurance" (gdev-agent-interface--assurance-headless arguments))
+                (_ (user-error "Uso: gdev agente sviluppo [PREFISSO] | uso | assicurazione RADICE OPERAZIONE [ARGOMENTI] | dal-vivo SOCKET AZIONE [ARGOMENTI]")))
             (error (gdev-agent-interface--error (error-message-string err))))))
     ;; json-serialize restituisce byte UTF-8. In batch princ stampa testo.
     ;; Questo file si carica da solo, senza gdev-lib, nel percorso rapido di `gdev agent':
     ;; per questo non usa `gdev-json-text'.
     (princ (decode-coding-string (json-serialize response) 'utf-8-unix))
     (terpri)
-    (kill-emacs (if (assq 'error response) 1 0))))
+    (if (assq 'error response) 1 0)))
+
+(defun gdev-agent-interface-main ()
+  "Avvia la richiesta e termina; conserva l'entrata Lisp esistente."
+  (kill-emacs (gdev-agent-interface-cli)))
 
 (provide 'gdev-agent-interface)
 ;;; gdev-agent-interface.el ends here

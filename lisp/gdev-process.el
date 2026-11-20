@@ -47,6 +47,7 @@
 (require 'gdev-assurance-db)
 (require 'gdev-policy)
 (require 'gdev-gates)
+(require 'gdev-assurance-labels)
 
 (declare-function sqlite-execute "sqlite.c" (db query &optional values))
 (declare-function sqlite-select "sqlite.c" (db query &optional values return-type))
@@ -277,7 +278,8 @@ conto di quell'attore; il nucleo rifiuta e registra chi ne dichiara un altro.")
   "Regola `human-only': i passaggi riservati sono di una persona."
   (let ((to (plist-get context :target)) (kind (plist-get context :actor-kind)))
     (when (and (memq to gdev-process--human-states) (not (eq kind 'human)))
-      (format "%s richiede una persona, non un attore di tipo %s" to kind))))
+      (format "Il passaggio a «%s» richiede una persona; attore: %s"
+              (gdev-assurance-label 'state to) (gdev-assurance-label 'actor kind)))))
 
 (defun gdev-process--rule-suspended (context)
   "Regola `suspended-resume-human': solo una persona riprende un lavoro sospeso."
@@ -302,18 +304,18 @@ conto di quell'attore; il nucleo rifiuta e registra chi ne dichiara un altro.")
               (alist-get 'profile tx) (alist-get 'id tx) to))))
 
 (defun gdev-process--rule-supersede-human (context)
-  "Regola `supersede-human': solo una persona sostituisce una linea di base."
+  "Richiedi una persona per sostituire la versione di riferimento."
   (unless (eq (plist-get context :actor-kind) 'human)
-    "Solo una persona sostituisce una linea di base"))
+    "Solo una persona sostituisce una versione di riferimento"))
 
 (defun gdev-process--rule-supersede-old (context)
-  "Regola `supersede-old-baselined': ciò che si sostituisce è una linea di base."
+  "Controlla che la versione da sostituire sia consolidata."
   (let ((old (plist-get context :tx)))
     (unless (eq (alist-get 'state old) 'BASELINED)
       (format "%s non è in BASELINED" (alist-get 'id old)))))
 
 (defun gdev-process--rule-supersede-new (context)
-  "Regola `supersede-new-baselined': ciò che sostituisce è una linea di base."
+  "Controlla che la nuova versione di riferimento sia consolidata."
   (let ((new (plist-get context :new)))
     (unless (eq (alist-get 'state new) 'BASELINED)
       (format "%s non è in BASELINED" (alist-get 'id new)))))
@@ -341,11 +343,11 @@ conto di quell'attore; il nucleo rifiuta e registra chi ne dichiara un altro.")
                 (gate ,#'gdev-gates-rule "Le prove richieste dal controllo di passaggio.")))
   (apply #'gdev-policy-register 'transition rule))
 (dolist (rule `((supersede-human ,#'gdev-process--rule-supersede-human
-                                 "Solo una persona sostituisce una linea di base.")
+                                 "Solo una persona sostituisce una versione di riferimento.")
                 (supersede-old-baselined ,#'gdev-process--rule-supersede-old
-                                         "Si sostituisce una linea di base.")
+                                         "Si sostituisce una versione di riferimento.")
                 (supersede-new-baselined ,#'gdev-process--rule-supersede-new
-                                         "Si sostituisce con una linea di base.")
+                                         "Si sostituisce con una versione di riferimento.")
                 (supersede-order ,#'gdev-process--rule-supersede-order
                                  "Chi sostituisce è successivo.")))
   (apply #'gdev-policy-register 'supersede rule))
@@ -439,7 +441,7 @@ Se una regola lo vieta registra il rifiuto e segnala `gdev-process-refused'."
 (cl-defun gdev-process-supersede (db old-id new-id &key actor actor-kind note)
   "Segna OLD-ID come SUPERSEDED da NEW-ID.
 Entrambe devono essere in BASELINED e NEW-ID deve essere successiva.  Solo
-una persona sostituisce una linea di base."
+una persona sostituisce una versione di riferimento."
   (gdev-process-check-actor actor actor-kind)
   (gdev-process--check-note note)
   (gdev-process-attempt

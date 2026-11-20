@@ -346,7 +346,27 @@
         :acceptance "Un profilo vuoto si inizializza senza archivi preesistenti e conserva i valori al secondo avvio, anche con percorsi non ASCII e primi scrittori concorrenti. Articolo legge un profilo precedente dopo la migrazione. Errori SQL, lock, copie corrotte e pubblicazioni interrotte preservano i dati recuperabili. Il ripristino in un nuovo profilo è ripetibile."
         :method test :procedure "GDEV-VERIFY"
         :sources ("lisp/gdev-state-db.el" "lisp/gdev-state-db-maintenance.el" "lisp/gdev-session-db.el" "lisp/gdev-workspaces.el")
-        :tests ("gdev-test-state-db-migrates-on-article-session-read" "gdev-test-state-db-migration-is-retryable-after-failure" "gdev-test-state-db-corruption-recovery-and-missing-primary" "gdev-test-state-db-refuses-foreign-future-and-altered-archives" "gdev-test-state-db-busy-and-full-rollback" "gdev-test-db-review-corrupt-daily-copy" "gdev-test-db-review-concurrent-clean-workspace" "gdev-test-db-review-profile-boundary" "gdev-test-db-review-owner-integrity" "gdev-test-db-review-recovery-publication" "gdev-test-state-db-copy-dates-survive-file-copies" "gdev-test-state-db-backup-directory-ownership" "gdev-test-state-db-native-writers-detect-conflicts" "gdev-test-workspaces-historical-collision-remains-recoverable" "gdev-test-state-db-engine-resource-errors" "gdev-test-state-db-copy-supports-strict-sqlite-and-cleans-failures")))
+        :tests ("gdev-test-state-db-migrates-on-article-session-read" "gdev-test-state-db-migration-is-retryable-after-failure" "gdev-test-state-db-corruption-recovery-and-missing-primary" "gdev-test-state-db-refuses-foreign-future-and-altered-archives" "gdev-test-state-db-busy-and-full-rollback" "gdev-test-db-review-corrupt-daily-copy" "gdev-test-db-review-concurrent-clean-workspace" "gdev-test-db-review-profile-boundary" "gdev-test-db-review-owner-integrity" "gdev-test-db-review-recovery-publication" "gdev-test-state-db-copy-dates-survive-file-copies" "gdev-test-state-db-backup-directory-ownership" "gdev-test-state-db-native-writers-detect-conflicts" "gdev-test-workspaces-historical-collision-remains-recoverable" "gdev-test-state-db-engine-resource-errors" "gdev-test-state-db-copy-supports-strict-sqlite-and-cleans-failures"))
+   (:id "GDEV-P13" :version 1
+        :statement "Lo sviluppo agentico deve usare lavorazioni formali, identità esplicite, istantanee aggiornate e prove registrate. Gli strumenti senza editor devono isolare le cache prima di caricare librerie. Il profilo personale può essere usato sul mandato espresso della persona, conservando chi decide e chi esegue. CLI e viste condividono le etichette italiane."
+        :origin "Richiesta dell'utente sullo sviluppo governato, l'uso del suo profilo e i testi italiani"
+        :rationale "Applicare alla distribuzione e agli agenti lo stesso processo verificabile"
+        :category process :priority must :criticality high :owner "Manutentori di GDev"
+        :status accepted :applicability applicable
+        :acceptance "La scoperta indica il progetto formale. La CLI funziona senza editor e conserva il tipo agente nell'audit. Un nome utente non concede autorizzazioni. I passaggi su mandato riportano la decisione effettiva della persona e l'esecutore. Cache temporanee rimosse dopo successo ed errore; codici persistiti stabili e nomi italiani condivisi."
+        :method test :procedure "GDEV-VERIFY"
+        :sources ("AGENTS.md" ".agents/skills/gdev-develop/SKILL.md" "bin/gdev"
+                  "bin/gdev-agent-entry.el" "lisp/gdev-agent-interface.el"
+                  "lisp/gdev-assurance-actions.el" "lisp/gdev-assurance-labels.el"
+                  "lisp/gdev-process.el" "lisp/gdev-assurance.el"
+                  "modules/ui/workbench/gdev-assurance-workbench.el"
+                  "modules/ui/workbench/gdev-lavorazione.el" "docs/agenti.md")
+        :tests ("gdev-agent-interface-formal-discovery-does-not-evaluate-manifest"
+                "gdev-agent-interface-headless-assurance-preserves-identity"
+                "gdev-agent-interface-headless-assurance-rejects-unsupported-actions"
+                "gdev-agent-interface-headless-procedure-failure-is-an-error"
+                "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
+                "test/gdev-cli-contract-test.py")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
@@ -524,7 +544,7 @@
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")

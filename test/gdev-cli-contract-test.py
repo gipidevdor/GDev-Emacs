@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import sqlite3
 import socket
 import subprocess
@@ -39,6 +40,92 @@ class CliContracts(unittest.TestCase):
             [str(ROOT / "bin/gdev"), *arguments], cwd=cwd, env=self.env, check=check,
             capture_output=True, encoding="utf-8", timeout=40,
         )
+
+    def test_agent_italian_commands_preserve_discovery_contract(self):
+        for italian, original in [("uso", "use"), ("sviluppo", "develop")]:
+            with self.subTest(italian=italian):
+                translated = json.loads(self.cli("agente", italian).stdout)
+                legacy = json.loads(self.cli("agent", original).stdout)
+                self.assertEqual(translated, legacy)
+        workflow = json.loads(self.cli("agente", "sviluppo").stdout)["development"]
+        self.assertTrue(workflow["manifest_present"])
+        self.assertEqual(workflow["identity"], "agent")
+        self.assertIn("gdev agente assicurazione", workflow["agent_entry"])
+
+    def test_agent_formal_process_keeps_identity_without_an_editor(self):
+        project = self.directory / "progetto formale è 日本語"
+        project.mkdir()
+        self.env["GDEV_ASSURANCE_ACTOR"] = "persona_delegante"
+
+        def operation(command, *operands, check=True):
+            result = self.cli("agente", "assicurazione", str(project), command, *operands, check=check)
+            return result, json.loads(result.stdout)
+
+        _, created = operation("apri", "Sviluppo controllato", "qualità")
+        self.assertEqual(created["actor_kind"], "agent")
+        identifier = created["data"]
+        operation("avanza", identifier, "classificata")
+        operation("avanza", identifier, "in-analisi")
+        result, refused = operation("avanza", identifier, "autorizzata", check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(refused["ok"])
+        self.assertIn("Autorizzata", refused["error"])
+        _, shown = operation("mostra", identifier)
+        self.assertEqual(shown["data"]["transaction"]["state"], "ANALYZED")
+        self.assertTrue(all(row["actor_kind"] == "agent" for row in shown["data"]["events"]))
+        with closing(sqlite3.connect(project / ".gdev/assurance/assurance.sqlite")) as db:
+            self.assertEqual(db.execute("SELECT DISTINCT actor, actor_kind FROM tx_event").fetchall(),
+                             [("persona_delegante", "agent")])
+        self.assertFalse(list(self.state.iterdir()), "La richiesta non deve inizializzare il profilo")
+
+    def test_agent_cache_is_isolated_before_libraries_and_removed_on_exit(self):
+        standard = self.directory / "emacs-standard"
+        record = self.directory / "avvio.json"
+        bootstrap = f"""(progn
+          (setq user-emacs-directory {json.dumps(str(standard) + '/')}
+                native-comp-jit-compilation nil native-comp-enable-subr-trampolines nil)
+          (advice-add 'require :before
+            (lambda (feature &rest _)
+              (when (and (eq feature 'cl-lib) (not (file-exists-p {json.dumps(str(record))})))
+                (make-directory (expand-file-name "eln-cache" user-emacs-directory) t)
+                (with-temp-file {json.dumps(str(record))}
+                  (insert (json-serialize
+                    (list :directory user-emacs-directory :cache (car native-comp-eln-load-path)))))))))"""
+        wrapper = self.directory / "emacs-prova.sh"
+        wrapper.write_text("#!/bin/sh\nexec " + shlex.quote(EMACS) + " --eval " + shlex.quote(bootstrap) + ' "$@"\n')
+        wrapper.chmod(0o700)
+        self.env["EMACS"] = str(wrapper)
+        for mode, expected in [("use", 0), ("inesistente", 1)]:
+            with self.subTest(mode=mode):
+                record.unlink(missing_ok=True)
+                result = self.cli("agent", mode, check=False)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                observed = json.loads(record.read_text())
+                temporary = Path(observed["directory"])
+                self.assertNotEqual(temporary, standard)
+                self.assertFalse(temporary.exists(), "La cache temporanea deve essere rimossa anche dopo un errore")
+                self.assertFalse(standard.exists(), "Il percorso standard non deve essere creato")
+                if observed["cache"]:
+                    self.assertEqual(Path(observed["cache"]).parent, temporary)
+
+    def test_agent_formal_plan_does_not_load_editor_views(self):
+        guard = """(progn
+          (setq native-comp-jit-compilation nil native-comp-enable-subr-trampolines nil)
+          (advice-add 'require :before
+          (lambda (feature &rest _)
+            (when (memq feature '(gdev-ui gdev-layout gdev-context gdev-workspace-roots gdev-workspace-state))
+              (error "La pianificazione ha caricato una vista: %s" feature)))))"""
+        wrapper = self.directory / "emacs-senza-viste.sh"
+        wrapper.write_text("#!/bin/sh\nexec " + shlex.quote(EMACS) + " --eval " + shlex.quote(guard) + ' "$@"\n')
+        wrapper.chmod(0o700)
+        self.env["EMACS"] = str(wrapper)
+        result = self.cli("agente", "assicurazione", str(ROOT), "piano-procedura", "GDEV-VERIFY", check=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        data = json.loads(result.stdout)
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["data"]["status"], "PLANNED")
+        self.assertFalse(data["data"]["effects_applied"])
+        self.assertFalse(list(self.state.iterdir()))
 
     def test_cli_rejects_unknown_arguments(self):
         commands = json.loads(self.cli("agent", "use").stdout)["cli_commands"]

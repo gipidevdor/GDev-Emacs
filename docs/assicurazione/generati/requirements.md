@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:ce3e89c1f2e6fb78883f47fbb6644bd25e885fe7ddb0c93e48f86c921956b6ee -->
+<!-- Generato da GDev; non modificare. Fonti sha256:d6b525ec9d265ba0fa2beeab38913b021c28ff11592e8045d585afd9593c0d57 -->
 
 # Requisiti
 
@@ -12,6 +12,28 @@ La [guida agli agenti](../../agenti.md) descrive il catalogo del checkout
 e il collegamento locale a una sessione Emacs.
 
 ## Dalla richiesta alla verifica
+
+Lo sviluppo di GDev usa il progetto formale in `.gdev-assurance/project.eld`.
+Prima di modificare codice di produzione seleziona o apri una lavorazione,
+collega scheda e progetto, registra l'analisi e verifica l'autorizzazione.
+Usa `gdev agente sviluppo` per la scoperta e `gdev agente assicurazione`
+per operare senza editor conservando l'identità dell'agente. La sola
+presenza del manifesto e un risultato CI positivo non attestano la
+conclusione della lavorazione.
+
+Gli agenti possono usare il profilo dell'utente nei limiti del suo mandato.
+Quando la persona chiede esplicitamente di eseguire un suo passaggio, registra
+la decisione effettiva, il riferimento alla lavorazione e chi la esegue per
+suo conto. Non attribuire alla persona revisioni che non ha svolto. Un nome
+utente da solo non cambia il tipo dell'attore e un agente non si concede
+autorizzazioni. Per le normali operazioni conserva il canale agente.
+
+A sorgenti stabilizzati aggiorna l'istantanea, passa a **In verifica** ed
+esegui le procedure collegate. Registra prove, esiti e limiti nell'archivio;
+le evidenze esterne vanno collegate al ciclo corrente. Prima della consegna
+riporta identificativo, stato, controlli eseguiti e decisioni ancora dovute.
+Usa **Consolidata** per lo stato conclusivo e **Versione di riferimento**
+per la versione fissata e verificata.
 
 1. Ricostruisci il flusso dalla sua normale entrata. Individua il comando, la scorciatoia, il menu e il modulo che lo governa. Registra il comportamento osservato e quello atteso in termini visibili a chi usa Emacs.
 2. Controlla lo stato della copia di lavoro e conserva le modifiche già presenti. Limita le modifiche al comportamento richiesto e alle sue dipendenze dirette.
@@ -417,7 +439,27 @@ La verifica di copertura dello stato condiviso richiede tutte le righe strumenta
         :acceptance "Un profilo vuoto si inizializza senza archivi preesistenti e conserva i valori al secondo avvio, anche con percorsi non ASCII e primi scrittori concorrenti. Articolo legge un profilo precedente dopo la migrazione. Errori SQL, lock, copie corrotte e pubblicazioni interrotte preservano i dati recuperabili. Il ripristino in un nuovo profilo è ripetibile."
         :method test :procedure "GDEV-VERIFY"
         :sources ("lisp/gdev-state-db.el" "lisp/gdev-state-db-maintenance.el" "lisp/gdev-session-db.el" "lisp/gdev-workspaces.el")
-        :tests ("gdev-test-state-db-migrates-on-article-session-read" "gdev-test-state-db-migration-is-retryable-after-failure" "gdev-test-state-db-corruption-recovery-and-missing-primary" "gdev-test-state-db-refuses-foreign-future-and-altered-archives" "gdev-test-state-db-busy-and-full-rollback" "gdev-test-db-review-corrupt-daily-copy" "gdev-test-db-review-concurrent-clean-workspace" "gdev-test-db-review-profile-boundary" "gdev-test-db-review-owner-integrity" "gdev-test-db-review-recovery-publication" "gdev-test-state-db-copy-dates-survive-file-copies" "gdev-test-state-db-backup-directory-ownership" "gdev-test-state-db-native-writers-detect-conflicts" "gdev-test-workspaces-historical-collision-remains-recoverable" "gdev-test-state-db-engine-resource-errors" "gdev-test-state-db-copy-supports-strict-sqlite-and-cleans-failures")))
+        :tests ("gdev-test-state-db-migrates-on-article-session-read" "gdev-test-state-db-migration-is-retryable-after-failure" "gdev-test-state-db-corruption-recovery-and-missing-primary" "gdev-test-state-db-refuses-foreign-future-and-altered-archives" "gdev-test-state-db-busy-and-full-rollback" "gdev-test-db-review-corrupt-daily-copy" "gdev-test-db-review-concurrent-clean-workspace" "gdev-test-db-review-profile-boundary" "gdev-test-db-review-owner-integrity" "gdev-test-db-review-recovery-publication" "gdev-test-state-db-copy-dates-survive-file-copies" "gdev-test-state-db-backup-directory-ownership" "gdev-test-state-db-native-writers-detect-conflicts" "gdev-test-workspaces-historical-collision-remains-recoverable" "gdev-test-state-db-engine-resource-errors" "gdev-test-state-db-copy-supports-strict-sqlite-and-cleans-failures"))
+   (:id "GDEV-P13" :version 1
+        :statement "Lo sviluppo agentico deve usare lavorazioni formali, identità esplicite, istantanee aggiornate e prove registrate. Gli strumenti senza editor devono isolare le cache prima di caricare librerie. Il profilo personale può essere usato sul mandato espresso della persona, conservando chi decide e chi esegue. CLI e viste condividono le etichette italiane."
+        :origin "Richiesta dell'utente sullo sviluppo governato, l'uso del suo profilo e i testi italiani"
+        :rationale "Applicare alla distribuzione e agli agenti lo stesso processo verificabile"
+        :category process :priority must :criticality high :owner "Manutentori di GDev"
+        :status accepted :applicability applicable
+        :acceptance "La scoperta indica il progetto formale. La CLI funziona senza editor e conserva il tipo agente nell'audit. Un nome utente non concede autorizzazioni. I passaggi su mandato riportano la decisione effettiva della persona e l'esecutore. Cache temporanee rimosse dopo successo ed errore; codici persistiti stabili e nomi italiani condivisi."
+        :method test :procedure "GDEV-VERIFY"
+        :sources ("AGENTS.md" ".agents/skills/gdev-develop/SKILL.md" "bin/gdev"
+                  "bin/gdev-agent-entry.el" "lisp/gdev-agent-interface.el"
+                  "lisp/gdev-assurance-actions.el" "lisp/gdev-assurance-labels.el"
+                  "lisp/gdev-process.el" "lisp/gdev-assurance.el"
+                  "modules/ui/workbench/gdev-assurance-workbench.el"
+                  "modules/ui/workbench/gdev-lavorazione.el" "docs/agenti.md")
+        :tests ("gdev-agent-interface-formal-discovery-does-not-evaluate-manifest"
+                "gdev-agent-interface-headless-assurance-preserves-identity"
+                "gdev-agent-interface-headless-assurance-rejects-unsupported-actions"
+                "gdev-agent-interface-headless-procedure-failure-is-an-error"
+                "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
+                "test/gdev-cli-contract-test.py")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
@@ -595,7 +637,7 @@ La verifica di copertura dello stato condiviso richiede tutte le righe strumenta
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")

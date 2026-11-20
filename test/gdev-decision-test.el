@@ -338,11 +338,11 @@ Predefiniti: una deroga di una persona che non ha aperto la transazione."
       (let ((shown (gdev-test-assurance--cli root "show" id)))
         (should (string-match-p "Decisioni:" (cdr shown)))
         (should (string-match-p "DC-0001 +waiver +GES-S02 +responsabile: Accettato per ora" (cdr shown)))
-        (should (string-match-p "decision +PROPOSED +human:responsabile" (cdr shown)))
+        (should (string-match-p "Decisione +Proposta +Persona:responsabile" (cdr shown)))
         (should (string-match-p "\\[DC-0001: waiver GES-S02 sha256:" (cdr shown))))
       (let ((assessed (gdev-test-assurance--cli root "assess" id)))
         (should (= (car assessed) 0))
-        (should (string-match-p "GES-S02 +WAIVED_WITH_AUTHORIZATION" (cdr assessed)))
+        (should (string-match-p "GES-S02 +Deroga autorizzata" (cdr assessed)))
         (should (string-match-p "Derogato da responsabile: Accettato per ora" (cdr assessed)))))))
 
 (ert-deftest gdev-test-decision-policy-registers-its-rules-in-order ()

@@ -215,7 +215,7 @@
     (dolist (requirement (plist-get data :requirements))
       (dolist (test (plist-get requirement :tests))
         (should (or (member test '("project" "model" "project-report"))
-                    (and (string-prefix-p "gdev-test-" test) (ert-test-boundp (intern test)))
+                    (ert-test-boundp (intern-soft test))
                     (file-regular-p (expand-file-name test root))))))))
 
 (ert-deftest gdev-test-project-dependency-cycles-and-unsaved-files-are-refused ()

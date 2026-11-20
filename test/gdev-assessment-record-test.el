@@ -238,7 +238,7 @@
         (should (string-match-p "Valutazioni registrate:" (cdr shown)))
         (should (string-match-p "AS-0001 +2026-01-01T[0-9:.]+Z +secure +.*1 SATISFIED.*\\(pipeline\\)"
                                 (cdr shown)))
-        (should (string-match-p "assessment +ANALYZED +ci:pipeline +\\[AS-0001: input:" (cdr shown))))
+        (should (string-match-p "Valutazione +In analisi +CI:pipeline +\\[AS-0001: input:" (cdr shown))))
       (let ((assessed (gdev-test-assurance--cli root "assess" id)))
         (should (string-match-p "Ultima valutazione registrata: AS-0001 del .* 2 eventi dopo\\."
                                 (cdr assessed)))

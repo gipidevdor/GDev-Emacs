@@ -36,9 +36,9 @@
         (should (file-regular-p (gdev-config-file source))))
       (should (plist-get requirement :tests))
       (dolist (test (plist-get requirement :tests))
-        (cond ((string-prefix-p "gdev-test-" test) (should (ert-test-boundp (intern test))))
+        (cond ((member test '("project" "model" "project-report" "documents")))
               ((string-prefix-p "test/" test) (should (file-regular-p (gdev-config-file test))))
-              (t (should (member test '("project" "model" "project-report" "documents")))))))))))
+              (t (should (ert-test-boundp (intern-soft test)))))))))))
 
 (ert-deftest gdev-test-self-assurance-applies-its-engine-to-distributed-sources ()
   (gdev-test-assurance--with-root root

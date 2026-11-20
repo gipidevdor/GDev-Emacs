@@ -1275,23 +1275,23 @@
           (should (string-search (format "Schema:        versione %d di %d"
                                         (gdev-assurance-db-latest-version)
                                         (gdev-assurance-db-latest-version)) (cdr status)))
-          (should (string-match-p "Transazioni:   2 (BLOCKED 1, PROPOSED 1)" (cdr status)))
+          (should (string-match-p "Transazioni:   2 (Bloccata 1, Proposta 1)" (cdr status)))
           (should (string-match-p "Eventi, prove, rifiuti, decisioni, valutazioni: 6, 1, 1, 0, 0" (cdr status)))
           (should (string-match-p "Ultimo evento: 2026-01-01T" (cdr status))))
         (let ((listing (gdev-test-assurance--cli sub "list")))
-          (should (string-match-p "GT-0001 +BLOCKED +secure +Modifica di prova" (cdr listing)))
-          (should (string-match-p "GT-0002 +PROPOSED +core" (cdr listing))))
+          (should (string-match-p "GT-0001 +Bloccata +Sicuro +Modifica di prova" (cdr listing)))
+          (should (string-match-p "GT-0002 +Proposta +Essenziale" (cdr listing))))
         (let ((filtered (gdev-test-assurance--cli sub "list" "proposed")))
           (should (string-match-p "GT-0002" (cdr filtered)))
           (should-not (string-match-p "GT-0001" (cdr filtered))))
-        (should (string-match-p "Nessuna transazione in BASELINED"
+        (should (string-match-p "Nessuna transazione nello stato Consolidata"
                                 (cdr (gdev-test-assurance--cli sub "list" "BASELINED"))))
         (let ((shown (gdev-test-assurance--cli sub "show" second)))
           (should (= (car shown) 0))
           (should (string-match-p "Prove: nessuna" (cdr shown))))
         (let ((shown (gdev-test-assurance--cli sub "show" first)))
-          (should (string-match-p "CLASSIFIED → BLOCKED +ci:gate +\\[gate negato\\]" (cdr shown)))
-          (should (string-match-p "BLOCKED ✗ APPROVED +human:p +\\[resume-from-origin: Da BLOCKED si riprende solo da CLASSIFIED\\]"
+          (should (string-match-p "Classificata → Bloccata +CI:gate +\\[gate negato\\]" (cdr shown)))
+          (should (string-match-p "Bloccata ✗ Approvata +Persona:p +\\[resume-from-origin: Da BLOCKED si riprende solo da CLASSIFIED\\]"
                                   (cdr shown)))
           (should (string-match-p "EV-0001 +fact +collected +Esito del gate +sha256:[0-9a-f]\\{12\\}…"
                                   (cdr shown))))

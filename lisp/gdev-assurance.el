@@ -197,7 +197,7 @@ Senza archivio restano consultabili lo stato assente e il catalogo."
   "Leggi COMMAND dai sorgenti di ROOT, senza connessioni SQLite."
   (require 'gdev-project)
   (pcase command
-    ("project" (let ((stage (and argument (intern (upcase argument)))))
+    ("project" (let ((stage (and argument (gdev-assurance-state-code argument))))
                  (when (and stage (not (memq stage gdev-process-states))) (user-error "Fase sconosciuta: %s" argument))
                  (gdev-project-data root stage)))
     ("taxonomy"
@@ -244,7 +244,7 @@ gli altri segnalano
       (gdev-assurance-db-read-transaction db (lambda () (pcase command
         ("status" (gdev-assurance--status-data root db))
         ("list"
-         (let* ((state (and argument (intern (upcase argument))))
+         (let* ((state (and argument (gdev-assurance-state-code argument)))
                 (rows (progn
                         (unless (or (null state) (memq state gdev-process-states))
                           (user-error "Stato sconosciuto: %s" argument))
@@ -352,7 +352,7 @@ gli altri segnalano
     (gdev-assurance--say "  SQLite:        %s" (alist-get 'sqlite_version data))
     (gdev-assurance--say "  Transazioni:   %d%s" (alist-get 'transaction_count data)
                          (if counts
-                             (concat " (" (mapconcat (lambda (cell) (format "%s %d" (car cell) (cdr cell)))
+                             (concat " (" (mapconcat (lambda (cell) (format "%s %d" (gdev-assurance-label 'state (car cell)) (cdr cell)))
                                                      counts ", ")
                                      ")")
                            ""))
@@ -372,11 +372,11 @@ gli altri segnalano
   (let ((rows (alist-get 'transactions data))
         (state (alist-get 'state data)))
     (if (zerop (length rows))
-        (gdev-assurance--say "Nessuna transazione%s." (if (eq state :null) "" (format " in %s" state)))
-      (gdev-assurance--say "%-8s %-13s %-15s %s" "ID" "STATO" "PROFILO" "TITOLO")
+        (gdev-assurance--say "Nessuna transazione%s." (if (eq state :null) "" (format " nello stato %s" (gdev-assurance-label 'state state))))
+      (gdev-assurance--say "%-8s %-16s %-15s %s" "ID" "STATO" "PROFILO" "TITOLO")
       (seq-doseq (row rows)
-        (gdev-assurance--say "%-8s %-13s %-15s %s" (alist-get 'id row) (alist-get 'state row)
-                             (alist-get 'profile row) (alist-get 'title row))))
+        (gdev-assurance--say "%-8s %-16s %-15s %s" (alist-get 'id row) (gdev-assurance-label 'state (alist-get 'state row))
+                             (gdev-assurance-label 'profile (alist-get 'profile row)) (alist-get 'title row))))
     0))
 
 (defun gdev-assurance--render-event (event)
@@ -384,12 +384,12 @@ gli altri segnalano
   (let ((kind (alist-get 'kind event))
         (note (alist-get 'note event)))
     (gdev-assurance--say "    %3d  %s  %-10s %s%s  %s:%s%s"
-                         (alist-get 'seq event) (alist-get 'at event) kind
+                         (alist-get 'seq event) (alist-get 'at event) (gdev-assurance-label 'event kind)
                          (pcase kind
-                           ("transition" (format "%s → " (alist-get 'from_state event)))
-                           ("refusal" (format "%s ✗ " (alist-get 'from_state event)))
+                           ("transition" (format "%s → " (gdev-assurance-label 'state (alist-get 'from_state event))))
+                           ("refusal" (format "%s ✗ " (gdev-assurance-label 'state (alist-get 'from_state event))))
                            (_ ""))
-                         (alist-get 'to_state event) (alist-get 'actor_kind event)
+                         (gdev-assurance-label 'state (alist-get 'to_state event)) (gdev-assurance-label 'actor (alist-get 'actor_kind event))
                          (alist-get 'actor event)
                          (if (eq note :null)
                              ""
@@ -405,8 +405,8 @@ uscita."
   (let ((tx (alist-get 'transaction data))
         (evidence (alist-get 'evidence data)))
     (gdev-assurance--say "%s  %s" (alist-get 'id tx) (alist-get 'title tx))
-    (gdev-assurance--say "  Stato:    %s" (alist-get 'state tx))
-    (gdev-assurance--say "  Profilo:  %s" (alist-get 'profile tx))
+    (gdev-assurance--say "  Stato:    %s" (gdev-assurance-label 'state (alist-get 'state tx)))
+    (gdev-assurance--say "  Profilo:  %s" (gdev-assurance-label 'profile (alist-get 'profile tx)))
     (gdev-assurance--say "  Aperta:   %s" (alist-get 'opened_at tx))
     (gdev-assurance--say "  Eventi:")
     (seq-doseq (event (alist-get 'events data))
@@ -458,7 +458,7 @@ soddisfatto, altrimenti 0."
     (gdev-assurance--say "Valutazione di %s: %s%s" (alist-get 'transaction data)
                          (alist-get 'profile_title data)
                          (if (eq (alist-get 'provisional data) t) " (provvisorio)" ""))
-    (gdev-assurance--say "  Stato della transazione: %s" (alist-get 'state data))
+    (gdev-assurance--say "  Stato della transazione: %s" (gdev-assurance-label 'state (alist-get 'state data)))
     (gdev-assurance--say "  Impronta degli ingressi: %s (catena %s, controlli %s)"
                          (gdev-assurance--short-hash (alist-get 'input_digest data))
                          (gdev-assurance--short-hash (alist-get 'chain_head data))
@@ -466,11 +466,11 @@ soddisfatto, altrimenti 0."
     (unless (or (null (alist-get 'context_digest data)) (eq :null (alist-get 'context_digest data)))
       (gdev-assurance--say "  Impronta degli artefatti: %s" (gdev-assurance--short-hash (alist-get 'context_digest data))))
     (seq-doseq (result (alist-get 'results data))
-      (gdev-assurance--say "  %-8s %-14s %s" (alist-get 'control result) (alist-get 'status result)
+      (gdev-assurance--say "  %-8s %-20s %s" (alist-get 'control result) (gdev-assurance-label 'result (alist-get 'status result))
                            (alist-get 'title result))
       (gdev-assurance--say "           %s" (alist-get 'reason result)))
     (gdev-assurance--say "Riepilogo: %s"
-                         (mapconcat (lambda (cell) (format "%d %s" (cdr cell) (car cell))) summary ", "))
+                         (mapconcat (lambda (cell) (format "%d %s" (cdr cell) (gdev-assurance-label 'result (car cell)))) summary ", "))
     (let ((recorded (alist-get 'recorded data)))
       (if (eq recorded :null)
           (gdev-assurance--say "Nessuna valutazione registrata per questa transazione.")

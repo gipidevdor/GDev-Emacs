@@ -52,7 +52,7 @@
 
  (:id "GES-C03"
   :decidibile t
-  :titolo "Approvazione di una persona prima della linea di base"
+  :titolo "Approvazione di una persona prima del consolidamento"
   :dovuto-da BASELINED
   :richiede ((:passaggio :a APPROVED :attore human)
              (:passaggio :a BASELINED :attore human))
@@ -120,7 +120,7 @@
 
  (:id "GES-H03"
   :decidibile t
-  :titolo "Valutazione registrata prima della linea di base"
+  :titolo "Valutazione registrata prima del consolidamento"
   :dovuto-da BASELINED
   :richiede ((:valutazione-registrata :prima-di BASELINED))
   :metodo "Si cerca nella catena una valutazione registrata prima del passaggio a BASELINED."

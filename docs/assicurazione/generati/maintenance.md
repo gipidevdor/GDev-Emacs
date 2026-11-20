@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:c907c68176e6ed9ab4bb1a448ce053310f1057567adb7a85a759bd8cdcc13ae6 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:30e852b8f9a26d170d4ae5293268523d2761fe87d33f7b850d79c24987aeff21 -->
 
 # Manutenzione
 
@@ -11,7 +11,7 @@ Il nucleo SQL conserva istantanee ed esecuzioni immutabili; il Workbench, la
 CLI e MCP leggono gli stessi servizi. I piani automatici restano file
 `.lavorazione`: non esiste un secondo interprete di comandi.
 
-GDev applica questa struttura a se stesso con venti requisiti in
+GDev applica questa struttura a se stesso con ventuno requisiti in
 [project.eld](../../../.gdev-assurance/project.eld), sette procedure e nove
 modelli. Il [contratto di autoverifica](../../../.gdev-assurance/self-check.eld)
 richiama gli identificativi del progetto e aggiunge le dimensioni della
@@ -81,13 +81,13 @@ La scheda non introduce una seconda macchina a stati:
 
 | Stato operativo | Stati del nucleo |
 | --- | --- |
-| Bozza | PROPOSED, CLASSIFIED |
-| Pronta | ANALYZED, AUTHORIZED |
-| In corso | IMPLEMENTING |
-| In verifica | VERIFYING, REVIEWING |
-| Completata | APPROVED, BASELINED |
-| Bloccata / sospesa | BLOCKED, SUSPENDED, con motivo e stato di origine |
-| Annullata | CANCELLED |
+| Bozza | Proposta, Classificata |
+| Pronta | In analisi, Autorizzata |
+| In corso | In lavorazione |
+| In verifica | In verifica, In revisione |
+| Completata | Approvata, Consolidata |
+| Bloccata / sospesa | Bloccata, Sospesa, con motivo e stato di origine |
+| Annullata | Annullata |
 
 I passaggi si effettuano con **Avanza** o `advance ID STATO`. I passaggi
 riservati a una persona mantengono le regole esistenti. Le dipendenze fra
@@ -191,7 +191,7 @@ Le esecuzioni fallite e annullate restano consultabili dopo quelle riuscite.
 
 ## Chiusura, invalidazione e rapporti
 
-Prima di revisione, approvazione e linea di base servono definizione completa,
+Prima di revisione, approvazione e versione di riferimento servono definizione completa,
 istantanea corrente, procedure riuscite nel ciclo VERIFYING attuale,
 controlli richiesti da ogni requisito ed artefatti obbligatori esistenti e
 identificati. `assess` include queste condizioni e le mostra nel Workbench.

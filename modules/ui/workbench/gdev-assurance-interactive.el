@@ -119,7 +119,7 @@
   (let* ((context (gdev-assurance--context t))
          (tx (alist-get 'transaction (gdev-assurance-data "show" (plist-get context :root) (plist-get context :id))))
          (states (cdr (assq (intern (alist-get 'state tx)) gdev-process-transitions)))
-         (choices (mapcar (lambda (state) (cons (format "%s · %s" (gdev-assurance--state-label state) state) (symbol-name state))) states)))
+         (choices (mapcar (lambda (state) (cons (gdev-assurance--state-label state) (symbol-name state))) states)))
     (unless choices (user-error "La transazione è conclusa"))
     (gdev-assurance--write context "advance"
                            (list (plist-get context :id) (cdr (assoc (completing-read "Passa a: " choices nil t) choices))))))

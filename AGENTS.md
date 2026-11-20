@@ -7,6 +7,28 @@ e il collegamento locale a una sessione Emacs.
 
 ## Dalla richiesta alla verifica
 
+Lo sviluppo di GDev usa il progetto formale in `.gdev-assurance/project.eld`.
+Prima di modificare codice di produzione seleziona o apri una lavorazione,
+collega scheda e progetto, registra l'analisi e verifica l'autorizzazione.
+Usa `gdev agente sviluppo` per la scoperta e `gdev agente assicurazione`
+per operare senza editor conservando l'identità dell'agente. La sola
+presenza del manifesto e un risultato CI positivo non attestano la
+conclusione della lavorazione.
+
+Gli agenti possono usare il profilo dell'utente nei limiti del suo mandato.
+Quando la persona chiede esplicitamente di eseguire un suo passaggio, registra
+la decisione effettiva, il riferimento alla lavorazione e chi la esegue per
+suo conto. Non attribuire alla persona revisioni che non ha svolto. Un nome
+utente da solo non cambia il tipo dell'attore e un agente non si concede
+autorizzazioni. Per le normali operazioni conserva il canale agente.
+
+A sorgenti stabilizzati aggiorna l'istantanea, passa a **In verifica** ed
+esegui le procedure collegate. Registra prove, esiti e limiti nell'archivio;
+le evidenze esterne vanno collegate al ciclo corrente. Prima della consegna
+riporta identificativo, stato, controlli eseguiti e decisioni ancora dovute.
+Usa **Consolidata** per lo stato conclusivo e **Versione di riferimento**
+per la versione fissata e verificata.
+
 1. Ricostruisci il flusso dalla sua normale entrata. Individua il comando, la scorciatoia, il menu e il modulo che lo governa. Registra il comportamento osservato e quello atteso in termini visibili a chi usa Emacs.
 2. Controlla lo stato della copia di lavoro e conserva le modifiche già presenti. Limita le modifiche al comportamento richiesto e alle sue dipendenze dirette.
 3. Per effetti visivi o interazioni con più soluzioni plausibili, riproduci il caso e realizza prototipi isolati prima di cambiare l'implementazione. Confrontali sugli stessi dati e alla stessa dimensione. Scegli in base a leggibilità, facilità d'uso, costo di manutenzione e prestazioni. Conserva le catture essenziali quando servono a mostrare la differenza.

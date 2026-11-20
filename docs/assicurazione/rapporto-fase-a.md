@@ -204,12 +204,12 @@ architetturale, non ancora approvata. **[?]** punto non verificato.
 ## 12. Strategia di adozione legacy
 
 - **[P]** (1) Inventario in sola lettura. (2) Un umano sceglie il profilo.
-  (3) Linea di base 0 dichiarata: commit e impronte attuali, prove con origine
+  (3) Versione di riferimento 0 dichiarata: commit e impronte attuali, prove con origine
   `reconstructed`. (4) Valutazione iniziale: tutto `NOT_VERIFIED`. (5) Le lacune
   diventano transazioni. (6) Un controllo passa a `SATISFIED` solo con una
   prova nuova e raccolta dopo l'adozione.
 - **[P]** Per GDev stesso: stessa procedura, più un percorso di recupero
-  registrato, da applicare se archivio o linea di base risultano danneggiati.
+  registrato, da applicare se archivio o versione di riferimento risultano danneggiati.
 
 ## 13. Gestione delle licenze normative
 

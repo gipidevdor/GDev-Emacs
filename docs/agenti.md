@@ -14,8 +14,8 @@ relativo `SKILL.md` all’agente.
 Dalla radice del repository:
 
 ```sh
-./bin/gdev agent use
-./bin/gdev agent develop gdev-search-
+./bin/gdev agente uso
+./bin/gdev agente sviluppo gdev-search-
 ```
 
 Il primo comando scopre i comandi della CLI, i moduli del modello distribuito e
@@ -24,6 +24,46 @@ dal repository e cerca le definizioni che iniziano con `gdev-search-`. Ometti
 il prefisso per l’inventario senza ricerca. I due comandi leggono il checkout
 corrente, anche con modifiche locali. La scoperta legge solo i sorgenti
 distribuiti e funziona con l’editor chiuso.
+
+## Sviluppa attraverso il progetto formale
+
+Per GDev il manifesto è `.gdev-assurance/project.eld`. La scoperta lo
+segnala in `development`; la sua presenza è una dichiarazione da consultare.
+Dalla radice leggi progetto, lavorazioni e valutazione con:
+
+```sh
+./bin/gdev agente assicurazione "$PWD" progetto
+./bin/gdev agente assicurazione "$PWD" elenca
+./bin/gdev agente assicurazione "$PWD" scheda ID
+./bin/gdev agente assicurazione "$PWD" valuta ID
+```
+
+Il canale funziona anche con l'editor chiuso, senza aprire buffer o creare
+la cartella standard di Emacs. Le cache sono isolate prima del caricamento
+delle librerie e rimosse all'uscita, anche dopo un errore. Per le operazioni
+formali viene usato l'archivio della radice indicata e il tipo attore resta
+**Agente**. Il nome scelto con `GDEV_ASSURANCE_ACTOR` identifica l'esecutore.
+
+Apri una lavorazione con `apri TITOLO qualità`, collega una scheda versionata
+con `collega-scheda ID PERCORSO` e il progetto con `collega-progetto ID`.
+Usa l'identificativo restituito dal comando. `avanza ID classificata` e
+`avanza ID in-analisi` preparano il lavoro; l'autorizzazione precede le
+modifiche di produzione. L'utente può chiedere all'agente di operare tramite
+il suo profilo: il passaggio registra la sua decisione effettiva, il mandato
+e l'esecutore. Un agente conserva la propria identità nelle decisioni autonome
+e non attribuisce alla persona una revisione che non ha svolto.
+
+A codice finale ricollega scheda e progetto, passa con `avanza ID in-verifica`
+ed esegui `esegui-procedura ID GDEV-VERIFY`. Il giornale conserva prove,
+fallimenti, interruzioni e riprese. `valuta ID` indica cosa manca;
+`registra-valutazione ID` registra l'esito corrente. La consegna riporta
+anche stato della lavorazione, decisioni dovute e prove invalidate.
+Lo stato **Consolidata** identifica una **Versione di riferimento**.
+
+I codici JSON e i comandi precedenti `agent use`, `agent develop` e
+`agent live` restano disponibili alle integrazioni. Gli strumenti MCP dal
+vivo continuano a riferirsi allo spazio effettivo dell'editor; la CLI senza
+editor usa la radice esplicita.
 
 ## Collega il server MCP
 
@@ -98,8 +138,8 @@ argomenti. Imposta `EMACS` per scegliere l’eseguibile di Emacs.
 Nelle letture `show`, `assess` e `standard-assess`, `argument` vuoto usa la
 transazione scelta nel Workbench se `root` è vuoto o coincide. Una radice
 esplicita diversa non eredita la scelta. Senza una scelta attiva occorre
-indicare l'identificativo. Le scritture degli agenti restano proposte:
-la vista non converte l'identità dell'agente in quella della persona.
+indicare l'identificativo. Lo strumento MCP `gdev_assurance_request` accoda
+proposte: la vista conserva l'identità dell'agente anche dopo la conferma.
 
 Le operazioni dal vivo compaiono quando il server raggiunge un’istanza. Il
 server usa il processo Emacs già in esecuzione e verifica che appartenga allo

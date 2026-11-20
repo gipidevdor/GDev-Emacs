@@ -52,10 +52,10 @@ if [ "${1:-}" = "emacs" ]; then
     exec "$EMACS" --init-directory "$root" "$@"
 fi
 
-if [ "${1:-}" = "agent" ]; then
+if [ "${1:-}" = "agent" ] || [ "${1:-}" = "agente" ]; then
     shift
-    exec "$EMACS" --batch -Q -l "$root/lisp/gdev-agent-interface.el" \
-        -f gdev-agent-interface-main "$@"
+    exec "$EMACS" --batch -Q -l "$root/bin/gdev-agent-entry.el" \
+        -f gdev-agent-entry "$@"
 fi
 
 exec "$EMACS" --batch -Q \

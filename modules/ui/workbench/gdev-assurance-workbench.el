@@ -23,17 +23,13 @@
     (trace . "Tracce") (requests . "Proposte") (documents . "Documenti")
     (capability . "Capacità") (verify . "Audit") (impact . "Impatto")))
 (defconst gdev-assurance--states
-  '(("PROPOSED" . "Proposta") ("CLASSIFIED" . "Classificata") ("ANALYZED" . "Analizzata")
-    ("AUTHORIZED" . "Autorizzata") ("IMPLEMENTING" . "In sviluppo") ("VERIFYING" . "In verifica")
-    ("REVIEWING" . "In revisione") ("APPROVED" . "Approvata") ("BASELINED" . "Linea di base")
-    ("BLOCKED" . "Bloccata") ("SUSPENDED" . "Sospesa") ("REJECTED" . "Rifiutata")
-    ("CANCELLED" . "Annullata") ("SUPERSEDED" . "Sostituita")))
+  (cdr (assq 'state gdev-assurance-labels)))
 (defconst gdev-assurance--results
-  '(("SATISFIED" "Soddisfatto" gdev-ui-status-success)
-    ("NOT_SATISFIED" "Non soddisfatto" gdev-ui-status-error)
-    ("NOT_VERIFIED" "Da verificare" gdev-ui-status-warning)
-    ("NOT_APPLICABLE" "Non applicabile" gdev-ui-secondary)
-    ("WAIVED_WITH_AUTHORIZATION" "Deroga autorizzata" gdev-ui-status-warning)))
+  (mapcar (lambda (entry)
+            (list (car entry) (gdev-assurance-label 'result (car entry)) (cadr entry)))
+          '(("SATISFIED" gdev-ui-status-success) ("NOT_SATISFIED" gdev-ui-status-error)
+            ("NOT_VERIFIED" gdev-ui-status-warning) ("NOT_APPLICABLE" gdev-ui-secondary)
+            ("WAIVED_WITH_AUTHORIZATION" gdev-ui-status-warning))))
 (defconst gdev-assurance--page-size 30)
 (defvar-local gdev-assurance--root nil)
 (defvar-local gdev-assurance--space nil)
@@ -57,7 +53,7 @@
 (defun gdev-assurance--state-label (state)
   "Restituisci l'etichetta italiana di STATE, simbolo o testo."
   (let ((name (if (symbolp state) (symbol-name state) state)))
-    (or (cdr (assoc name gdev-assurance--states)) name)))
+    (gdev-assurance-label 'state name)))
 
 (defun gdev-assurance--project-root (&optional root)
   "Ricava la radice locale ROOT dal contesto effettivo del comando."
@@ -237,7 +233,7 @@
    (lambda (row)
      (let ((id (alist-get 'id row)))
        (gdev-assurance--row (list 'transaction id) (concat id " · " (alist-get 'title row))
-                            (format "%s · %s" (gdev-assurance--state-label (alist-get 'state row)) (alist-get 'profile row))
+                            (format "%s · %s" (gdev-assurance--state-label (alist-get 'state row)) (gdev-assurance-label 'profile (alist-get 'profile row)))
                             (lambda () (gdev-assurance-select id))))))
   (let ((work (alist-get 'work (alist-get 'work gdev-assurance--model))))
     (when (and work (not (eq work :null)))

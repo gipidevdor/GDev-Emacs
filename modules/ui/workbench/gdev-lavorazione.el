@@ -16,11 +16,15 @@
 (require 'json)
 (require 'js)
 (require 'subr-x)
-(require 'gdev-ui)
-(require 'gdev-layout)
-(require 'gdev-context)
-(require 'gdev-workspace-roots)
-(require 'gdev-workspace-state)
+;; Il motore delle procedure serve anche senza editor. Le viste e lo stato
+;; dello spazio si caricano quando viene usato un comando interattivo.
+(autoload 'gdev-ui-view-setup "gdev-ui")
+(autoload 'gdev-layout-mark-auxiliary "gdev-layout")
+(autoload 'gdev-workspace-state-id "gdev-workspace-state")
+(autoload 'gdev-workspace-state-find "gdev-workspace-state")
+(autoload 'gdev-workspace-state-ensure-id "gdev-workspace-state")
+(autoload 'gdev-workspace-directory "gdev-workspaces")
+(defvar gdev-context-items)
 
 (declare-function gdev-open-file "gdev-commands" (file &optional wildcards))
 (declare-function gdev-close-document "gdev-commands" ())

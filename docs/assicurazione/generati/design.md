@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:afb396aee4aaf3ee0d52dced76a996dc31fae909e33aff067b7b43d29429701b -->
+<!-- Generato da GDev; non modificare. Fonti sha256:bdb21598ea482babbfc1594e448f90d95aa9b7dbb7ab5ccc518dac10a16ee287 -->
 
 # Progettazione
 
@@ -59,7 +59,7 @@
 
  (:id "GES-C03"
   :decidibile t
-  :titolo "Approvazione di una persona prima della linea di base"
+  :titolo "Approvazione di una persona prima del consolidamento"
   :dovuto-da BASELINED
   :richiede ((:passaggio :a APPROVED :attore human)
              (:passaggio :a BASELINED :attore human))
@@ -127,7 +127,7 @@
 
  (:id "GES-H03"
   :decidibile t
-  :titolo "Valutazione registrata prima della linea di base"
+  :titolo "Valutazione registrata prima del consolidamento"
   :dovuto-da BASELINED
   :richiede ((:valutazione-registrata :prima-di BASELINED))
   :metodo "Si cerca nella catena una valutazione registrata prima del passaggio a BASELINED."
