@@ -289,7 +289,11 @@
            (save-place-forget-unreadable-files nil)
            (save-place-loaded nil)
            (project-list-file (gdev-state-file "projects"))
-           (project--list (list (list gdev-state-directory)))
+           ;; Il runner Linux colloca i temporanei nella home: il
+           ;; serializzatore nativo può abbreviare quei percorsi con ~.
+           ;; Copri sempre anche la home, indipendentemente da TMPDIR.
+           (project-roots (list gdev-state-directory (expand-file-name "~/")))
+           (project--list (mapcar #'list project-roots))
            (savehist-file (gdev-state-file "history"))
            (savehist-additional-variables '(search-ring))
            (savehist-minibuffer-history-variables nil)
@@ -308,7 +312,10 @@
       (project--write-project-list)
       (setq project--list nil)
       (project--read-project-list)
-      (should (equal project--list (list (list gdev-state-directory))))
+      (should (equal (mapcar (lambda (entry)
+                              (cons (expand-file-name (car entry)) (cdr entry)))
+                            project--list)
+                     (mapcar #'list project-roots)))
       (savehist-save)
       (setq search-ring nil)
       (unwind-protect
