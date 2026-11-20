@@ -300,8 +300,14 @@
   (let ((root (make-temp-file "gdev-agent-denied-" t)))
     (unwind-protect
         (progn
+          (dolist (invalid-root (list nil "relativa" "/ssh:gdev-invalid:/tmp"
+                                     (expand-file-name "inesistente" root)))
+            (should-error (gdev-assurance-agent-run invalid-root "stato" nil)
+                          :type 'user-error))
           (dolist (command '("confirm" "sign" "decision" "recover" "inesistente"))
             (should-error (gdev-assurance-agent-run root command nil) :type 'user-error))
+          (should-error (gdev-assurance-agent-run root "stato" '("argomento inatteso"))
+                        :type 'user-error)
           (should-error (gdev-assurance-action-run root "open" '("Prova" "quality") "x" 'robot)
                         :type 'gdev-process-refused)
           (should-not (file-exists-p (expand-file-name ".gdev" root)))

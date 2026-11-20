@@ -40,3 +40,10 @@ La CLI conserva i codici stabili nei dati JSON e usa nomi italiani nei
 comandi e nelle viste. Il canale agente non si promuove cambiando nome.
 Il nucleo locale non autentica la persona: per un vincolo esterno servono
 ricevute e firmatari effettivamente configurati nel controllo remoto.
+
+Quando cambia un modulo dell'assicurazione, esegui anche le entrate
+`gdev-coverage-assurance` e `gdev-coverage-assurance-extensions` da
+`test/gdev-coverage.el`. Verifica che il selettore della suite strumentata
+includa i nuovi casi, anche quando hanno un prefisso diverso. Esercita i
+rifiuti prima degli effetti, oltre al percorso riuscito, e conserva il
+vincolo del 100% delle righe strumentabili.

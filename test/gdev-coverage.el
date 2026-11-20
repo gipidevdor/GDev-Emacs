@@ -124,7 +124,7 @@
      "lisp/gdev-assurance-git.el" "lisp/gdev-assurance-requests.el"
      "lisp/gdev-assurance-actions.el" "lisp/gdev-assurance-lavorazione.el"
      "lisp/gdev-standard-catalog.el" "lisp/gdev-standard-assessment.el")
-   "^gdev-test-\\(?:project\\|assurance\\|capability\\|assessment\\|standards\\)-" t))
+   "^\\(?:gdev-test-\\(?:project\\|assurance\\|capability\\|assessment\\|standards\\)-\\|gdev-agent-interface-headless-\\)" t))
 
 (provide 'gdev-coverage)
 ;;; gdev-coverage.el ends here

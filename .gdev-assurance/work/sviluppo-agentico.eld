@@ -13,7 +13,8 @@
           "lisp/gdev-process.el" "lisp/gdev-assurance.el" "lisp/gdev-assurance-labels.el"
           "modules/ui/workbench/gdev-lavorazione.el"
           "docs/agenti.md" "docs/assicurazione/progetto-formale.md"
-          "test/gdev-agent-interface-test.el" "test/gdev-cli-contract-test.py")
+          "test/gdev-agent-interface-test.el" "test/gdev-cli-contract-test.py"
+          "test/gdev-coverage.el")
  :prerequisites ("Mandato dell'utente per lo sviluppo governato e i testi in italiano"
                  "Conservare l'archivio reale e le lavorazioni precedenti senza attribuire approvazioni retroattive")
  :owner "Manutentori di GDev e agente incaricato"
