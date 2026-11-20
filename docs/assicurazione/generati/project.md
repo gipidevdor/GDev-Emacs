@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:92703ad2fd43476b1c4741934f3ed7d036726b7875d0aa1b3d1b831f9341a93d -->
+<!-- Generato da GDev; non modificare. Fonti sha256:beb54627b672b3f3b2708e09a131c5466d33c82ddbea6dc9ff37f6cdc252655c -->
 
 # GDev-Emacs
 
@@ -131,4 +131,4 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | test/gdev-reliability-worker.el | 9abc5583b4e4a3496ed2b5da42ac7654c1dc005e7b5f0b40062b31dc2b439907 |
 | test/gdev-self-assurance-test.el | 1fb0920fad0cac7d8e13aa7bd44f2bf69cefc4d7b9e2a98152b82a3a25aa0462 |
 | vendor/elpa/consult-3.10/consult-imenu.el | b517dca651e85dbe493b952f372785cc84d4b12d0dd8045f861790c1526fa653 |
-| vendor/pacchetti.el | f0c4b761a00ca9225a04e7feea9e1c8afe5f1ddba8260eac6f440a3baba5dec3 |
+| vendor/pacchetti.el | 345b6d6481836d76e884a2ac66ef0838d8080ab74a2d02f0d09bc447edc48b36 |

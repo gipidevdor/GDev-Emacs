@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:4f77fde3c0568819527a83a52f449ba1461e8ebeb70ea6b5fed3e172b6cbad61 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:4a9857315b42080dd82321ab720ee3bb2c094e97814bba2858dd6c367cc4bdd6 -->
 
 # Configurazione
 
@@ -26,7 +26,7 @@ anche il nome originale. Le etichette dell'interfaccia usano il nome GDev.
 | [Breadcrumb GDev](../../../modules/ui/breadcrumb/config.el) | [Breadcrumb 1.0.1](https://elpa.gnu.org/packages/breadcrumb.html) | [GPL-3.0-or-later](../../../vendor/elpa/breadcrumb-1.0.1/breadcrumb.el). Espone i segmenti dei simboli per la navigazione, conserva nomi e posizioni Imenu e riusa l'indice già calcolato. |
 | [Convertitore regex GDev](../../../modules/tools/git/config.el) | [pcre2el 1.12](../../../vendor/elpa/pcre2el-1.12/pcre2el.el) | GPL-3.0-or-later, con attribuzione BSD incorporata. Usato dai Promemoria di Hit; aggiorna i flag del minibuffer con l'API delle regioni, conservando testo, prompt e comportamento del cursore. |
 | [BDD Elisp GDev](../../../test/gdev-bdd.el) | [Buttercup 1.41](../../../vendor/elpa/buttercup-1.41/GDEV.md) | GPL-3.0-or-later. Fork locale del motore BDD, con segnali falliti e pendenti intercettabili anche da ERT. |
-| [Gherkin GDev](../../../test/behavior/README.md) | [Parser Ecukes 0.7.0](../../../vendor/elpa/gdev-gherkin-0.7.0/GDEV.md) | GPL-3.0-or-later. Parser italiano/inglese, outline e controllo dei passi ignorati; riusa F, S e Dash già inclusi. |
+| [Gherkin GDev](../../../test/behavior/README.md) | [Parser Ecukes 0.7.0](../../../vendor/elpa/gdev-gherkin-0.7.0/GDEV.md) | GPL-3.0-or-later. Parser italiano/inglese, esempi validati e distinti, scansione iterativa e controllo dei passi ignorati; riusa F, S e Dash già inclusi. |
 | [Cursori multipli GDev](../../../modules/editor/multiple-cursors/config.el) | [multiple-cursors 1.5.0](../../../vendor/elpa/multiple-cursors-1.5.0/multiple-cursors-core.el) | GPL-3.0-or-later. Numero di riga corretto anche in batch e colonna coerente per il primo cursore aggiunto dalla selezione. |
 | Certificati GDev | [x509-mode 20261112.729](../../../vendor/elpa/x509-mode-20261112.729/x509-mode.el) | MIT. Il caricamento a freddo durante la compilazione di un altro modulo trova i dati nella cartella del fork. |
 

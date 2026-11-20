@@ -27,5 +27,10 @@ righe e con un titolo privo di parametri. Il solo parsing non rileva una
 collisione fra i nomi generati. Affianca agli esempi errati uno scenario
 valido, così la prova rileva anche gli outline che il parser ignorerebbe.
 Controlla che un errore nell'ultimo scenario non registri quelli precedenti.
+Se aggiorni `docs/dipendenze.md`, rigenera la sua copia di configurazione
+con `./bin/gdev assurance documents` e verifica con `documents check`.
+Il manifesto `.gdev-assurance/documents.eld` elenca le altre fonti generate.
+Rigenera e controlla anche `./bin/gdev assurance project-report` quando
+cambiano gli input del progetto formale, incluse le istruzioni degli agenti.
 Ripeti la compilazione nativa dopo modifiche ai fork e verifica il caricamento
 a freddo, in una copia isolata. Conserva soltanto le evidenze utili.
