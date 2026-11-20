@@ -152,6 +152,24 @@
    (should (directory-files "dist" nil "\\.whl\\'"))
    (should (directory-files "dist" nil "\\.tar\\.gz\\'"))))
 
+(ert-deftest gdev-test-project-operation-python-aliases-use-venv-and-preserve-explicit-interpreters ()
+  (gdev-make-test--load)
+  (gdev-make-test--project
+    (load (gdev-module-file :lang 'python ".el") nil t t)
+    (make-directory ".venv/bin" t)
+    (with-temp-file ".venv/pyvenv.cfg" (insert "# Ambiente della fixture\n"))
+    (with-temp-file ".venv/bin/python") (set-file-modes ".venv/bin/python" #o700)
+    (with-temp-file "interprete-personale") (set-file-modes "interprete-personale" #o700)
+    (let ((gdev-trusted-projects (list (file-name-as-directory (file-truename root)))))
+      (dolist (name '("python" "python3"))
+        (with-temp-buffer
+          (let ((python-shell-interpreter name))
+            (should (equal (gdev-python--interpreter root) (expand-file-name ".venv/bin/python" root))))))
+      (let ((python-shell-interpreter (expand-file-name "interprete-personale" root)))
+        (load (gdev-module-file :lang 'python ".el") nil t t)
+        (should (equal python-shell-interpreter (expand-file-name "interprete-personale" root)))
+        (should (equal (gdev-python--interpreter root) python-shell-interpreter))))))
+
 (ert-deftest gdev-test-project-operation-make-tasks-merge-with-personal-overrides ()
   (skip-unless (executable-find "make"))
   (gdev-make-test--load)

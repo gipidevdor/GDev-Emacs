@@ -112,15 +112,24 @@
                  (executable-find name (file-remote-p root)))))
     (when file (file-local-name file))))
 
+(defconst gdev-python--interpreter-names '("python3" "python")
+  "Nomi ordinari di Python che seguono l'ambiente automatico del progetto.")
+
+(defun gdev-python--automatic-interpreter-p ()
+  "Indica se l'interprete usa un nome ordinario di Python.
+Un percorso o un nome personalizzato conserva la scelta esplicita."
+  (member python-shell-interpreter gdev-python--interpreter-names))
+
 (defun gdev-python--interpreter (root)
   "Scegli l'interprete da usare in ROOT."
-  (let ((configured python-shell-interpreter))
-    (when (equal configured "python3")
+  (let ((configured python-shell-interpreter)
+        (automatic (gdev-python--automatic-interpreter-p)))
+    (when automatic
       (gdev-python--activate-venv root))
-    (or (if (equal configured "python3")
+    (or (if automatic
             (or (when (gdev-python--venv-bin root) (gdev-python--tool root "python"))
-                (gdev-python--tool root "python3")
-                (gdev-python--tool root "python"))
+                (cl-loop for name in (delete-dups (cons configured (copy-sequence gdev-python--interpreter-names)))
+                         thereis (gdev-python--tool root name)))
           (if (file-name-absolute-p configured)
               (let ((path (expand-file-name (concat (file-remote-p root) configured))))
                 (and (file-executable-p path) (file-local-name path)))
@@ -155,7 +164,7 @@
 (defun gdev-python--project-environment (_root)
   "Prepara l'ambiente Python quando si apre un file del linguaggio."
   (when (and (derived-mode-p 'python-mode 'python-ts-mode)
-             (equal python-shell-interpreter "python3"))
+             (gdev-python--automatic-interpreter-p))
     (gdev-python--activate-venv (gdev-python-root))))
 
 (gdev-module-add-hook 'gdev-project-environment-functions #'gdev-python--project-environment)
@@ -168,7 +177,7 @@
 (defun gdev-python--server (&optional _interactive project)
   "Restituisce il comando per il primo server Python installato."
   (let ((root (gdev-python-root)))
-    (when (and project (equal python-shell-interpreter "python3"))
+    (when (and project (gdev-python--automatic-interpreter-p))
       (gdev-python--activate-venv root))
     (cl-loop for (program . args) in gdev-python-servers
              for executable = (gdev-python--tool root program)

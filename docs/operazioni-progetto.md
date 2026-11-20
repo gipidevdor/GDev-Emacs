@@ -47,7 +47,9 @@ sintattico e `prove`. Non si presenta il controllo sintattico come un
 compilatore di estensioni native: quelle passano dal motore dichiarato.
 
 Python conserva `python-shell-interpreter` e usa `.venv` nelle cartelle
-autorizzate. Un progetto con metadati di pacchetto usa `python -m build`,
+autorizzate. I nomi ordinari `python` e `python3` seguono l'ambiente del
+progetto; un percorso o un nome personalizzato conserva la scelta esplicita.
+Un progetto con metadati di pacchetto usa `python -m build`,
 che costruisce distribuzione sorgente e wheel tramite il backend del
 progetto. Con soli sorgenti, riconosciuti anche da `requirements.txt` o
 `Pipfile`, usa `compileall` e produce bytecode; esclude gli ambienti e le

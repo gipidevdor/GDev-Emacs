@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:8420b470b7eb5e547594909e9268b925a9cfe66883042220661af12e1965bcdb -->
+<!-- Generato da GDev; non modificare. Fonti sha256:d25d183e279562bfd06b71bce3681d443284e56173883bc04961e8187342a0af -->
 
 # GDev-Emacs
 
@@ -85,7 +85,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | docs/algoritmi-e-visualizzazione.md | 40b38a4e89a13db4c3cf8b8935274ef74ea66e8f9db24f928755874933c32bbd |
 | docs/architettura.md | a45b2b89d6c7e5681489eb509db6dbae13b0a657693b96826c3a7e649a03ca28 |
 | docs/assicurazione/standard/indici-fonti.json | fe79879f1fac46479adef672e8407d0b41fded47c0d888d51549d8432d373446 |
-| docs/operazioni-progetto.md | 5e27ac4b0d280cc2c4a0e2ff87782b7abcc16057436a7b1108d537081e7e2f5c |
+| docs/operazioni-progetto.md | dd8cf823419e2d50d67c6237fadc2040d2743a9f6c74f53046d768feb57c7cc2 |
 | early-init.el | 4addcf3c39159d1686d10a819fad915c8efc5d1e7d56f652b91be6c2f306024a |
 | init.el | 77e763a0814c1c5ae4bd7559a24c341a35e654a6bce75822e8f1ac76f68f57e6 |
 | lisp/gdev-agent-interface.el | 0010b6f3f3ebe818d4efdde7ffe1c825c7bacc161dea24f971fa60aba76708f3 |
@@ -129,7 +129,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-workspaces.el | 15f024bfeb1f908c3b98c99af6d4703eaeb73c9939b73b0552c044b03debeb07 |
 | lisp/gdev-xcode.el | eb92cd5cc5e44147609ad96560161196b719aeb40c68f9044df66d3fd7a68ef4 |
 | modules/emacs/ibuffer/config.el | 1850b66d2cd7e635d30dbf8233d2952b05afaffc36f18a79279b056048f96b2f |
-| modules/lang/python/config.el | d7e6bf0c6d29ebda7c3845caea4462178f2cea2a1458b13bdbab65bcc1f08d9d |
+| modules/lang/python/config.el | e2e76e6edd1b0b6a99c6c35b3d6ca736cfd2a857c5e381341dbfa395185530df |
 | modules/lang/swift/config.el | 459629313911aef6008b33b93782c26c0a0e3d4e77986cc9dd14ac4222064b6e |
 | modules/tools/build/config.el | 98a53a9ad80c3517ab8d69ebd7b9a837fc7eb9302d8628fec1043bbf6d183007 |
 | modules/tools/build/gdev-make.el | 6ae2078fb6628c42892ffcfaf322c797b8077cfbb4beee78ec6b87346e6de40f |
