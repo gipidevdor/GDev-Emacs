@@ -56,7 +56,7 @@
   (forge "20261114.1200" "GPL-3.0-or-later" "https://github.com/magit/forge" "3d39bc7d6759cc4769df53889bce121283b0bfcd")
   ;; gdev-doc-view GDev (originale gdev-doc-view), manutenzione locale 2026-11-19.
   (gdev-doc-view "30.1" "GPL-3.0-or-later" "https://github.com/emacs-mirror/emacs" "8ac894e2246f25d2a2a97d866b10e6e0b0fede5a")
-  ;; Gherkin GDev (originale Ecukes), parser locale 2026-11-20.
+  ;; Gherkin GDev (originale Ecukes), outline validati e scansione iterativa, 2026-11-20.
   (gdev-gherkin "0.7.0" "GPL-3.0-or-later" "https://github.com/ecukes/ecukes" "5e07d43e4dd05e1633585a7b4ddff9bcf3061c73")
   (gdev-sposta-testo "2.0.10" "GPL-3.0-or-later" "https://github.com/emacsfodder/move-text" "142890cfb46d9c374113b4b49021a4202033147b")
   (gdev-tex-mode "30.1" "GPL-3.0-or-later" "https://github.com/emacs-mirror/emacs" "8ac894e2246f25d2a2a97d866b10e6e0b0fede5a")

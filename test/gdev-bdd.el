@@ -32,27 +32,32 @@
       (error "Passo BDD %s: %s" (if matches "ambiguo" "non definito") (ecukes-step-name step)))
     (car matches)))
 
-(defun gdev-bdd-run-scenario (feature scenario definitions &optional setup cleanup)
-  "Esegui SCENARIO di FEATURE usando DEFINITIONS, SETUP e CLEANUP.
-Un fallimento o un passo pendente di Buttercup fallisce anche in ERT."
+(defun gdev-bdd--scenario-plan (feature scenario definitions)
+  "Risolvi tutti i passi di SCENARIO e FEATURE tramite DEFINITIONS."
+  (let ((steps (append (when-let* ((background (ecukes-feature-background feature)))
+                         (ecukes-background-steps background))
+                       (ecukes-scenario-steps scenario))))
+    (unless steps (error "Scenario BDD vuoto"))
+    (mapcar (lambda (step)
+              (let ((definition (gdev-bdd--match step definitions)))
+                (list step (car definition)
+                      (append (cdr definition)
+                              (when (ecukes-step-arg step) (list (ecukes-step-arg step)))))))
+            steps)))
+
+(defun gdev-bdd--execute-scenario (scenario plan setup cleanup)
+  "Esegui il PLAN validato di SCENARIO, con SETUP e CLEANUP."
   (let ((buttercup-suites nil)
         (buttercup-reporter #'ignore)
-        (steps (append (when-let* ((background (ecukes-feature-background feature)))
-                         (ecukes-background-steps background))
-                       (ecukes-scenario-steps scenario)))
         context)
-    (unless steps (error "Scenario BDD vuoto"))
     (unwind-protect
         (progn
           (when setup (setq context (funcall setup)))
           (describe (ecukes-scenario-name scenario)
             (it "esegue tutti i passi"
-              (dolist (step steps)
-                (let ((definition (gdev-bdd--match step definitions)))
-                  (ert-info ((ecukes-step-name step))
-                    (apply (car definition) context
-                           (append (cdr definition)
-                                   (when (ecukes-step-arg step) (list (ecukes-step-arg step))))))))))
+              (pcase-dolist (`(,step ,function ,arguments) plan)
+                (ert-info ((ecukes-step-name step))
+                  (apply function context arguments)))))
           (let ((passed (buttercup-run t)))
             (unless (and (eq passed t)
                          (= 1 (buttercup-suites-total-specs-defined buttercup-suites))
@@ -65,28 +70,39 @@ Un fallimento o un passo pendente di Buttercup fallisce anche in ERT."
                                                       (buttercup-spec-failure-description spec))))))))
       (when cleanup (funcall cleanup context)))))
 
+(defun gdev-bdd-run-scenario (feature scenario definitions &optional setup cleanup)
+  "Esegui SCENARIO di FEATURE usando DEFINITIONS, SETUP e CLEANUP.
+Valida i passi prima di SETUP. Un fallimento o un passo pendente di
+Buttercup fallisce anche in ERT. CLEANUP segue ogni avvio di SETUP."
+  (gdev-bdd--execute-scenario scenario (gdev-bdd--scenario-plan feature scenario definitions)
+                              setup cleanup))
+
 (defun gdev-bdd-register-feature (file prefix definitions &optional setup cleanup)
   "Registra gli scenari di FILE in ERT con PREFIX e DEFINITIONS.
-SETUP e CLEANUP sono eseguiti per ogni scenario. Ritorna i nomi ERT."
+Valida tutti i nomi e i passi prima di registrare il primo test.
+SETUP e CLEANUP sono eseguiti per ogni scenario. I passi sono risolti
+una volta alla registrazione. Ritorna i nomi ERT."
   (let* ((feature (gdev-gherkin-read file))
-         (seen (make-hash-table :test #'equal)) names)
+         (seen (make-hash-table :test #'equal)) planned)
     (dolist (scenario (ecukes-feature-scenarios feature))
       (let* ((title (ecukes-scenario-name scenario))
              (slug (replace-regexp-in-string "[^[:alnum:]]+" "-" (downcase title)))
-             (name (intern (concat prefix slug))))
+             (name (intern (concat prefix slug)))
+             (plan (gdev-bdd--scenario-plan feature scenario definitions)))
         (when (gethash name seen) (error "Nome BDD duplicato: %s" title))
         (puthash name t seen)
-        (dolist (step (append (when-let* ((background (ecukes-feature-background feature)))
-                                (ecukes-background-steps background))
-                              (ecukes-scenario-steps scenario)))
-          (gdev-bdd--match step definitions))
-        (ert-set-test name
-                      (make-ert-test
-                       :name name :documentation (format "%s: %s" (file-name-nondirectory file) title)
-                       :tags '(behavior bdd)
-                       :body (lambda () (gdev-bdd-run-scenario feature scenario definitions setup cleanup))))
-        (push name names)))
-    (nreverse names)))
+        ;; Conserva il contratto ERT: in batch una ridefinizione è un errore;
+        ;; nell'editor una ricarica esplicita mantiene il comportamento ERT.
+        (when (and noninteractive (ert-test-boundp name))
+          (error "Test BDD già registrato: %s" name))
+        (push (make-ert-test
+               :name name :documentation (format "%s: %s" (file-name-nondirectory file) title)
+               :tags '(behavior bdd)
+               :body (lambda () (gdev-bdd--execute-scenario scenario plan setup cleanup)))
+              planned)))
+    (setq planned (nreverse planned))
+    (dolist (test planned) (ert-set-test (ert-test-name test) test))
+    (mapcar #'ert-test-name planned)))
 
 (provide 'gdev-bdd)
 ;;; gdev-bdd.el ends here

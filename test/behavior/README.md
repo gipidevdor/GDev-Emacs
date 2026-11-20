@@ -19,7 +19,7 @@ selezione della modalità nelle prove successive.
 | Colonne | Casi Monaco per spazi, TAB, testo e documento vuoto | 8 insiemi di colonne in un test |
 | Completamento, definizioni e rinomina | Fourslash TypeScript con Eglot e il vero `deno lsp` configurato dal modulo JavaScript | 6 test; includono completamento assente, oscuramento dei nomi e JSDoc |
 | Flussi BDD | [editor.feature](editor.feature), in italiano; Buttercup, Gherkin GDev ed ERT | 20 scenari |
-| Contratti dei test | Impronte e licenze, oracoli incompleti, Unicode, errori e passi pendenti, pulizia, outline e caricamento locale dei fork | Test di controllo dedicati |
+| Contratti dei test | Impronte e licenze, oracoli incompleti, Unicode, errori e passi pendenti, pulizia, outline, registrazione completa delle feature, tabelle grandi e caricamento locale dei fork | Test di controllo dedicati |
 
 Gli scenari BDD coprono salvataggio normale e vuoto, conservazione del
 cursore, ricaricamento con conferma e annullamento, annulla/ripeti,
@@ -66,13 +66,19 @@ cambiare la ricerca della configurazione nell'avvio successivo.
 - [Gherkin GDev (parser di Ecukes 0.7.0)](../../vendor/elpa/gdev-gherkin-0.7.0/GDEV.md):
   italiano e inglese, background, outline, esempi, tabelle e stringhe
   multilinea; rifiuta feature vuote, scenari vuoti, righe non riconosciute
-  e stringhe non terminate.
+  e stringhe non terminate. Gli esempi richiedono colonne uniche e non
+  vuote, righe complete e almeno una riga di dati. Ogni riga ha un titolo
+  distinto: `Somma <a>` diventa per esempio `Somma 1 [1]` e `Somma 2 [2]`.
 - [Ponte del progetto](../gdev-bdd.el): `gdev-bdd-register-feature`
   registra un test ERT per scenario. Le definizioni dei passi sono
   coppie `(REGEXP . FUNZIONE)`; la funzione riceve il contesto restituito
   da `setup`, le catture della regexp ed eventualmente tabella o stringa
   multilinea. `cleanup` riceve lo stesso contesto anche dopo un errore.
+  Tutti i nomi e i passi sono validati prima di registrare il primo test.
+  I passi sono risolti alla registrazione e riusati nelle esecuzioni;
+  dopo una modifica alle definizioni ricarica anche la feature.
   Passi mancanti o ambigui, fallimenti e pending non diventano successi.
+  L'esecuzione diretta valida i passi prima di creare il contesto con `setup`.
 
 Le dipendenze F, S e Dash erano già incluse. Non sono richiesti il runner
 CLI, i reporter, Commander, ANSI o Espuds di Ecukes. I fork sono registrati

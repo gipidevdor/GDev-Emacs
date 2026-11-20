@@ -200,5 +200,7 @@
                         (error 'recuperato))))
                    '(passed recuperato nil)))))
 
+(load (gdev-config-file "test/gdev-bdd-contract-test.el") nil t t)
+
 (provide 'gdev-behavior-bdd-test)
 ;;; gdev-behavior-bdd-test.el ends here

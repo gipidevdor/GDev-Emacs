@@ -1,9 +1,10 @@
 ;;; ecukes-parse.el --- Simple line by line parser for feature files -*- lexical-binding: t; -*-
 
 ;; Modificato per GDev-Emacs il 2026-11-20: dialetto Lisp esplicito e
-;; propagazione dei tag senza allocare una lista poi ignorata.
+;; propagazione dei tag, validazione e nomi degli esempi, scansione iterativa.
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
+(require 'cl-lib)
 (require 'dash)
 (require 's)
 (require 'ecukes-def)
@@ -132,7 +133,7 @@
 (defun ecukes-substitute-in-string (string subs)
   (let ((new-s (copy-sequence string))
         (reps  (copy-sequence subs)))
-    (while (not (zerop (length reps)))
+    (while reps
       (setq new-s (s-replace (format "<%s>" (car reps)) (cadr reps) new-s))
       (setq reps (cddr reps)))
     new-s))
@@ -143,15 +144,28 @@
         table))
 
 (defun ecukes-generate-outlined-scenarios (outline)
-  "Generate scenarios from an outline."
+  "Generate distinct scenarios from OUTLINE after validating its examples."
   (let* ((name  (ecukes-outline-name outline))
          (steps (ecukes-outline-steps outline))
          (tags  (ecukes-outline-tags outline))
          (table (ecukes-outline-table outline))
-         (header (car table)))
-    (-map (lambda (row)
-            (make-ecukes-scenario :name name :tags tags :steps (ecukes-substitute-in-steps steps (-interleave header row))))
-          (cdr table))))
+         (header (car table))
+         (columns (length header)))
+    (unless steps (error "Outline without steps: %s" name))
+    (unless (and header (cdr table))
+      (error "Outline without example rows: %s" name))
+    (when (or (-any? #'s-blank? header)
+              (/= columns (length (-distinct header))))
+      (error "Empty or duplicate example column: %s" name))
+    (cl-loop for row in (cdr table) for index from 1
+             unless (= columns (length row))
+             do (error "Example %d has %d columns, expected %d: %s"
+                       index (length row) columns name))
+    (cl-loop for row in (cdr table) for index from 1
+             for substitutions = (-interleave header row)
+             collect (make-ecukes-scenario
+                      :name (format "%s [%d]" (ecukes-substitute-in-string name substitutions) index)
+                      :tags tags :steps (ecukes-substitute-in-steps steps substitutions)))))
 
 (defun ecukes-parse-scenarios ()
   "Parse scenarios."
@@ -264,12 +278,12 @@
 
 (defun ecukes-forward-step ()
   "Go one step forward within current section."
-  (forward-line 1)
-  (let ((line (ecukes-parse-line t)))
-    (unless (ecukes-parse-new-section-p)
-      (if (s-matches? ecukes-parse-step-re (or line ""))
-          (not (not line))
-        (ecukes-forward-step)))))
+  (let (found)
+    (while (and (zerop (forward-line 1))
+                (not (ecukes-parse-new-section-p))
+                (not (setq found (s-matches? ecukes-parse-step-re
+                                            (or (ecukes-parse-line t) ""))))))
+    (and found t)))
 
 (defun ecukes-parse-new-section-p ()
   "Check if current line is the start of a new section."

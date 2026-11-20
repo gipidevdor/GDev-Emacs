@@ -22,5 +22,10 @@ Verifica la suite insieme alle altre: ganci, timer e variabili locali dei
 test precedenti possono rivelare interferenze assenti nell'esecuzione mirata.
 Isola anche `auto-mode-alist` e `interpreter-mode-alist` nei casi registrati:
 in Emacs 30 l'entrata in alcuni modi Tree-sitter aggiunge associazioni globali.
+Prova un outline fino alla registrazione e all'esecuzione ERT, con più
+righe e con un titolo privo di parametri. Il solo parsing non rileva una
+collisione fra i nomi generati. Affianca agli esempi errati uno scenario
+valido, così la prova rileva anche gli outline che il parser ignorerebbe.
+Controlla che un errore nell'ultimo scenario non registri quelli precedenti.
 Ripeti la compilazione nativa dopo modifiche ai fork e verifica il caricamento
 a freddo, in una copia isolata. Conserva soltanto le evidenze utili.

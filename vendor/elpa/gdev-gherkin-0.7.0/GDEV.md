@@ -11,3 +11,11 @@ Le API e le strutture `ecukes-*` del parser restano disponibili.
 F, S e Dash sono dipendenze locali già distribuite da GDev. Il runner,
 la CLI, i reporter e i generatori di progetti di Ecukes non sono inclusi.
 Il ponte `test/gdev-bdd.el` esegue gli scenari con Buttercup e li registra in ERT.
+
+Manutenzione del 20 novembre 2026: il parser genera un nome per ogni riga
+degli esempi, sostituendo i parametri nel titolo e aggiungendo `[1]`, `[2]`,
+ecc. Gli outline senza passi o righe, le colonne vuote o duplicate e le
+righe di larghezza diversa sono errori. La ricerca del passo successivo
+è iterativa: tabelle e sequenze di commenti lunghe conservano un costo
+lineare senza esaurire la pila Lisp. Le strutture e gli identificatori
+`ecukes-*` restano quelli del fork.
