@@ -3571,31 +3571,6 @@ installerebbero pacchetti dentro il repository."
             (should (eq (flymake-diagnostic-type unused) :warning))
             (should (eq (flymake-diagnostic-type syntax) :error))))))))
 
-(ert-deftest gdev-test-manual-format-does-not-overwrite-newer-edits ()
-  "La formattazione asincrona aggiorna il testo solo se è ancora attuale."
-  (load (gdev-module-file :editor 'format ".el") nil t t)
-  (with-temp-buffer
-    (let ((gdev--handlers (make-hash-table :test #'eq)))
-      (gdev-set-formatter 'fundamental-mode (lambda () (gdev-format-with-program "tr" "a-z" "A-Z")))
-      (insert "prova\n")
-      (let* ((process (call-interactively #'gdev-format-dwim))
-             (deadline (+ (float-time) 5)))
-        (should (processp process))
-        (should (equal (buffer-string) "prova\n"))
-        (while (and (process-live-p process) (< (float-time) deadline))
-          (accept-process-output process 0.1))
-        (should (equal (buffer-string) "PROVA\n")))
-      (erase-buffer)
-      (insert "bozza\n")
-      (let* ((process (call-interactively #'gdev-format-buffer))
-             (deadline (+ (float-time) 5)))
-        (insert "aggiunta\n")
-        (while (and (process-live-p process) (< (float-time) deadline))
-          (accept-process-output process 0.1))
-        (should (equal (buffer-string) "bozza\naggiunta\n")))
-      (should (gdev-format-buffer))
-      (should (equal (buffer-string) "BOZZA\nAGGIUNTA\n")))))
-
 (ert-deftest gdev-test-quick-open-keeps-editor-and-explorer ()
   "La ricerca rapida apre e naviga nello stesso riquadro, anche dall'albero."
   (require 'gdev-commands)

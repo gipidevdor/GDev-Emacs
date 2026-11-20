@@ -252,6 +252,7 @@
 (load (gdev-config-file "test/gdev-behavior-bdd-test.el") nil t t)
 (load (gdev-config-file "test/gdev-behavior-emacs-test.el") nil t t)
 (load (gdev-config-file "test/gdev-behavior-lsp-test.el") nil t t)
+(load (gdev-config-file "test/gdev-format-test.el") nil t t)
 
 (provide 'gdev-behavior-test)
 ;;; gdev-behavior-test.el ends here

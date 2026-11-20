@@ -12,6 +12,8 @@
 ;; altrimenti formatta il server di linguaggio.  La
 ;; formattazione sostituisce solo ciò che è cambiato: cursore, segni
 ;; e cronologia di annullamento restano intatti.
+;; Il lavoro in secondo piano termina alla prima modifica del testo,
+;; al cambio di modalità o quando una nuova richiesta lo supera.
 ;;
 ;; Opzione +onsave: formatta anche prima di salvare, ma solo nei
 ;; progetti che dichiarano il proprio stile (.clang-format, .perltidyrc,
@@ -40,10 +42,21 @@
 (defvar-local gdev-format--process nil)
 
 (defun gdev-format--cancel ()
-  "Scarta la richiesta precedente e termina il suo processo."
+  "Libera la richiesta corrente e termina il processo se è ancora attivo."
   (let ((process gdev-format--process))
     (setq gdev-format--process nil)
+    (remove-hook 'after-change-functions #'gdev-format--changed t)
     (when (process-live-p process) (delete-process process))))
+
+(defun gdev-format--changed (&rest _changes)
+  "Interrompi il lavoro il cui testo di partenza è appena cambiato."
+  (gdev-format--cancel))
+
+(defun gdev-format--release (output directory)
+  "Rilascia il buffer OUTPUT e la cartella temporanea DIRECTORY."
+  (unwind-protect
+      (when (buffer-live-p output) (kill-buffer output))
+    (when (file-directory-p directory) (delete-directory directory t))))
 
 (defun gdev-format--start (program arguments)
   "Formatta il testo corrente con PROGRAM e ARGUMENTS in un processo separato."
@@ -65,7 +78,6 @@
           (let ((coding-system-for-write (or coding-system-for-write
                                              (cdr default-process-coding-system))))
             (write-region beg end input nil 'silent))
-          (gdev-format--cancel)
           (setq process
                 (make-process
                  :name "gdev-format" :buffer output :connection-type 'pipe :noquery t
@@ -73,18 +85,26 @@
                                         "input=$1; errors=$2; shift 2; exec \"$@\" < \"$input\" 2> \"$errors\""
                                         "gdev-format" input errors executable)
                                   arguments)
-                 :sentinel #'ignore))
+                 ;; Conserva anche un'uscita consegnata prima che la
+                 ;; sentinella applicativa sia stata installata.
+                 :sentinel (lambda (child event)
+                             (when (memq (process-status child) '(exit signal failed))
+                               (process-put child 'gdev-format--pending-event event)))))
           (setq gdev-format--process process)
           (add-hook 'kill-buffer-hook #'gdev-format--cancel nil t)
+          (add-hook 'change-major-mode-hook #'gdev-format--cancel nil t)
+          (add-hook 'after-change-functions #'gdev-format--changed nil t)
           (set-process-sentinel
            process
            (lambda (child _event)
-             (when (memq (process-status child) '(exit signal failed))
+             (when (and (memq (process-status child) '(exit signal failed))
+                        (not (process-get child 'gdev-format--handled)))
+               (process-put child 'gdev-format--handled t)
                (unwind-protect
                    (when (buffer-live-p source)
                      (with-current-buffer source
                        (when (eq child gdev-format--process)
-                         (setq gdev-format--process nil)
+                         (gdev-format--cancel)
                          (cond
                           ((not (and (eq (process-status child) 'exit)
                                      (zerop (process-exit-status child))))
@@ -97,12 +117,13 @@
                            (with-suppressed-warnings ((obsolete replace-buffer-contents))
                              (replace-buffer-contents output 3)))
                           (t (message "Formattazione scartata perché il documento è cambiato"))))))
-                 (kill-buffer output)
-                 (delete-directory directory t)))))
+                 (gdev-format--release output directory)))))
+          (when-let* ((event (process-get process 'gdev-format--pending-event)))
+            (process-put process 'gdev-format--pending-event nil)
+            (funcall (process-sentinel process) process event))
           process)
       (unless process
-        (kill-buffer output)
-        (delete-directory directory t)))))
+        (gdev-format--release output directory)))))
 
 (defun gdev-format-with-program (program &rest arguments)
   "Passa l'area di testo a PROGRAM ARGUMENTS e lo sostituisce con il risultato.
@@ -110,6 +131,7 @@ La sostituzione è minima (`replace-buffer-contents').  Restituisce non nil
 se riesce; altrimenti mostra gli errori del programma.  Per una richiesta
 manuale locale restituisce il processo, che applica il risultato a fine lavoro."
   (gdev-require-project-environment)
+  (gdev-format--cancel)
   (if (and gdev-format--background (not (file-remote-p default-directory))
            (file-executable-p "/bin/sh"))
       (gdev-format--start program arguments)
@@ -137,13 +159,16 @@ manuale locale restituisce il processo, che applica il risultato a fine lavoro."
   "Formatta il buffer con il gestore registrato o il server di linguaggio.
 Con BACKGROUND avvia in secondo piano un formattatore esterno locale."
   (interactive (list t))
-  (cond ((gdev-handler :format)
-         (let ((gdev-format--background background))
-           (funcall (gdev-handler :format))))
-        ((and (bound-and-true-p eglot--managed-mode)
-              (eglot-server-capable :documentFormattingProvider))
-         (eglot-format-buffer))
-        (t (user-error "Nessun formattatore per %s" major-mode))))
+  (let ((formatter (gdev-handler :format)))
+    (cond (formatter
+           (gdev-format--cancel)
+           (let ((gdev-format--background background))
+             (funcall formatter)))
+          ((and (bound-and-true-p eglot--managed-mode)
+                (eglot-server-capable :documentFormattingProvider))
+           (gdev-format--cancel)
+           (eglot-format-buffer))
+          (t (user-error "Nessun formattatore per %s" major-mode)))))
 
 (defun gdev-format-dwim (&optional beg end background)
   "Formatta la selezione attiva tra BEG e END, altrimenti l'intera area di testo.
@@ -155,6 +180,7 @@ Con BACKGROUND il formattatore esterno locale lavora in secondo piano."
                  (list nil nil t)))
   (cond ((and beg (bound-and-true-p eglot--managed-mode)
               (eglot-server-capable :documentRangeFormattingProvider))
+         (gdev-format--cancel)
          (eglot-format beg end))
         ;; Senza un server a intervalli la selezione verrebbe ignorata e il
         ;; diff riguarderebbe tutto il file: meglio dirlo e chiedere.

@@ -530,7 +530,7 @@ Chiudendo la vista puoi continuare a lavorare mentre i processi proseguono.
 | Trascina una scheda in un altro gruppo o premi `C-c w M` | Il rilascio su un titolo inserisce la scheda prima di quel titolo. Sul corpo del gruppo la aggiunge in coda. Puoi annullare lo spostamento con `C-c w z`. |
 | Scegli **Finestra › Documenti aperti…** (`C-c b o`) | Elenca le schede dei gruppi dello spazio attivo e porta il fuoco al documento scelto. |
 | Scegli **File › Confronta con il file salvato** | Mostra in Ediff le differenze tra il documento aperto e la copia su disco. |
-| Formatta con `C-c c f` | Il formattatore esterno locale lavora in secondo piano. Se modifichi il testo mentre lavora, il risultato viene scartato. |
+| Formatta con `C-c c f` | Il formattatore esterno locale lavora in secondo piano. La prima modifica del testo o il cambio di modalità interrompe il lavoro. Una nuova richiesta di formattazione sostituisce quella precedente, anche passando al server di linguaggio. |
 | Chiudi la vista attiva con `⌘W` | Chiude lo strumento selezionato o nasconde il riquadro laterale. Nelle viste di consultazione puoi anche premere `X`. |
 | Nascondi il riquadro laterale con `⌘B` | Il riquadro resta nascosto nello spazio corrente anche quando apri altri file. |
 | Dividi o ingrandisci un gruppo dal menu **Finestra** | Cambia solo i gruppi di modifica. |

@@ -76,6 +76,16 @@ per completare quella verifica.
   eliminarlo prima che `command-line` ne abbia terminato la gestione.
   Verifica lì modalità e comandi; per il rilascio usa un cambio di modalità
   oppure una prova separata di chiusura del buffer.
+- Per verificare `kill-buffer-hook`, usa `generate-new-buffer` e rilascialo
+  con `unwind-protect`: `with-temp-buffer` inibisce quegli hook e non
+  riproduce la chiusura di un documento normale. Controlla anche il valore
+  restituito da `kill-buffer` prima di asserire gli effetti della chiusura.
+- Per i processi asincroni cattura buffer di output e sentinella prima
+  della fine del lavoro. Attendi la pubblicazione del risultato o il
+  rilascio delle risorse: `process-live-p` può diventare nil prima della
+  consegna della notifica finale. Usa un gate esplicito per ordinare gli
+  eventi; se la prova fallisce, termina il figlio e rilascia le sue risorse
+  nella pulizia, dopo le asserzioni.
 - `format-mode-line` restituisce una stringa vuota senza una finestra
   grafica. Verifica la struttura del formato con un percorritore che segua
   le regole di `mode-line-format`: una lista che inizia con un simbolo è un
