@@ -15,6 +15,7 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'gdev-web-preview)
+(require 'gdev-test-ipc (gdev-config-file "test/gdev-test-ipc"))
 
 (defmacro gdev-test-web-preview--with-project (&rest body)
   "Esegui BODY in un progetto temporaneo; `root' indica la sua radice."
@@ -83,9 +84,8 @@
   (gdev-test-web-preview--with-project
     (let* ((requests 0)
            (server
-            (make-network-process
-             :name "gdev-prova-web" :server t :host "127.0.0.1" :service t
-             :family 'ipv4 :noquery t :coding 'binary
+            (gdev-test-ipc-listen
+             'ipv4 :name "gdev-prova-web" :host "127.0.0.1" :service t :coding 'binary
              :filter (lambda (process _text)
                        (unless (process-get process 'risposto)
                          (process-put process 'risposto t)

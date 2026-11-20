@@ -3,3 +3,5 @@ docs/assicurazione/standard/fonti/slsa/build-track-basics.md -whitespace
 docs/assicurazione/standard/fonti/slsa/source-requirements.md -whitespace
 docs/assicurazione/standard/fonti/slsa/Community-Specification-License-1.0.md -whitespace
 docs/assicurazione/standard/fonti/slsa/Apache-2.0.txt -whitespace
+# Fixture originali: CRLF e spazi fanno parte degli oracoli e dei digest.
+test/behavior/upstream/** -text -whitespace

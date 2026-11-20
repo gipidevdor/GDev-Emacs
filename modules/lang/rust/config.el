@@ -12,10 +12,7 @@
 ;;; Code:
 
 (require 'gdev-handlers)
-
-(defun gdev-rust-project-p (root)
-  "Indica se ROOT contiene Cargo.toml."
-  (gdev-project-file-exists-p root "Cargo.toml"))
+(require 'gdev-project-types)
 
 (defun gdev-rust-command (action _root)
   "Scegli il comando Cargo per ACTION."

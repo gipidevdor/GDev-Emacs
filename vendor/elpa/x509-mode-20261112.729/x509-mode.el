@@ -8,6 +8,8 @@
 ;; Package-Version: 20261112.729
 ;; Package-Revision: 22d01c15a4be
 ;; Package-Requires: ((emacs "25.1") (compat "29.1"))
+;; Modificato per GDev-Emacs il 2026-11-20: i dati di compilazione si
+;; risolvono nella libreria X509 anche durante il require da un altro file.
 
 ;; This file is not part of GNU Emacs.
 
@@ -364,18 +366,14 @@ A two-number OID is also valid but that risks matching to much.")
   (defun x509--load-data-file (filename)
     "Split FILENAME linewise into a list.
 Skip blank lines and comment lines.  Return list."
-    ;; Try to guess path to filename. It may not be in the current directory
-    ;; when compiling.
-    (let ((path
-           (cond
-            ((bound-and-true-p byte-compile-current-file)
-             (expand-file-name filename
-                               (file-name-directory
-                                byte-compile-current-file)))
-            ((bound-and-true-p load-file-name)
-             (expand-file-name filename (file-name-directory load-file-name)))
-            (t
-             filename))))
+    ;; A caller being compiled can require this source before its bytecode
+    ;; exists.  byte-compile-current-file then names that caller, not X509.
+    (let* ((library (or (when (and load-file-name
+                                  (string-prefix-p "x509-mode." (file-name-nondirectory load-file-name)))
+                         load-file-name)
+                       (locate-library "x509-mode")
+                       (and (boundp 'byte-compile-current-file) byte-compile-current-file)))
+           (path (expand-file-name filename (and library (file-name-directory library)))))
       (with-temp-buffer
         (insert-file-contents path)
         (cl-remove-if

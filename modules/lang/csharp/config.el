@@ -12,17 +12,10 @@
 ;;; Code:
 
 (require 'gdev-handlers)
+(require 'gdev-project-types)
 (require 'gdev-language-modes)
 
 (gdev-language-register-tree-sitter 'csharp-mode 'csharp-ts-mode 'c-sharp)
-
-(defun gdev-csharp--files (root suffix)
-  "Elenca i file con SUFFIX per i progetti .NET in ROOT."
-  (directory-files root nil (concat "\\." suffix "\\'")))
-
-(defun gdev-csharp-project-p (root)
-  "Indica se ROOT contiene una soluzione o un progetto .NET."
-  (gdev-csharp--files root "\\(?:slnx?\\|csproj\\)"))
 
 (defun gdev-csharp-command (action root)
   "Scegli un comando dotnet per ACTION in ROOT."

@@ -15,10 +15,12 @@
    (directory-file-name (file-name-directory (file-truename load-file-name)))))
 
 (declare-function gdev-cli-main "../lisp/gdev-cli" ())
+(defvar gdev-state-maintenance-startup nil)
 
 (defun gdev-cli-entry--run ()
   "Prepara i percorsi e invoca il comando richiesto."
-  (load (expand-file-name "early-init.el" gdev-cli-entry--root) nil t t)
+  (let ((gdev-state-maintenance-startup (equal (car command-line-args-left) "stato")))
+    (load (expand-file-name "early-init.el" gdev-cli-entry--root) nil t t))
   (load (expand-file-name "lisp/gdev-cli.el" gdev-cli-entry--root) nil t t)
   (gdev-cli-main))
 

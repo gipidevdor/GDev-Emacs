@@ -42,6 +42,16 @@ terminare un nuovo processo con `Code Signature Invalid`. Conserva i tempi
 dei file e verifica il caricamento da quella cache in un processo batch
 separato. Una finestra già aperta mantiene il codice che aveva caricato.
 
+Per la persistenza SQLite, prova anche una cartella di stato assente e due
+processi consecutivi, registrando sia la versione di Emacs sia
+`sqlite-version`. La stessa versione di Emacs può usare librerie SQLite
+diverse. Una copia con `VACUUM INTO` deve poter creare un file ancora
+assente: riserva una cartella temporanea privata e pubblica il database
+soltanto dopo la verifica. Inietta un errore dopo la copia per verificare
+che non venga pubblicato un risultato incompleto. Per le API con firme
+diverse tra versioni, il compilatore controlla anche i rami non eseguiti:
+costruisci gli argomenti compatibili prima di invocare la funzione.
+
 Per confrontare versioni maggiori o minori di Emacs, usa copie dei sorgenti
 prive di `.elc` e `.eln` compilati con l’altra versione. Anche un bytecode
 più recente del sorgente può cambiare la diagnosi. Compila ciascuna copia

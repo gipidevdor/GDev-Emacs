@@ -133,6 +133,9 @@ Il server applica queste regole di sicurezza:
   Emacs. Una cartella dei socket che sia un collegamento simbolico è rifiutata.
   Se la pulizia di `$TMPDIR` rimuove il file mentre GDev ascolta, un controllo
   ogni cinque minuti, o un nuovo `gdev-mcp-server-start`, riapre il socket.
+  Se la riapertura fallisce, il controllo periodico riprova. Se un’altra
+  istanza usa il percorso, GDev apre un socket con il proprio PID nel nome.
+  Il comando di arresto disattiva i tentativi successivi.
   Una riga in ingresso oltre 8 MiB senza fine riga chiude la connessione.
 - `gdev_eval`, `gdev_command` e `gdev_keys` non partono mentre il minibuffer o
   una modifica ricorsiva attendono l’utente. Con `force: true` agiscono

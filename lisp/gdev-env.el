@@ -23,6 +23,7 @@
 ;;; Code:
 
 (require 'gdev-lib)
+(require 'gdev-state-db)
 
 (defgroup gdev-env nil
   "Ambiente dei processi: PATH e variabili degli strumenti."
@@ -41,7 +42,7 @@ chiaro.  Le credenziali arrivano invece da auth-source."
 
 (defun gdev-env-file ()
   "Restituisce il file in cui è salvato l'ambiente."
-  (gdev-state-file "environment.eld"))
+  (gdev-state-db-file))
 
 (defun gdev-env--apply (pairs)
   "Imposta ogni (NAME . VALUE) di PAIRS e ricostruisce `exec-path' da PATH."
@@ -64,9 +65,13 @@ chiaro.  Le credenziali arrivano invece da auth-source."
 
 (defun gdev-env--write (pairs)
   "Scrive PAIRS nel file dell'ambiente salvato."
-  (gdev-write-state-data (gdev-env-file)
-                         (assoc-delete-all "SSH_AUTH_SOCK" (copy-sequence pairs))
-                         "Ambiente della shell di GDev-Emacs."))
+  (gdev-state-db-with (db t)
+    (gdev-state-db--replace db (gdev-state-db--scope db "ambiente" "" t)
+                            (assoc-delete-all "SSH_AUTH_SOCK" (copy-sequence pairs)))))
+
+(defun gdev-env-saved-p ()
+  (or (gdev-state-db-with (db) (gdev-state-db--scope db "ambiente" ""))
+      (file-readable-p (gdev-state-db--legacy "environment.eld"))))
 
 (defun gdev-env-save-current ()
   "Salva i valori attuali di `gdev-env-variables' nel file dell'ambiente.
@@ -105,20 +110,21 @@ separati da NUL, quindi un a capo dentro un valore non crea problemi."
 (defun gdev-env-load ()
   "Applica l'ambiente salvato se è leggibile e valido."
   (condition-case nil
-      (when (file-exists-p (gdev-env-file))
-        (with-temp-buffer
-          (insert-file-contents (gdev-env-file))
-          (let* ((read-circle nil)
-                 (pairs (read (current-buffer))))
-            (unless (and (proper-list-p pairs)
-                         (cl-every (lambda (pair)
-                                     (and (consp pair)
-                                          (stringp (car pair))
-                                          (or (null (cdr pair)) (stringp (cdr pair)))))
-                                   pairs))
-              (error "Formato dell’ambiente non valido"))
-            (gdev-env--apply pairs)
-            t)))
+      (when (gdev-env-saved-p)
+        (unless (gdev-state-db-with (db) (gdev-state-db--scope db "ambiente" ""))
+          (with-temp-buffer
+            (insert-file-contents (gdev-state-db--legacy "environment.eld"))
+            (let* ((read-circle nil) (pairs (read (current-buffer))))
+              (unless (and (proper-list-p pairs)
+                           (cl-every (lambda (pair)
+                                       (and (consp pair) (stringp (car pair))
+                                            (or (null (cdr pair)) (stringp (cdr pair))))) pairs))
+                (error "Formato dell'ambiente non valido"))
+              (gdev-state-db-with (db t)
+                (unless (gdev-state-db--scope db "ambiente" "")
+                  (gdev-env--write pairs))))))
+        (gdev-env--apply (gdev-state-db-entries "ambiente" ""))
+        t)
     (error
      (display-warning 'gdev "Ambiente salvato illeggibile. Rigeneralo con gdev env.")
      nil)))

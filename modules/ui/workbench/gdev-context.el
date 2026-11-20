@@ -77,6 +77,7 @@ contesto (point, selection o view) e il prefisso da passare al comando.")
      ["Guida dell'assicurazione" gdev-assurance-help])
     ((gdev-dashboard-mode)
      ["Apri voce" push-button (button-at (point))]
+     ["Nuovo progetto…" gdev-new-project]
      ["Apri file…" gdev-open-file]
      ["Apri cartella…" gdev-open-folder]
      ["Apri recenti…" consult-recent-file]

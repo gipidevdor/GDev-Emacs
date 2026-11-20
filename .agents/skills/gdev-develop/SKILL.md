@@ -35,6 +35,7 @@ Rileggi il catalogo dopo un cambio di revisione o un intervento sulle dichiarazi
 - **Audit di Emacs Lisp.** Per controllare le dipendenze a freddo e gli avvisi, leggi [Compilazione Emacs Lisp negli audit](references/extensions/compilazione-lisp.md).
 - **Avvio dopo una compilazione.** Per verificare catene asincrone, profili e debugger, leggi [Operazioni di progetto](references/extensions/operazioni-di-progetto.md).
 - **Prove dal vivo e in batch.** Per applicare una correzione in un'istanza aperta e per le differenze tra batch e finestra grafica, leggi [Verifica dal vivo e insidie del batch](references/extensions/verifica-dal-vivo.md).
+- **Corpus e BDD.** Per importare test a monte o aggiungere scenari `.feature`, leggi [Corpus di comportamenti e BDD](references/extensions/corpus-bdd.md). Usa i fork locali e collega ogni caso alla suite ERT ordinaria e alla CI.
 
 ## Riesamina la skill a ogni utilizzo
 

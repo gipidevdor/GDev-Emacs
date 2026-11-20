@@ -12,7 +12,7 @@ cd GDev-Emacs
 
 Se hai già i sorgenti, esegui solo l’ultimo comando dalla radice del repository. Il programma prepara Emacs e gli strumenti di sviluppo, collega il checkout a `~/.config/emacs` e installa `gdev` in `~/.local/bin`. Puoi rieseguirlo dopo un’interruzione. Per controllare l’installazione usa `gdev doctor`.
 
-1. Apri Emacs e scegli **Apri cartella…** (`⇧⌘O`) dal cruscotto.
+1. Apri Emacs. Dal cruscotto scegli **Nuovo progetto…** (`C-c p n`) per creare un progetto oppure **Apri cartella…** (`⇧⌘O`) per lavorare su file esistenti.
 2. Premi `⌘P`, scrivi parte del nome di un file e aprilo.
 3. In un progetto C o C++, premi `F7` per compilare. I risultati compaiono sotto il codice. Con `F8` raggiungi il problema successivo.
 
@@ -60,6 +60,94 @@ avvio Emacs carica il sorgente più recente. Dopo un aggiornamento, esegui
 `GDEV_STATE_DIR` cambia la cartella di stato. Puoi usarne una separata
 per eseguire prove in un'istanza isolata. `GDEV_TOOLS_DIR` cambia la cartella
 dei programmi di supporto installati dal programma d'installazione.
+
+## Stato e impostazioni in SQLite
+
+Ogni profilo usa `stato.sqlite` nella propria cartella di stato. Serve una
+build di Emacs con supporto SQLite, verificabile con `M-: (sqlite-available-p)`.
+Con una cartella di stato vuota, la prima scrittura crea il database e lo
+schema dai sorgenti. Non servono un server, un account del database o un
+archivio copiato da un'altra installazione. I percorsi possono contenere
+spazi e caratteri non ASCII; le prove di contratto verificano due avvii
+separati e quattro processi che inizializzano lo stesso profilo.
+Il registro di audit dei progetti formali ha un ciclo di vita distinto e vive
+nel progetto. La definizione versionata del progetto e i file Lisp privati
+continuano a viaggiare con i rispettivi sorgenti.
+
+| Dato | Dove si trova nell'archivio del profilo |
+| --- | --- |
+| Opzioni disponibili, tipo dichiarato, espressione predefinita e possibilità di applicazione locale | `catalogo_opzione`, aggiornato anche quando un modulo dichiara nuove opzioni |
+| Valori scelti, facce, icone, scorciatoie e variabili dell'ambiente della shell | `ambito`, `impostazione` e `componente` |
+| Preferenze dei documenti | Ambiti distinti per sessione, tipo di progetto e radice del singolo progetto |
+| Scelte di compilazione | Ambito del progetto |
+| Sessione corrente, sessioni interrotte, schede e riquadri | `sessione`, `spazio` e proprietà dello spazio |
+| Cartelle, documenti e bozze degli editor | `cartella_spazio`, `documento_spazio` e `bozza` |
+| Alias, comandi e cartelle di Eshell, cronologie IELM e SLY | Ambiti distinti per ciascun servizio. I percorsi personalizzati esterni continuano a usare il formato del servizio |
+| Cronologia degli annullamenti | Ambito del documento con dimensione, impronta, passi annullabili, passi pendenti ed equivalenze |
+| Revisione Git precedente a un aggiornamento | Ambito del checkout, usato da `gdev rollback` |
+| File recenti, posizioni del cursore, progetti conosciuti, segnalibri e cronologie di Emacs | Ambiti dedicati a ciascun servizio |
+
+Lo schema è in terza forma normale. Il nome identifica la dichiarazione di
+un'opzione. Il tipo e il riferimento identificano il suo ambito. La coppia
+ambito e nome identifica un valore scelto, e ogni sua componente ha un padre
+e una posizione. Una scheda appartiene a una sessione. Le associazioni ordinate
+alle cartelle e ai documenti hanno ciascuna una riga. Una bozza appartiene alla
+sessione e può essere aperta da più schede. Liste e vettori sono scomposti in
+componenti, mentre le espressioni predefinite del catalogo sono codice Lisp
+conservato a scopo descrittivo.
+
+GDev importa i dati precedenti al primo utilizzo del servizio. Le successive
+scritture avvengono in transazioni SQLite. I file precedenti restano disponibili
+per il recupero. Per una copia del profilo, chiudi Emacs prima di copiare
+la cartella di stato, che contiene anche le copie dei documenti e i dati
+autonomi dei pacchetti.
+
+### Verifica e recupero del profilo
+
+Alla prima apertura GDev verifica l'identità dell'archivio, la struttura,
+le pagine e i riferimenti tra le tabelle. La migrazione alla versione 2
+conserva una copia verificata della versione 1 prima di aggiornare le
+sessioni. Un'interruzione annulla la transazione. Un altro processo attende
+il lock fino a cinque secondi. Se l'archivio è danneggiato, estraneo o di
+una versione incompatibile, Emacs consente di aprire e modificare i file
+con il profilo GDev sospeso.
+
+Durante l'uso GDev prepara una copia giornaliera in un processo separato.
+Alla chiusura completa la copia se necessario. La cartella `copie-stato/`
+conserva le ultime tre giornate e le copie precedenti alle migrazioni.
+Una copia danneggiata viene conservata. GDev ne pubblica una valida con un nome distinto.
+Le copie vengono preparate con un nome ancora assente in una cartella
+temporanea privata, verificate e poi pubblicate senza sovrascrivere file
+esistenti. Questo permette di usare anche librerie SQLite che rifiutano
+una destinazione vuota già creata. Una copia interrotta non viene pubblicata.
+La rotazione usa il giorno riportato nel nome. Se `copie-stato` è un collegamento simbolico,
+GDev consente di elencarne e recuperarne le copie e sospende le scritture automatiche in quella cartella.
+Per conservare una copia su un altro disco puoi indicare un file nuovo.
+
+```sh
+./bin/gdev stato verifica
+./bin/gdev stato copia /Volumes/Archivio/gdev-oggi.sqlite
+./bin/gdev stato copie
+./bin/gdev stato recupera ultima "$HOME/gdev-recuperato"
+GDEV_STATE_DIR="$HOME/gdev-recuperato" ./bin/gdev emacs
+```
+
+Con `ultima`, GDev cerca la copia valida con la data più recente nel nome.
+A parità di giorno usa l'ora nel nome. Per i nomi con la sola data usa l'ora di
+modifica se coincide il giorno, altrimenti li colloca all'inizio di quella giornata.
+Puoi anche indicare il percorso di una copia esterna. GDev prepara il database,
+l'eventuale migrazione e la prima copia verificata in una cartella temporanea
+privata accanto alla destinazione. Pubblica l'intera cartella con una rinomina.
+Se il processo viene terminato durante la preparazione puoi rilanciare lo stesso
+comando. Può rimanere una cartella temporanea `.gdev-recupero-…`.
+Una destinazione già occupata viene rifiutata. Il profilo di origine resta disponibile per l'ispezione.
+La data della copia determina l'ultimo stato recuperabile da quella copia.
+Per operare sul database di un profilo nominato usa `gdev --profile NOME stato`.
+
+In **Preferenze › Personali › Moduli del profilo…** puoi attivare un modulo
+con le sue opzioni, disattivarlo o ripristinare la scelta di `init.el`.
+L'editor e `gdev sync` leggono la stessa selezione. Dopo aver cambiato
+i moduli, esegui `gdev sync` e riavvia Emacs.
 
 ## Profili e moduli personali
 

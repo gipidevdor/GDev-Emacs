@@ -42,9 +42,6 @@
 (autoload 'gdev-article-capture-source
   (expand-file-name "gdev-article-sources" (gdev-module-directory :lang 'article)) nil t)
 
-(defconst gdev-article--marker ".gdev-article"
-  "Nome del file che identifica la radice del progetto Articolo.")
-
 (defconst gdev-article--manuscript "articolo.org"
   "Nome del manoscritto nella radice del progetto.")
 
@@ -53,9 +50,6 @@
 
 (defvar-local gdev-article--root nil
   "Cartella del progetto del documento Articolo corrente.")
-
-(cl-defmethod project-root ((project (head gdev-article)))
-  (cdr project))
 
 (gdev-writing-register-project 'gdev-article gdev-article--marker)
 
@@ -483,8 +477,6 @@ Mostra EMPTY quando FOLDER non contiene documenti."
                  ["Inserisci un collegamento…" org-insert-link (not buffer-read-only)]
                  ["Mostra gli strumenti di scrittura" gdev-writing-open])
                (gdev-writing-actions))))
-
-(add-to-list 'magic-mode-alist '("\\`#\\+GDEV_TYPE: article\\(?:\n\\|\\'\\)" . gdev-article-mode))
 
 (provide 'gdev-article)
 ;;; config.el ends here

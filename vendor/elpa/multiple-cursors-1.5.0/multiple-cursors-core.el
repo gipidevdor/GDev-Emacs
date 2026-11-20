@@ -126,7 +126,11 @@ rendered or shift text."
 
 (defun mc/line-number-at-pos (&optional pos absolute)
   "Faster implementation of `line-number-at-pos'."
-  (if pos
+  ;; Modificato per GDev-Emacs il 2026-11-20: in batch la riga di
+  ;; stato non viene disegnata e format-mode-line restituisce "".
+  (if noninteractive
+      (line-number-at-pos pos absolute)
+    (if pos
       (save-excursion
         (if absolute
             (save-restriction
@@ -135,7 +139,7 @@ rendered or shift text."
               (string-to-number (format-mode-line "%l")))
           (goto-char pos)
           (string-to-number (format-mode-line "%l"))))
-    (string-to-number (format-mode-line "%l"))))
+      (string-to-number (format-mode-line "%l")))))
 
 (defun mc/make-cursor-overlay-at-eol (pos)
   "Create overlay to look like cursor at end of line."

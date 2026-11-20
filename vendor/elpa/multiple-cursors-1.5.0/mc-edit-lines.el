@@ -71,6 +71,9 @@ other non-nil value will cause short lines to be padded."
     (when (and (eq direction :up) (bolp))
       (previous-logical-line 1 nil)
       (move-to-column col))
+    ;; Modificato per GDev-Emacs il 2026-11-20: anche il primo cursore
+    ;; aggiunto usa la colonna originale del punto, anziché quella del mark.
+    (move-to-column col)
     ;; Add the cursors
     (while (not (eq (mc/line-number-at-pos) point-line))
       ;; Pad the line

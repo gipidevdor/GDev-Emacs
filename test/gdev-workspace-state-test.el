@@ -431,7 +431,8 @@
           (should (= (window-point (gdev-layout-editor)) 6))
           (let ((tab (gdev-workspace-state-current)))
             (gdev-write-state-data (gdev-state-file "gdev-workspaces.eld") '(:version 2))
-            (should-error (gdev-workspaces-restore) :type 'user-error)
+            (should (gdev-session-db-exists-p))
+            (should-error (gdev-workspaces-restore (gdev-state-file "gdev-workspaces.eld")) :type 'user-error)
             (should (eq (gdev-workspace-state-current) tab))))
       (when (buffer-live-p buffer) (kill-buffer buffer))
       (delete-directory gdev-state-directory t))))
@@ -500,7 +501,6 @@
   "Il salvataggio d'uscita salta il riavvio e conserva lo spazio durante una normale chiusura."
   (require 'gdev-workspaces)
   (let* ((gdev-state-directory (make-temp-file "gdev-session-uscita-" t))
-         (session (gdev-state-file "gdev-workspaces.eld"))
          (gdev-workspaces--session-active t))
     (unwind-protect
         (gdev-test--with-layout
@@ -508,7 +508,7 @@
           (let ((noninteractive nil)
                 (gdev-session--restarting t))
             (gdev-workspaces-save-on-exit))
-          (should-not (file-exists-p session))
+          (should-not (gdev-session-db-exists-p))
           (let ((noninteractive nil)
                 (gdev-session--restarting nil))
             (gdev-workspaces-save-on-exit))

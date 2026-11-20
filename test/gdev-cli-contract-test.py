@@ -3,11 +3,13 @@
 # Copyright (C) 2026 Giacomo Picchiarelli
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 import json
 import os
 from pathlib import Path
 import shutil
+import sqlite3
+import socket
 import subprocess
 import tempfile
 import time
@@ -32,9 +34,9 @@ class CliContracts(unittest.TestCase):
         for variable in ("GDEV_PROFILE", "GDEV_DEBUG"):
             self.env.pop(variable, None)
 
-    def cli(self, *arguments, check=True):
+    def cli(self, *arguments, check=True, cwd=ROOT):
         return subprocess.run(
-            ["./bin/gdev", *arguments], cwd=ROOT, env=self.env, check=check,
+            [str(ROOT / "bin/gdev"), *arguments], cwd=cwd, env=self.env, check=check,
             capture_output=True, encoding="utf-8", timeout=40,
         )
 
@@ -58,6 +60,152 @@ class CliContracts(unittest.TestCase):
             payload = json.loads(result.stdout)
             self.assertFalse(payload["ok"])
             self.assertEqual(payload["schema_version"], 1)
+
+    def test_empty_profile_boots_and_preserves_values_on_the_second_start(self):
+        fresh = self.directory / "installazione nuova è 日本語"
+        env = dict(self.env, GDEV_STATE_DIR=str(fresh / "dati"),
+                   GDEV_USER_DIR=str(fresh / "configurazione"))
+        boot = """(progn
+          (setq native-comp-jit-compilation nil)
+          (require 'package)
+          (package-activate-all)
+          (load (expand-file-name "init.el" gdev-config-directory) nil t)
+          (run-hooks 'emacs-startup-hook)
+          (when (or gdev-state-startup-issue gdev-failed-modules gdev-modules-private-errors)
+            (error "Primo avvio incompleto"))
+          (unless (> (length gdev-module-load-times) 40) (error "Moduli non caricati"))
+          (gdev-scoped-options-catalog-sync))"""
+        write = """(progn
+          (gdev-state-db-set "prova_installazione" "" "valore" '("città" 42 [1 2]))
+          (gdev-state-db-backup))"""
+        read = """(unless (equal '("città" 42 [1 2])
+                          (cdar (gdev-state-db-entries "prova_installazione" "" "valore")))
+                    (error "Valore non conservato dopo il riavvio"))"""
+        self.assertFalse(fresh.exists())
+        for phase in (write, read):
+            result = subprocess.run(
+                [EMACS, "--batch", "-Q", "-l", "early-init.el", "--eval", boot,
+                 "--eval", phase], cwd=ROOT, env=env, capture_output=True,
+                encoding="utf-8", timeout=40,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        database = fresh / "dati/stato.sqlite"
+        with closing(sqlite3.connect(database)) as db:
+            self.assertEqual(db.execute("PRAGMA user_version").fetchone(), (2,))
+            self.assertEqual(db.execute("PRAGMA integrity_check").fetchone(), ("ok",))
+            self.assertEqual(db.execute("PRAGMA foreign_key_check").fetchall(), [])
+            self.assertGreater(db.execute("SELECT count(*) FROM catalogo_opzione").fetchone()[0], 1000)
+        if os.name != "nt":
+            self.assertEqual(database.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(database.parent.stat().st_mode & 0o777, 0o700)
+        self.assertTrue(list((database.parent / "copie-stato").glob("*.sqlite")))
+
+    def test_simultaneous_first_writers_keep_every_committed_value(self):
+        fresh = self.directory / "primo avvio simultaneo"
+        env = dict(self.env, GDEV_STATE_DIR=str(fresh))
+        processes = []
+        try:
+            for writer in range(4):
+                processes.append(subprocess.Popen(
+                    [EMACS, "--batch", "-Q", "-l", "early-init.el", "--eval",
+                     f'(gdev-state-db-set "prima_scrittura" "" "processo-{writer}" {writer})'],
+                    cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    encoding="utf-8",
+                ))
+            for process in processes:
+                out, err = process.communicate(timeout=30)
+                self.assertEqual(process.returncode, 0, out + err)
+        finally:
+            for process in processes:
+                if process.poll() is None:
+                    process.kill()
+                    process.communicate(timeout=10)
+        with closing(sqlite3.connect(fresh / "stato.sqlite")) as db:
+            self.assertEqual(db.execute("SELECT nome FROM impostazione ORDER BY nome").fetchall(),
+                             [(f"processo-{writer}",) for writer in range(4)])
+            self.assertEqual(db.execute("PRAGMA integrity_check").fetchone(), ("ok",))
+            self.assertEqual(db.execute("PRAGMA foreign_key_check").fetchall(), [])
+
+    def test_missing_sqlite_reports_the_requirement_and_preserves_basic_editing(self):
+        fresh = self.directory / "senza SQLite"
+        form = """(progn
+          (setq native-comp-jit-compilation nil native-comp-enable-subr-trampolines nil)
+          (require 'cl-lib)
+          (cl-letf (((symbol-function 'sqlite-available-p) (lambda () nil)))
+            (load (expand-file-name "early-init.el") nil t)
+            (load (expand-file-name "init.el") nil t)
+            (unless (and gdev-state-startup-issue
+                         (string-match-p "SQLite integrato" gdev-state-startup-issue))
+              (error "Requisito SQLite non segnalato"))
+            (with-temp-buffer
+              (insert "Editor disponibile")
+              (write-region (point-min) (point-max)
+                            (expand-file-name "documento.txt" gdev-state-directory) nil 'silent))))"""
+        result = subprocess.run(
+            [EMACS, "--batch", "-Q", "--eval", form], cwd=ROOT,
+            env=dict(self.env, GDEV_STATE_DIR=str(fresh)), capture_output=True,
+            encoding="utf-8", timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Profilo sospeso", result.stderr)
+        self.assertEqual((fresh / "documento.txt").read_text(), "Editor disponibile")
+        self.assertFalse((fresh / "stato.sqlite").exists())
+
+    def test_state_recovers_with_a_damaged_primary(self):
+        subprocess.run(
+            [EMACS, "--batch", "-Q", "-l", "early-init.el", "--eval",
+             "(gdev-state-db-set \"prova\" \"\" \"risposta\" 42)"],
+            cwd=ROOT, env=self.env, check=True, capture_output=True, timeout=20,
+        )
+        self.assertIn("versione 2", self.cli("stato", "verifica").stdout)
+        self.cli("stato", "copia")
+        self.assertIn(".sqlite", self.cli("stato", "copie").stdout)
+        primary = self.state / "stato.sqlite"
+        primary.write_bytes(b"Archivio illeggibile")
+        self.assertNotEqual(self.cli("stato", "verifica", check=False).returncode, 0)
+        self.assertEqual(self.cli("stato", "sconosciuto", check=False).returncode, 2)
+        recovered = self.directory / "recuperato"
+        self.cli("stato", "recupera", "ultima", str(recovered))
+        self.assertIn("versione 2", self.cli("stato", "verifica", str(recovered / "stato.sqlite")).stdout)
+        self.assertEqual(primary.read_bytes(), b"Archivio illeggibile")
+
+    def test_interrupted_state_recovery_can_retry_the_same_destination(self):
+        destination = self.directory / "profilo recuperato"
+        marker = self.directory / "prima-della-copia"
+        form = """(progn
+          (require 'gdev-state-db-maintenance)
+          (gdev-state-db-set "prova" "" "risposta" 42)
+          (gdev-state-db-backup)
+          (advice-add 'gdev-state-db-backup :before
+                      (lambda (&rest _)
+                        (write-region "pronto" nil (getenv "GDEV_TEST_MARKER") nil 'silent)
+                        (sleep-for 60)))
+          (gdev-state-db-recover "ultima" (getenv "GDEV_TEST_DEST")))"""
+        with subprocess.Popen(
+            [EMACS, "--batch", "-Q", "-l", "early-init.el", "--eval", form],
+            cwd=ROOT, env=dict(self.env, GDEV_TEST_DEST=str(destination), GDEV_TEST_MARKER=str(marker)),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        ) as process:
+            try:
+                deadline = time.monotonic() + 20
+                while not marker.exists() and process.poll() is None and time.monotonic() < deadline:
+                    time.sleep(0.02)
+            finally:
+                process.kill()
+                _, errors = process.communicate(timeout=10)
+            self.assertTrue(marker.exists(), errors)
+        self.assertFalse(destination.exists())
+        self.cli("stato", "recupera", "ultima", str(destination) + os.sep)
+        copies = list((destination / "copie-stato").glob("*.sqlite"))
+        self.assertEqual(len(copies), 1)
+        self.cli("stato", "verifica", str(copies[0]))
+        result = subprocess.run(
+            [EMACS, "--batch", "-Q", "-l", "early-init.el", "--eval",
+             '(princ (cdar (gdev-state-db-entries "prova" "" "risposta")))'],
+            cwd=ROOT, env=dict(self.env, GDEV_STATE_DIR=str(destination)),
+            capture_output=True, text=True, check=True, timeout=20,
+        )
+        self.assertEqual(result.stdout, "42")
 
     def test_cli_distinguishes_usage_errors_from_operation_errors(self):
         for command in [
@@ -107,12 +255,14 @@ class CliContracts(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_cli_validates_the_socket_and_the_live_action(self):
+    def test_cli_rejects_a_regular_file_as_editor_socket(self):
         socket_file = self.directory / "non-socket"
         socket_file.touch()
         result = self.cli("agent", "live", str(socket_file), "status", check=False)
         self.assertEqual(result.returncode, 1)
         self.assertIn("socket Unix", json.loads(result.stdout)["error"])
+
+    def test_cli_validates_the_live_action_and_checkout(self):
         with self.editor(configured=False) as socket:
             for action in [("status", "argomento-in-più"), ("open-file",), ("sconosciuta",)]:
                 with self.subTest(action=action):
@@ -190,18 +340,21 @@ class CliContracts(unittest.TestCase):
         self.assertEqual(quickstart.returncode, 0, quickstart.stdout + quickstart.stderr)
         self.assertEqual(Path(quickstart.stdout.strip()).parent, fork)
 
-    def test_formal_project_cli_mcp_unicode_and_taxonomy_pagination(self):
+    def unicode_project(self):
         root = self.directory / "progetto"
         root.mkdir()
+        created = json.loads(self.cli("assurance", "project-init", "DEMO", "Progetto è 日本語", cwd=root).stdout)
+        self.assertEqual("Progetto è 日本語", created["project"]["name"])
+        return root
+
+    def test_formal_project_cli_unicode_and_preview(self):
+        root = self.unicode_project()
 
         def assurance(*arguments, expected=0):
-            result = subprocess.run([str(ROOT / "bin/gdev"), "assurance", *arguments], cwd=root,
-                                    env=self.env, capture_output=True, encoding="utf-8", timeout=40)
+            result = self.cli("assurance", *arguments, cwd=root, check=False)
             self.assertEqual(expected, result.returncode, result.stdout + result.stderr)
             return result
 
-        created = json.loads(assurance("project-init", "DEMO", "Progetto è 日本語").stdout)
-        self.assertEqual("Progetto è 日本語", created["project"]["name"])
         self.assertEqual("INCOMPLETE", json.loads(assurance("project", expected=1).stdout)["status"])
         parameters = json.dumps({"title": "È una prova", "content": "日本語 $(touch nope)"}, ensure_ascii=False)
         preview = json.loads(assurance("snippet-preview", "SNIP-DOCUMENTATION", parameters).stdout)
@@ -211,7 +364,10 @@ class CliContracts(unittest.TestCase):
         missing = assurance("snippet-preview", "SNIP-DOCUMENTATION", "{}", expected=1)
         self.assertIn("Compila il parametro", missing.stdout)
         self.assertFalse((root / "nope").exists())
+
+    def test_formal_project_live_mcp_unicode_and_taxonomy_pagination(self):
         with self.editor() as socket:
+            root = self.unicode_project()
             project, first = self.mcp(socket, [
                 self.call("gdev_assurance", command="project", root=str(root)),
                 self.call("gdev_assurance", command="taxonomy", argument="owasp-asvs", root=str(root)),
@@ -235,13 +391,22 @@ class CliContracts(unittest.TestCase):
 
     @contextmanager
     def editor(self, configured=True):
-        socket = self.directory / "s" / "test"
+        probe_path = self.directory / "probe.sock"
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as probe:
+            try:
+                probe.bind(str(probe_path))
+            except PermissionError as error:
+                if self.env.get("GDEV_TEST_REQUIRE_IPC") == "1":
+                    raise
+                self.skipTest(f"Il sistema nega l'apertura di un socket Unix: {error.strerror}")
+        probe_path.unlink()
+        socket_file = self.directory / "s" / "test"
         log = self.directory / "emacs.log"
         form = (
             "(progn (require 'server) "
             '(when (bound-and-true-p gdev-failed-modules) '
             '(error "Moduli non caricati: %S" gdev-failed-modules)) '
-            f"(setq server-socket-dir {json.dumps(str(socket.parent))} "
+            f"(setq server-socket-dir {json.dumps(str(socket_file.parent))} "
             'server-name "test" server-use-tcp nil) '
             "(server-start) (while t (accept-process-output nil 0.1)))"
         )
@@ -256,10 +421,10 @@ class CliContracts(unittest.TestCase):
             )
             try:
                 deadline = time.monotonic() + 15
-                while not socket.is_socket() and process.poll() is None and time.monotonic() < deadline:
+                while not socket_file.is_socket() and process.poll() is None and time.monotonic() < deadline:
                     time.sleep(0.05)
-                self.assertTrue(socket.is_socket(), log.read_text(encoding="utf-8"))
-                yield socket
+                self.assertTrue(socket_file.is_socket(), log.read_text(encoding="utf-8"))
+                yield socket_file
             finally:
                 if process.poll() is None:
                     process.terminate()
@@ -362,9 +527,11 @@ class CliContracts(unittest.TestCase):
         self.assertEqual(responses[3]["result"], {})
         self.assertEqual(responses[-1]["result"]["tools"][0]["name"], "gdev_discover")
 
-    def test_mcp_reports_the_correct_error_at_each_tool_boundary(self):
+    def test_mcp_reports_the_missing_socket_over_stdio(self):
         (unavailable,) = self.mcp(self.directory / "socket-assente", [self.call("gdev_status")])
         self.assertIn("socket Unix", self.payload(unavailable, error=True)["error"])
+
+    def test_mcp_reports_the_correct_error_at_each_live_tool_boundary(self):
         with self.editor() as socket:
             document = self.directory / "documento-assente"
             missing, wrong_type, wrong_field, too_large, outside = self.mcp(socket, [

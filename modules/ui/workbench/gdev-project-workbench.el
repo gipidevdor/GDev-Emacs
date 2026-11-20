@@ -6,6 +6,8 @@
 ;; e servizi di scrittura. Il ridisegno usa soltanto i dati già letti.
 ;;; Code:
 (require 'gdev-project-templates)
+(declare-function gdev-assurance-action-run "gdev-assurance-actions" (root command operands &optional actor))
+(declare-function gdev-create-project-directory "gdev-commands" (directory initialize))
 (declare-function gdev-assurance-data "gdev-assurance" (command root &optional argument limit))
 (declare-function gdev-ui-view-setup "gdev-ui" (profile))
 (declare-function gdev-layout-mark-document "gdev-layout" ())
@@ -56,6 +58,28 @@
          (name (read-string "Nome del progetto: ")))
     (gdev-assurance--write context "project-init" (list id name))
     (gdev-assurance-section 'project)))
+
+(defun gdev-assurance-create-project (directory id name)
+  "Crea il progetto formale ID con nome NAME in DIRECTORY e apri i requisiti."
+  (interactive
+   (let ((directory (read-directory-name "Cartella del nuovo progetto formale: ")))
+     (list directory (read-string "Identificativo del progetto: ")
+           (read-string "Nome del progetto: " (file-name-nondirectory (directory-file-name directory))))))
+  (setq directory (expand-file-name directory))
+  (when (file-remote-p directory) (user-error "Scegli una cartella locale per l'assicurazione"))
+  (gdev-create-project-directory
+   directory
+   (lambda (root)
+     ;; Pubblica insieme manifesto, procedure e modelli dopo la validazione.
+     (let ((stage (make-temp-file (expand-file-name ".gdev-" root) t)))
+       (unwind-protect
+           (progn
+             (gdev-assurance-action-run stage "project-init" (list id name))
+             (rename-file (expand-file-name ".gdev-assurance" stage)
+                          (expand-file-name ".gdev-assurance" root)))
+         (delete-directory stage t)))))
+  (gdev-assurance-show directory)
+  (gdev-assurance-section 'project))
 
 (defun gdev-assurance-project-edit ()
   "Apri la definizione autorevole del progetto nell'editor."

@@ -12,8 +12,8 @@
 ;;
 ;; Ogni voce si apre col clic, con Invio o con la sua lettera; a destra c'è
 ;; la scorciatoia globale che fa la stessa cosa ovunque.  Le voci sono
-;; legate proprio a quelle scorciatoie: se un modulo è disattivato, la sua
-;; voce sparisce.  C-c o h riporta il cruscotto; g lo ridisegna, q lo chiude.
+;; associate a un comando o alla prima scorciatoia disponibile.
+;; C-c o h riporta il cruscotto; g lo ridisegna, q lo chiude.
 ;;
 ;; Le icone sono in icons/, disegnate per GDev-Emacs; prendono il colore
 ;; del cursore del tema.  In un terminale restano solo le scritte.
@@ -36,7 +36,8 @@
   :group 'gdev)
 
 (defcustom gdev-dashboard-menu
-  '(("f" "file"     "Apri file…"               "s-o" "C-x C-f")
+  '(("c" "project"  "Nuovo progetto…"           gdev-new-project "C-c p n")
+    ("f" "file"     "Apri file…"               "s-o" "C-x C-f")
     ("o" "open"     "Apri cartella…"           "s-O")
     ("p" "project"  "Apri progetto…"           "C-c w p" "C-c p p")
     ("r" "recent"   "Apri file recente…"       "C-c f r")
@@ -48,10 +49,11 @@
     ("d" "doctor"   "Esegui diagnosi"           "C-h d d")
     ("," "settings" "Apri preferenze…"          "s-," "C-h d c")
     ("A" "settings" "Aspetto…"                  "C-c t A"))
-  "Voci del cruscotto: LETTERA, ICONA, ETICHETTA, poi una o più scorciatoie.
-La voce esegue il comando della prima scorciatoia definita.  ICONA è il nome
-di un file in icons/, senza estensione."
-  :type '(repeat (list string string string (repeat :inline t string))))
+  "Ogni voce contiene lettera, icona, etichetta e scorciatoie.
+Se prima delle scorciatoie è indicato un comando, la voce esegue sempre
+quel comando.  Altrimenti usa la prima scorciatoia definita.
+ICONA è il nome di un file in icons/, senza estensione."
+  :type '(repeat (list string string string (repeat :inline t (choice string function)))))
 
 (defvar gdev-dashboard--half-width 22
   "Metà della larghezza del menu durante il disegno, in colonne.")
@@ -129,11 +131,15 @@ di un file in icons/, senza estensione."
     (insert (gdev-dashboard--align (- (/ (gdev-dashboard--text-width label) 2))) label "\n")))
 
 (defun gdev-dashboard--command (keys)
-  "Restituisce (TASTO . COMANDO) per la prima delle KEYS che ha un comando."
-  (cl-some (lambda (key)
-             (let ((command (keymap-lookup global-map key)))
-               (and (commandp command) (cons key command))))
-           keys))
+  "Risolvi KEYS in (TASTO . COMANDO), con TASTO facoltativo."
+  (if (symbolp (car keys))
+      (when (commandp (car keys))
+        (let ((key (gdev-menu-command-key (car keys) (cdr keys))))
+          (cons (and key (key-description key)) (car keys))))
+    (cl-some (lambda (key)
+               (let ((command (keymap-lookup global-map key)))
+                 (and (commandp command) (cons key command))))
+             keys)))
 
 (defun gdev-dashboard--insert-row (contents id action help)
   "Inserisce CONTENTS come voce ID, con azione ACTION e suggerimento HELP."
@@ -149,10 +155,10 @@ di un file in icons/, senza estensione."
   "Inserisce la riga di una voce: ICON, LETTER, LABEL, KEY; esegue COMMAND."
   (let* ((compact (< gdev-dashboard--half-width 10))
          (image (and (not compact) (gdev-dashboard--icon icon)))
-         (shortcut (propertize (gdev-menu-key-label (kbd key)) 'face 'gdev-ui-secondary))
-         (shortcut-start (- gdev-dashboard--half-width (gdev-dashboard--text-width shortcut)))
+         (shortcut (and key (propertize (gdev-menu-key-label (kbd key)) 'face 'gdev-ui-secondary)))
+         (shortcut-start (and shortcut (- gdev-dashboard--half-width (gdev-dashboard--text-width shortcut))))
          (label-start (- (if compact 2 6) gdev-dashboard--half-width))
-         (show-shortcut (and (not compact)
+         (show-shortcut (and shortcut (not compact)
                              (<= (+ label-start (gdev-dashboard--text-width label) 2)
                                  shortcut-start))))
     (gdev-dashboard--insert-row
@@ -164,7 +170,7 @@ di un file in icons/, senza estensione."
              (gdev-ui-fit-text label (- gdev-dashboard--half-width label-start) #'gdev-dashboard--text-width)
              (when show-shortcut (concat (gdev-dashboard--align shortcut-start) shortcut)))
      letter (lambda (_) (call-interactively command))
-     (format "%s · %s qui · %s ovunque" label letter shortcut))
+     (concat (format "%s · %s qui" label letter) (when shortcut (format " · %s ovunque" shortcut))))
     (keymap-local-set letter command)))
 
 (defun gdev-dashboard--insert-projects ()

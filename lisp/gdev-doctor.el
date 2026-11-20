@@ -22,7 +22,8 @@
 (require 'gdev-handlers)
 
 (defvar gdev-treesit-languages)         ; tools/tree-sitter
-(declare-function gdev-env-file "gdev-env")
+(declare-function gdev-env-saved-p "gdev-env")
+(declare-function gdev-state-db-inspect "gdev-state-db-maintenance" (file &optional full))
 
 (defun gdev-doctor--core-checks ()
   "Restituisce i controlli che non dipendono dai moduli."
@@ -37,12 +38,20 @@
     (list "tree-sitter" #'treesit-available-p
           "usa un Emacs con tree-sitter (quello installato con brew install --cask)"
           'warning)
+    (list "archivio SQLite del profilo"
+          (lambda () (and (sqlite-available-p)
+                          (or (and (not (file-exists-p (gdev-state-db-file)))
+                                   (not (file-symlink-p (gdev-state-db-file)))
+                                   (not (file-directory-p (expand-file-name "copie-stato" gdev-state-directory))))
+                              (progn (require 'gdev-state-db-maintenance)
+                                     (gdev-state-db-inspect (gdev-state-db-file) t)))))
+          "gdev stato verifica, oppure gdev stato copie per il recupero" 'warning)
     (list "configurazione privata" (lambda () (file-exists-p (gdev-user-file "init.el")))
           "gdev install  (crea ~/.config/gdev da templates/)" 'note)
     (list "git" (lambda () (executable-find "git")) "xcode-select --install" 'warning)
     (list "ripgrep" (lambda () (executable-find "rg")) "brew install ripgrep" 'warning))
    (when gdev-macos-p
-     (list (list "ambiente della shell salvato" (lambda () (file-exists-p (gdev-env-file)))
+     (list (list "ambiente della shell salvato" #'gdev-env-saved-p
                  "gdev env  (eseguilo da un terminale)" 'warning)))
    (mapcar (lambda (entry)
              (list (format "modulo facoltativo %s %s" (car entry) (cadr entry)) #'ignore

@@ -581,7 +581,9 @@ Il cruscotto offre anche il comando «Riprendi ultima sessione»."
     (when (and gdev-workspaces-restore-at-startup
                (not gdev-workspaces--session-active)
                (gdev-workspaces--initial-tab-p (tab-bar-tabs))
-               (file-exists-p (gdev-state-file "gdev-workspaces.eld")))
+               (or (gdev-session-db-exists-p)
+                   (file-exists-p (gdev-state-file "gdev-workspaces.eld"))
+                   (file-exists-p tabspaces-session-file)))
       (with-demoted-errors "Ripristino della sessione: %S"
         (gdev-workspaces-restore)))
     (run-with-timer 30 30 #'gdev-workspaces-schedule-checkpoint)))

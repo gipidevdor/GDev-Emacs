@@ -8,6 +8,8 @@
   ;; avy GDev (originale avy), manutenzione locale 2026-11-19.
   (avy "0.5.0" "GPL-3.0-or-later" "https://github.com/abo-abo/avy" "sha256:69abc2c8184eae35dfb6873c367bbe18eabcb02e4007540e68160fcfe7f36081")
   (breadcrumb "1.0.1" "GPL-3.0-or-later" "https://elpa.gnu.org/packages/breadcrumb.html" "ff5fb77e2556c42aee9f1131f824bdfb955d861f")
+  ;; BDD Elisp GDev (originale Buttercup), integrazione locale 2026-11-20.
+  (buttercup "1.41" "GPL-3.0-or-later" "https://github.com/jorgenschaefer/emacs-buttercup" "3bcf6cf0e164d558072a484f467169a0e77bd791")
   (cape "2.10" "GPL-3.0-or-later" "https://github.com/minad/cape" "50bc6187daf9af9df1a802fcbbd91fe4b952fc69")
   ;; casual GDev (originale casual), manutenzione locale 2026-11-19.
   (casual "3.1.0" "GPL-3.0-or-later" "https://github.com/kickingvegas/casual" "d5166240f23e4481a32672cd952f7d117c647a0f")
@@ -54,6 +56,8 @@
   (forge "20261114.1200" "GPL-3.0-or-later" "https://github.com/magit/forge" "3d39bc7d6759cc4769df53889bce121283b0bfcd")
   ;; gdev-doc-view GDev (originale gdev-doc-view), manutenzione locale 2026-11-19.
   (gdev-doc-view "30.1" "GPL-3.0-or-later" "https://github.com/emacs-mirror/emacs" "8ac894e2246f25d2a2a97d866b10e6e0b0fede5a")
+  ;; Gherkin GDev (originale Ecukes), parser locale 2026-11-20.
+  (gdev-gherkin "0.7.0" "GPL-3.0-or-later" "https://github.com/ecukes/ecukes" "5e07d43e4dd05e1633585a7b4ddff9bcf3061c73")
   (gdev-sposta-testo "2.0.10" "GPL-3.0-or-later" "https://github.com/emacsfodder/move-text" "142890cfb46d9c374113b4b49021a4202033147b")
   (gdev-tex-mode "30.1" "GPL-3.0-or-later" "https://github.com/emacs-mirror/emacs" "8ac894e2246f25d2a2a97d866b10e6e0b0fede5a")
   (ghub "20261110.1618" "GPL-3.0-or-later" "https://github.com/magit/ghub" "24f3a08022edae0132fc21f279794d7ede48b612")

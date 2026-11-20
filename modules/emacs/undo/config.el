@@ -7,13 +7,15 @@
 ;;; Commentary:
 
 ;; C-/ annulla, C-? ripete (funzioni incluse in Emacs).  C-x u apre l'albero
-;; degli annullamenti: percorri ogni stato passato dell'area di
+;; degli annullamenti (undo-fu-session): percorri ogni stato passato dell'area di
 ;; testo, rami compresi.  La cronologia si salva con ogni file e
 ;; torna quando lo riapri.
 
 ;;; Code:
 
 (require 'gdev-lib)
+(declare-function gdev-native-state-undo-read "gdev-native-state" (file))
+(declare-function gdev-native-state-undo-save "gdev-native-state" (file header data))
 
 (use-package vundo
   :ensure t
@@ -27,6 +29,10 @@
   (undo-fu-session-directory (gdev-state-file "undo/"))
   (undo-fu-session-incompatible-files
    (append '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'") gdev-sensitive-file-regexps))
-  (undo-fu-session-file-limit 2000))
+  (undo-fu-session-file-limit 2000)
+  :config
+  (require 'gdev-native-state)
+  (add-hook 'undo-fu-session-storage-read-functions #'gdev-native-state-undo-read)
+  (add-hook 'undo-fu-session-storage-write-functions #'gdev-native-state-undo-save))
 
 ;;; config.el ends here

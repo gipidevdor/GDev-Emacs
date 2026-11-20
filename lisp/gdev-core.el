@@ -38,6 +38,7 @@
 (defvar recentf-exclude)
 (defvar xref-history-storage)
 (defvar xref-search-program)
+(defvar auth-source-save-behavior)
 
 ;;;; Memoria: raccolta (garbage collection) dopo l'avvio
 
@@ -207,8 +208,8 @@ beneficia.")
       global-auto-revert-non-file-buffers t)
 (add-hook 'emacs-startup-hook #'global-auto-revert-mode)
 
-;; Customize scrive qui, mai nella configurazione.  Il file si carica in
-;; fondo al nucleo: vedi «Preferenze salvate».
+;; Questo percorso identifica le preferenze gestite dal profilo e permette
+;; di importare un precedente custom.el al primo avvio.
 (setq custom-file (gdev-state-file "custom.el"))
 
 ;;;; Cronologia e posizioni
@@ -374,7 +375,18 @@ raggiungono con EMACS_SOCKET_NAME."
 
 ;; Dopo i valori predefiniti del nucleo, così le scelte fatte con Customize o
 ;; con le Preferenze li sostituiscono; il config.el privato resta l'ultimo.
-(gdev-load-custom-file custom-file)
+(require 'gdev-custom-db)
+(require 'gdev-scoped-options)
+(declare-function gdev-state-db-auto-backup "gdev-state-db-maintenance" ())
+(declare-function gdev-state-db-exit-backup "gdev-state-db-maintenance" ())
+(gdev-custom-db-load)
+(unless noninteractive
+  (autoload 'gdev-state-db-auto-backup "gdev-state-db-maintenance")
+  (autoload 'gdev-state-db-exit-backup "gdev-state-db-maintenance")
+  (defvar gdev-state-db-backup-timer nil)
+  (unless (timerp gdev-state-db-backup-timer)
+    (setq gdev-state-db-backup-timer (run-with-idle-timer 15 t #'gdev-state-db-auto-backup)))
+  (add-hook 'kill-emacs-hook #'gdev-state-db-exit-backup 99))
 
 (provide 'gdev-core)
 ;;; gdev-core.el ends here

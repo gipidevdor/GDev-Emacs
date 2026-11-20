@@ -15,6 +15,8 @@
 (require 'gdev-lib)
 (require 'gdev-layout)
 (require 'gdev-workspace-state)
+(require 'gdev-session-db)
+(require 'gdev-scoped-options)
 (require 'gdev-drafts)
 (require 'gdev-workspace-roots)
 
@@ -28,6 +30,9 @@
 
 (defvar gdev-workspaces--session-active nil
   "Non nil dopo aver salvato o ripreso la sessione.")
+
+(defvar gdev-workspaces--generation nil
+  "Identità del database e della sessione letta o scritta da questa istanza.")
 
 (defconst gdev-workspaces--geometry
   '(last total-width total-height normal-width normal-height combination-limit)
@@ -270,70 +275,58 @@ e chiave."
   "File in cui si conserva la sessione di FILE non ripresa."
   (concat file ".interrotta"))
 
+(defun gdev-workspaces--interrupted-files ()
+  (directory-files gdev-state-directory t
+                   "\\`gdev-workspaces\\.eld\\.interrotta\\(?:-[A-Za-z0-9]+\\)?\\'" t))
+
 (defun gdev-workspaces--keep-unrestored (file)
-  "Conserva la sessione di FILE prima di sostituirla, se ha bozze e nessuno
-l'ha ripresa.  Dopo un arresto anomalo il checkpoint contiene l'unica copia
-delle bozze: la prima modifica di una sessione nuova lo riscriverebbe senza
-di esse."
+  "Conserva ogni sessione storica non ripresa che potrebbe contenere bozze."
   (when (and (not gdev-workspaces--session-active) (file-regular-p file))
-    (let ((session (condition-case nil (gdev-workspaces--read) (error 'unreadable))))
-      ;; Un file che non si legge più, per esempio con un formato sconosciuto
-      ;; dopo un aggiornamento al contrario, può ancora contenere bozze: si conserva.
+    (let ((session (condition-case nil (gdev-workspaces--read) (error 'unreadable)))
+          (backup (gdev-workspaces--interrupted-file file)))
       (when (or (eq session 'unreadable) (plist-get session :drafts))
-        (copy-file file (gdev-workspaces--interrupted-file file) t)
+        (condition-case nil (copy-file file backup)
+          (file-already-exists
+           (let ((extra (make-temp-file (concat backup "-"))))
+             (condition-case err (copy-file file extra t)
+               (file-error (delete-file extra) (signal (car err) (cdr err)))))))
         (message "Le bozze della sessione precedente sono conservate: riprendile con C-c q L")))))
 
 (defun gdev-workspaces-restore-interrupted ()
-  "Riprende la sessione interrotta, conservata prima di essere sostituita."
+  "Scegli e riprendi una sessione interrotta del profilo."
   (interactive)
-  (let ((file (gdev-workspaces--interrupted-file (gdev-state-file "gdev-workspaces.eld"))))
-    (unless (file-regular-p file)
-      (user-error "Nessuna sessione interrotta da riprendere"))
-    (gdev-workspaces-restore file)
-    (delete-file file)))
+  (let* ((rows (gdev-state-db-with (db)
+                 (sqlite-select db "SELECT s.id,(SELECT group_concat(nome, ' · ') FROM spazio WHERE id_sessione=s.id) FROM sessione s WHERE s.nome='interrotta' OR s.nome LIKE 'recupero-%' ORDER BY s.id DESC")))
+         (choices (append (mapcar (lambda (row)
+                                    (cons (format "%s · %s" (car row) (or (cadr row) "Sessione")) (car row)))
+                                  rows)
+                          (mapcar (lambda (file) (cons (file-name-nondirectory file) file))
+                                  (gdev-workspaces--interrupted-files))))
+         (source (cond ((null choices) (user-error "Nessuna sessione interrotta da riprendere"))
+                       ((cdr choices) (cdr (assoc (completing-read "Sessione da recuperare: " choices nil t) choices)))
+                       (t (cdar choices)))))
+    (gdev-workspaces-restore source)
+    (when (stringp source) (delete-file source))))
 
-(defun gdev-workspaces--write-checkpoint (file drafts revisions)
-  "Salva DRAFTS in FILE e restituisci la cache delle REVISIONI effettivamente
-salvate."
-  (gdev-workspaces--keep-unrestored file)
-  (let ((origin (current-buffer))
-        (tabs (tab-bar-tabs))
-        (next (make-hash-table :test #'eq))
-        (remaining gdev-workspaces--checkpoint-cache-limit))
-    (gdev-write-state-file
-     file
-     (lambda ()
-       (let ((session
-              (with-current-buffer origin
-                (gdev-workspaces--session
-                 tabs drafts
-                 (lambda (buffer key)
-                   (let* ((revision (gethash buffer revisions))
-                          (old (and gdev-workspaces--checkpoint-cache
-                                    (gethash buffer gdev-workspaces--checkpoint-cache)))
-                          (entry (if (equal (car old) revision)
-                                     old
-                                   (cons revision
-                                         (prin1-to-string (cons key (gdev-drafts--snapshot buffer))))))
-                          (bytes (string-bytes (cdr entry))))
-                     (when (<= bytes remaining)
-                       (puthash buffer entry next)
-                       (cl-decf remaining bytes))
-                     (cdr entry)))))))
-         ;; Le bozze sono già serializzate. Il risultato resta la stessa
-         ;; lista Lisp letta anche dai salvataggi precedenti.
-         (insert "(")
-         (cl-loop for (key value) on session by #'cddr do
-                  (prin1 key (current-buffer))
-                  (insert " ")
-                  (if (and (eq key :drafts) value)
-                      (progn
-                        (insert "(")
-                        (dolist (entry value) (insert entry "\n"))
-                        (insert ")"))
-                    (prin1 value (current-buffer)))
-                  (insert " "))
-         (insert ")"))))
+(defun gdev-workspaces--write-checkpoint (_file drafts revisions)
+  "Salva la sessione e riusa le bozze già raccolte alla stessa revisione."
+  (let* ((next (make-hash-table :test #'eq))
+         (remaining gdev-workspaces--checkpoint-cache-limit)
+         (session
+          (gdev-workspaces--session
+           (tab-bar-tabs) drafts
+           (lambda (buffer key)
+             (let* ((revision (gethash buffer revisions))
+                    (old (and gdev-workspaces--checkpoint-cache
+                              (gethash buffer gdev-workspaces--checkpoint-cache)))
+                    (entry (if (equal (car old) revision) old
+                             (cons revision (cons key (gdev-drafts--snapshot buffer)))))
+                    (bytes (string-bytes (plist-get (cddr entry) :text))))
+               (when (<= bytes remaining)
+                 (puthash buffer entry next)
+                 (cl-decf remaining bytes))
+               (cdr entry))))))
+    (gdev-workspaces--write session)
     next))
 
 (defvar gdev-workspaces--checkpoint-timer nil
@@ -357,7 +350,7 @@ digitazione il salvataggio attende, se Emacs è già inattivo parte subito."
                    (sort (gdev-workspaces--drafts)
                          :key (lambda (entry) (buffer-name (car entry)))
                          :lessp #'string-lessp)))
-         (file (gdev-state-file "gdev-workspaces.eld"))
+         (file (gdev-state-db-file))
          (revisions (make-hash-table :test #'eq))
          (signature (mapcar (pcase-lambda (`(,buffer . ,key))
                               (cons buffer (puthash buffer
@@ -390,8 +383,12 @@ Le bozze si includono quando `gdev-drafts-hot-exit' è attivo."
 
 (defun gdev-workspaces--write (session)
   "Sostituisce il salvataggio completato con SESSION."
-  (gdev-workspaces--keep-unrestored (gdev-state-file "gdev-workspaces.eld"))
-  (gdev-write-state-data (gdev-state-file "gdev-workspaces.eld") session)
+  (unless (gdev-session-db-exists-p)
+    (gdev-workspaces--keep-unrestored (gdev-state-file "gdev-workspaces.eld")))
+  (let* ((file (gdev-state-db-file))
+         (expected (and (equal file (car gdev-workspaces--generation)) (cdr gdev-workspaces--generation)))
+         (id (gdev-session-db-save session "corrente" (not gdev-workspaces--session-active) expected)))
+    (setq gdev-workspaces--generation (cons file id)))
   (setq gdev-workspaces--session-active t))
 
 (defun gdev-workspaces-quit (restart)
@@ -424,8 +421,9 @@ Le bozze si includono quando `gdev-drafts-hot-exit' è attivo."
           (let* ((gdev-session--restarting t)
                  (session (gdev-workspaces--session (tab-bar-tabs) (gdev-workspaces--drafts))))
             (if (or restart (plist-get session :drafts))
-                (progn (gdev-workspaces--write session)
-                       (gdev-session--mark-restore))
+                (gdev-state-db-with (_db t)
+                  (gdev-workspaces--write session)
+                  (gdev-session--mark-restore))
               (gdev-workspaces-save t))
             (kill-emacs nil restart)))))))
 
@@ -480,7 +478,7 @@ Le bozze si includono quando `gdev-drafts-hot-exit' è attivo."
       (error "Schede o bozze della sessione non valide")))
   session)
 
-(defun gdev-workspaces--read (&optional only-file)
+(defun gdev-workspaces--read-file (&optional only-file)
   "Legge la sessione corrente o, al primo avvio, la precedente sessione Tabspaces.
 Con ONLY-FILE legge quel file e nessun altro."
   (let ((file (or only-file (gdev-state-file "gdev-workspaces.eld")))
@@ -498,6 +496,11 @@ Con ONLY-FILE legge quel file e nessun altro."
               ((and legacy (file-exists-p legacy))
                (gdev-workspaces--validate-session (gdev-workspaces--read-legacy legacy))))
       (error (user-error "Impossibile leggere la sessione. %s" (error-message-string err))))))
+
+(defun gdev-workspaces--read (&optional source)
+  (cond ((integerp source) (gdev-session-db-read source))
+        (source (gdev-workspaces--read-file source))
+        (t (or (gdev-session-db-read "corrente") (gdev-workspaces--read-file)))))
 
 (cl-defstruct gdev-workspaces--restore-transaction existing opened changes)
 
@@ -725,7 +728,16 @@ Con FILE legge quel salvataggio al posto di quello corrente."
                   (gdev-workspaces--restore-tab record draft-index recovered decoded transaction)))
            (push (1+ index) restored)))
        (setq restored (nreverse restored))
-       (tab-bar-select-tab (or (and (natnump active) (nth active restored)) (car restored)))))
+       (tab-bar-select-tab (or (and (natnump active) (nth active restored)) (car restored)))
+       (let ((id (cond ((plist-get session :generazione) (gdev-session-db-resume session (integerp file)))
+                       ((not file)
+                        (gdev-state-db-with (db t)
+                          (or (car (gdev-session-db--row db "corrente"))
+                              (gdev-session-db-save session "corrente"))))
+                       ((member file (gdev-workspaces--interrupted-files))
+                        (gdev-session-db-save session "corrente" t)))))
+         (when id (setq gdev-workspaces--generation (cons (gdev-state-db-file) id))))))
+    (when (plist-get session :generazione) (gdev-scoped-options-update-buffers))
     (setq gdev-workspaces--session-active t)
     (message "Sessione ripresa")))
 

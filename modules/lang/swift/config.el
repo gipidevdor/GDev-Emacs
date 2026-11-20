@@ -12,14 +12,11 @@
 ;;; Code:
 
 (require 'gdev-handlers)
+(require 'gdev-project-types)
 
 (use-package swift-mode
   :ensure t
   :mode "\\.swift\\'")
-
-(defun gdev-swift-project-p (root)
-  "Indica se ROOT contiene Package.swift."
-  (gdev-project-file-exists-p root "Package.swift"))
 
 (defun gdev-swift-command (action _root)
   "Scegli il comando Swift per ACTION."

@@ -17,8 +17,9 @@
 (defvar latex-mode-hook)
 
 (defun gdev-test--load-latex ()
-  "Prepara le capacità del modulo, anche dopo un'attivazione temporanea."
-  (load (gdev-module-file :lang 'latex ".el") nil t t))
+  "Prepara le capacità anche dopo un'attivazione temporanea."
+  (let ((gdev-modules (cons '(:lang latex) gdev-modules)))
+    (load (gdev-module-file :lang 'latex ".el") nil t t)))
 
 (ert-deftest gdev-test-latex-project-template-and-fork ()
   "Il progetto visita il documento, usa il fork e protegge i file esistenti."

@@ -64,9 +64,7 @@
 (setq python-indent-guess-indent-offset-verbose nil
       python-shell-interpreter "python3")
 
-(defconst gdev-python-project-files
-  '("pyproject.toml" "setup.py" "setup.cfg" "pytest.ini")
-  "File che identificano la cartella di un progetto Python.")
+(require 'gdev-project-types)
 
 (defun gdev-python--find-root (directory)
   "Trova la prima cartella con un file di progetto sopra DIRECTORY."

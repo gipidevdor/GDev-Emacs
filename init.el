@@ -43,15 +43,19 @@
      (unless source (signal (car err) (cdr err)))
      (load source nil t t))))
 
-(require 'gdev-lib)        ; utilità, regole dei pacchetti, ricerca dei progetti
-(require 'gdev-modules)    ; gdev!, caricamento dei moduli, file privati
-(require 'gdev-handlers)   ; gestori per linguaggio, registrati dai moduli
-(require 'gdev-env)        ; ambiente della shell salvato
-(require 'gdev-core)       ; predefiniti: velocità, file, cronologia, modifica
-(require 'gdev-keys)       ; tasto guida C-c, linguaggio C-c l, which-key
-(require 'gdev-commands)   ; comandi per file, buffer, finestre e sessioni
-(autoload 'gdev-agent-copy-socket "gdev-agent-interface" nil t)
+(if (bound-and-true-p gdev-state-startup-issue)
+    (display-warning 'gdev
+                     (format "Profilo sospeso. %s\nPuoi continuare a modificare file con Emacs. Da terminale usa «gdev stato verifica» e «gdev stato copie»."
+                             gdev-state-startup-issue) :error)
+  (require 'gdev-lib)        ; utilità, regole dei pacchetti, ricerca dei progetti
+  (require 'gdev-modules)    ; gdev!, caricamento dei moduli, file privati
+  (require 'gdev-handlers)   ; gestori per linguaggio, registrati dai moduli
+  (require 'gdev-env)        ; ambiente della shell salvato
+  (require 'gdev-core)       ; predefiniti: velocità, file, cronologia, modifica
+  (require 'gdev-keys)       ; tasto guida C-c, linguaggio C-c l, which-key
+  (require 'gdev-commands)   ; comandi per file, buffer, finestre e sessioni
+  (autoload 'gdev-agent-copy-socket "gdev-agent-interface" nil t)
 
-(gdev-modules-initialize)
+  (gdev-modules-initialize))
 
 ;;; init.el ends here

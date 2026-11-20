@@ -46,7 +46,7 @@
                    gdev-assurance-adopt gdev-assurance-install-hooks gdev-assurance-evidence gdev-assurance-artifact
                    gdev-assurance-link gdev-assurance-record gdev-assurance-check-documents
                    gdev-assurance-generate-documents gdev-assurance-sign gdev-assurance-sign-amend
-                   gdev-assurance-help gdev-assurance-project gdev-assurance-project-new
+                   gdev-assurance-help gdev-assurance-project gdev-assurance-project-new gdev-assurance-create-project
                    gdev-assurance-work-bind gdev-assurance-snippet gdev-assurance-requirement-new
                    gdev-assurance-project-edit gdev-assurance-project-fill gdev-assurance-project-bind
                    gdev-assurance-taxonomy gdev-assurance-procedures gdev-assurance-procedure-plan

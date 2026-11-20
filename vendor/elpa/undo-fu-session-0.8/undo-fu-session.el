@@ -13,6 +13,8 @@
 ;; Version: 0.8
 ;; Package-Requires: ((emacs "28.1"))
 
+;; GDev-Emacs, 2026-11-19: storage callbacks for profile persistence.
+
 ;;; Commentary:
 
 ;; This extension provides a way to use undo steps of
@@ -658,6 +660,12 @@ Argument PENDING-LIST a `pending-undo-list' compatible list."
      (t
       t))))
 
+(defvar undo-fu-session-storage-read-functions nil
+  "Functions called with a document path to return (HEADER . DATA), or nil.")
+
+(defvar undo-fu-session-storage-write-functions nil
+  "Functions called with document path, header and encoded data until one saves it.")
+
 (defun undo-fu-session--save-impl ()
   "Internal save logic, resulting in t on success."
   (declare (important-return-value nil))
@@ -713,7 +721,9 @@ Argument PENDING-LIST a `pending-undo-list' compatible list."
                (cons 'emacs-pending-undo-list emacs-pending-undo-list)
                (cons 'emacs-undo-equiv-table emacs-undo-equiv-table)))))
 
-    (when content-data
+    (when (and content-data
+               (not (run-hook-with-args-until-success 'undo-fu-session-storage-write-functions
+                                                      filepath content-header content-data)))
       (setq undo-file (undo-fu-session--make-file-name filepath))
 
       ;; Only enforce the file limit when saving new files,
@@ -734,7 +744,8 @@ Argument PENDING-LIST a `pending-undo-list' compatible list."
             (prin1 content-data (current-buffer)))
           (let ((create-lockfiles nil))
             (write-region nil nil undo-file nil 0))
-          t)))))
+          t)))
+    (and content-data t)))
 
 (defun undo-fu-session--save-safe ()
   "Public save function, typically called by `write-file-functions'."
@@ -767,37 +778,26 @@ Argument PENDING-LIST a `pending-undo-list' compatible list."
       (unless (undo-fu-session--recover-buffer-p buffer)
         (throw 'exit nil))
 
-      (setq undo-file (undo-fu-session--make-file-name filepath))
-
-      (unless (file-exists-p undo-file)
-        (throw 'exit nil))
-
-      (undo-fu-session--with-auto-compression-mode
-        (with-temp-buffer
-          (insert-file-contents undo-file)
-          (goto-char (point-min))
-          (setq content-header (read (current-buffer)))
-
-          ;; Use `undo-fu-session--message-without-echo' to avoid distracting the user
-          ;; when a commonplace reason for failing to load is hit.
-          ;;
-          ;; These issues are common when working with others on documents.
-          ;; This way users may find out why undo didn't load if they need,
-          ;; without distracting them with noisy info.
-          (unless (= (buffer-size buffer) (cdr (assoc 'buffer-size content-header)))
-            (undo-fu-session--message-without-echo
-             "Undo-Fu-Session discarding: file length mismatch for %S"
-             filepath)
-            (throw 'exit nil))
-
-          (unless (string-equal (sha1 buffer) (cdr (assoc 'buffer-checksum content-header)))
-            (undo-fu-session--message-without-echo
-             "Undo-Fu-Session discarding: file checksum mismatch for %S"
-             filepath)
-            (throw 'exit nil))
-
-          ;; No errors... decode all undo data.
-          (setq content-data (read (current-buffer))))))
+      (let ((stored (run-hook-with-args-until-success 'undo-fu-session-storage-read-functions filepath)))
+        (unless stored
+          (setq undo-file (undo-fu-session--make-file-name filepath))
+          (unless (file-exists-p undo-file)
+            (throw 'exit nil)))
+        (undo-fu-session--with-auto-compression-mode
+          (with-temp-buffer
+            (if stored
+                (setq content-header (car stored))
+              (insert-file-contents undo-file)
+              (goto-char (point-min))
+              (setq content-header (read (current-buffer))))
+            (unless (and (= (buffer-size buffer) (cdr (assoc 'buffer-size content-header)))
+                         (string-equal (sha1 buffer) (cdr (assoc 'buffer-checksum content-header))))
+              (undo-fu-session--message-without-echo "Undo-Fu-Session discarding changed file %S" filepath)
+              (throw 'exit nil))
+            (setq content-data (if stored (cdr stored) (read (current-buffer))))))
+        (unless stored
+          (run-hook-with-args-until-success 'undo-fu-session-storage-write-functions
+                                            filepath content-header content-data))))
 
     (when content-data
       (let* ((emacs-buffer-undo-list

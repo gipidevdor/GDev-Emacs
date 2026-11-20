@@ -22,6 +22,8 @@
 ;;   gdev --profile NOME COMANDO gestisce configurazione e stato del profilo
 ;;   gdev [--profile NOME] emacs [ARGOMENTI] avvia Emacs con la configurazione GDev
 ;;   gdev doctor       diagnosi dell'ambiente, con il rimedio a ogni problema
+;;   gdev stato verifica [FILE] | copie | copia [FILE] | recupera COPIA NUOVA_CARTELLA
+;;                     verifica, copia o recupera lo stato del profilo
 ;;   gdev env          salva l'ambiente dell'interprete dei comandi (shell)
 ;;                     per l'Emacs grafico
 ;;   gdev compile      compila il nucleo, i moduli attivi e la configurazione
@@ -115,7 +117,7 @@ buffer corrente: in batch l'output non comparirebbe sull'uscita standard."
 (defun gdev-cli--read-modules (&optional strict)
   "Legge l'init.el sorgente in `gdev-modules'.  Con STRICT propaga gli errori."
   (let ((init-file-debug (or strict init-file-debug)))
-    (gdev-modules--load-private "init" t))
+    (gdev-modules-load-selection t))
   (gdev-cli--say "  %d moduli attivi (%s)" (length gdev-modules)
                  (if (file-exists-p (gdev-user-file "init.el"))
                      (abbreviate-file-name (gdev-user-file "init.el"))
@@ -406,8 +408,16 @@ ARGUMENTS può contenere -u per aggiornare prima tutti i pacchetti."
         output))))
 
 (defun gdev-cli--previous-revision ()
-  "Restituisci il file che registra la revisione precedente."
-  (gdev-state-file "revisione-precedente"))
+  "Leggi la revisione di questo checkout, importando il registro storico."
+  (let* ((checkout (file-truename gdev-config-directory))
+         (old (gdev-state-db--legacy "revisione-precedente")))
+    (or (cdar (gdev-state-db-entries "aggiornamento" checkout "revisione_precedente"))
+        (when (file-readable-p old)
+          (gdev-state-db-with (db t)
+            (let ((scope (gdev-state-db--scope db "aggiornamento" checkout t)))
+              (or (cdar (gdev-state-db--entries db scope "revisione_precedente"))
+                  (gdev-state-db-set "aggiornamento" checkout "revisione_precedente"
+                                     (string-trim (gdev-read-file-contents old))))))))))
 
 (defun gdev-cli-upgrade ()
   "Aggiorna GDev-Emacs e conserva la revisione da usare per il recupero."
@@ -419,7 +429,7 @@ ARGUMENTS può contenere -u per aggiornare prima tutti i pacchetti."
   (let ((before (gdev-cli--git "rev-parse" "HEAD")))
     (gdev-cli--say "  %s" (gdev-cli--git "pull" "--ff-only"))
     (unless (equal before (gdev-cli--git "rev-parse" "HEAD"))
-      (with-temp-file (gdev-cli--previous-revision) (insert before "\n"))))
+      (gdev-state-db-set "aggiornamento" (file-truename gdev-config-directory) "revisione_precedente" before)))
   ;; Il registro e il codice di sync devono appartenere alla nuova revisione.
   (let* ((process-environment (copy-sequence process-environment))
          (default-directory gdev-config-directory)
@@ -447,9 +457,7 @@ ARGUMENTS può contenere -u per aggiornare prima tutti i pacchetti."
 
 (defun gdev-cli-rollback (&optional revision)
   "Prepara un'istanza isolata di GDev alla REVISION precedente."
-  (let* ((record (gdev-cli--previous-revision))
-         (requested (or revision (and (file-readable-p record)
-                                     (string-trim (gdev-read-file-contents record)))))
+  (let* ((requested (or revision (gdev-cli--previous-revision)))
          (commit (if (and requested (not (string-empty-p requested)))
                      (gdev-cli--git "rev-parse" "--verify" "--end-of-options"
                                     (concat requested "^{commit}"))
@@ -721,6 +729,7 @@ Il nucleo carica da solo, senza moduli né pacchetti."
      (:operands "PACCHETTO BASE NUOVO" 3 3 gdev-cli--operand-p))
     ("rollback" gdev-cli-rollback (:operands "[REVISIONE]" 0 1 gdev-cli--operand-p))
     ("doctor" gdev-cli-doctor)
+    ("stato" gdev-cli-stato (:operands "verifica [FILE] | copie | copia [FILE] | recupera COPIA NUOVA_CARTELLA" 1 3 gdev-cli--operand-p))
     ("env" gdev-cli-env)
     ("compile" gdev-cli-compile (:flags "-w" "--native"))
     ("clean" gdev-cli-clean)
@@ -733,6 +742,20 @@ Il nucleo carica da solo, senza moduli né pacchetti."
     ("info" gdev-cli-info)
     ("help" gdev-cli-help))
   "Nome, funzione e firma facoltativa dei comandi di manutenzione.")
+
+(cl-defun gdev-cli-stato (&rest args)
+  "Gestisci l'archivio anche quando il profilo non può avviarsi."
+  (require 'gdev-state-db-maintenance)
+  (pcase args
+    ((or '("verifica") `("verifica" ,_))
+     (gdev-cli--say "Archivio integro · versione %d" (gdev-state-db-inspect (or (cadr args) (gdev-state-db-file)) t)))
+    ('("copie") (gdev-cli--say "%s" (or (when-let* ((copies (gdev-state-db-copies)))
+                                          (string-join copies "\n")) "Nessuna copia disponibile")))
+    ((or '("copia") `("copia" ,_)) (gdev-cli--say "%s" (gdev-state-db-backup (cadr args))))
+    (`("recupera" ,source ,dir) (gdev-cli--say "Archivio recuperato in %s" (gdev-state-db-recover source dir)))
+    (_ (gdev-cli--say "%s" (gdev-cli--usage "stato" (nth 2 (assoc "stato" gdev-cli-commands))))
+       (cl-return-from gdev-cli-stato 2)))
+  0)
 
 (defun gdev-cli--valid-arguments-p (signature arguments)
   "Verifica ARGUMENTS secondo SIGNATURE."

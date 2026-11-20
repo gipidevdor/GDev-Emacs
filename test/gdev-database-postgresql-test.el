@@ -14,6 +14,7 @@
 (require 'ert)
 (require 'cl-lib)
 (require 'gdev-lib)
+(require 'gdev-test-ipc (gdev-config-file "test/gdev-test-ipc"))
 (require 'gdev-postgresql-browser
          (gdev-config-file "modules/lang/postgresql/gdev-postgresql-browser"))
 
@@ -70,6 +71,12 @@
     (cl-labels ((exec (program &rest args)
                   (with-temp-buffer
                     (unless (eq 0 (apply #'process-file program nil (list t t) nil args))
+                      (goto-char (point-min))
+                      (when (and (equal program "initdb")
+                                 (re-search-forward
+                                  "could not create shared memory segment: \\(?:Operation not permitted\\|Permission denied\\)$"
+                                  nil t))
+                        (gdev-test-ipc-denied (concat "PostgreSQL: " (match-string 0))))
                       (ert-fail (buffer-string)))))
                 (ident (name)
                   (concat "\"" (replace-regexp-in-string "\"" "\"\"" name t t) "\""))
@@ -79,8 +86,10 @@
                     (car result))))
       (unwind-protect
           (progn
+            (gdev-test-ipc-require-unix root)
             (load (gdev-module-file :lang 'sql ".el") nil t)
-            (exec "initdb" "-D" directory "--auth=trust" "--locale=C" "--encoding=UTF8" "--no-sync")
+            (with-environment-variables (("LC_ALL" "C"))
+              (exec "initdb" "-D" directory "--auth=trust" "--locale=C" "--encoding=UTF8" "--no-sync"))
             (exec "pg_ctl" "-D" directory "-l" log "-o" (concat "-k " root " -c listen_addresses=")
                   "-w" "start")
             (setq started t)

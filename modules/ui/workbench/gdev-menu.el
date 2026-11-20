@@ -20,6 +20,7 @@
 (require 'gdev-modules)
 (require 'gdev-workspace-roots)
 (require 'gdev-workspace-state)
+(require 'gdev-writing)
 
 (declare-function gdev-editor-document "gdev-commands")
 (declare-function gdev-context--timeline-target "gdev-context" ())
@@ -131,9 +132,26 @@ scorciatoia completa."
                         (define-key map (vector 'menu-bar event) #'undefined))
                       (list (cons 'menu-bar-mode map))))))))
 
+(defconst gdev-menu--project-types
+  '("Nuovo progetto"
+    ["Vuoto…" gdev-new-empty-project]
+    ["Formale…" gdev-assurance-create-project]
+    ["Articolo…" gdev-article-new-project]
+    ["LaTeX…" gdev-latex-new-project]))
+
+(defun gdev-new-project ()
+  "Scegli il tipo di progetto da creare fra quelli disponibili nel menu."
+  (interactive)
+  (let* ((choices (mapcar (lambda (item) (cons (aref item 0) (aref item 1)))
+                          (gdev-menu--entries (cdr gdev-menu--project-types))))
+         (type (completing-read "Nuovo progetto: " choices nil t nil nil (caar choices))))
+    (when-let* ((command (cdr (assoc type choices))))
+      (call-interactively command))))
+
 (defconst gdev-menu--sections
-  '((gdev-file "File"
+  `((gdev-file "File"
      ["Nuovo documento" gdev-new-buffer :key-sequence "s-n"]
+     ["Nuovo progetto…" gdev-new-project :key-sequence "C-c p n"]
      ["Appunti" gdev-scratch :key-sequence "C-c b x"]
      ["Apri file…" gdev-open-file :key-sequence "s-o"]
      ["Apri cartella…" gdev-open-folder :key-sequence "s-O"]
@@ -335,9 +353,7 @@ scorciatoia completa."
      (:group "Azioni sul codice" gdev-code-map "C-c c")
      (:group "Problemi e ortografia" gdev-checkers-map "C-c !"))
     (gdev-project "Progetto"
-     ("Nuovo progetto"
-      ["Articolo…" gdev-article-new-project]
-      ["LaTeX…" gdev-latex-new-project])
+     ,gdev-menu--project-types
      ["Panoramica dell’articolo" gdev-article-open-project :key-sequence "C-c j"
       :visible (and (derived-mode-p 'gdev-article-mode) (bound-and-true-p gdev-article--root))]
      ["Cambia progetto…" project-switch-project]

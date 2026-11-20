@@ -73,6 +73,7 @@
 (load (gdev-config-file "test/gdev-fork-linguaggi-test.el") nil t t)
 (load (gdev-config-file "test/gdev-fork-navigazione-test.el") nil t t)
 (load (gdev-config-file "test/gdev-fork-servizi-test.el") nil t t)
+(load (gdev-config-file "test/gdev-behavior-test.el") nil t t)
 
 ;;;; Funzioni di supporto
 
@@ -156,6 +157,8 @@
     (or (and (equal relative "test/gdev-test.el")
              (member path '("/Users/foo/" "/home/foo/" "/home/www/" "/home/user/"
                             "/home/akib/" "/users/tarsius/" "/home/me/" "/Users/alanr/")))
+        (and (equal relative "test/behavior/upstream/emacs/test/lisp/progmodes/python-tests.el")
+             (equal path "/home/user/"))
         (and (string-prefix-p "vendor/elpa/" relative)
              (equal path "/home/user/"))
         (and (string-prefix-p "vendor/elpa/f-20241003.1131/" relative)
@@ -199,7 +202,10 @@
           (goto-char (point-min))
           ;; Nei sorgenti importati restano gli indirizzi pubblici degli autori.
           ;; I controlli delle credenziali e dei percorsi sopra valgono anche lì.
+          ;; Gli autori pubblici restano nelle copie originali del corpus;
+          ;; la prova di provenienza ne verifica tutte le impronte esatte.
           (while (and (not (file-in-directory-p file (gdev-config-file "vendor/elpa/")))
+                      (not (file-in-directory-p file (gdev-config-file "test/behavior/upstream/")))
                       (re-search-forward "[A-Za-z0-9._%+-]+@\\([A-Za-z0-9-]+\\.\\)+[A-Za-z]\\{2,\\}" nil t))
             (unless (cl-some (lambda (domain) (string-suffix-p domain (match-string 0)))
                              gdev-test--allowed-mail-domains)
@@ -273,17 +279,17 @@ installerebbero pacchetti dentro il repository."
         (progn
           (let ((print-length 1) (print-level 0))
             (gdev-env--write pairs))
-          (let ((before (gdev-read-file-contents (gdev-env-file))))
-            (should (equal (car (read-from-string before)) pairs))
+          (let ((before (gdev-state-db-entries "ambiente" "")))
+            (should (equal before (reverse pairs)))
             (cl-letf (((symbol-function 'gdev-env--from-login-shell)
                        (lambda () '(("PATH" . "/sostituzione"))))
-                      ((symbol-function 'rename-file)
+                      ((symbol-function 'gdev-state-db--put)
                        (lambda (&rest _) (signal 'file-error '("Disco non scrivibile")))))
               (should-error (gdev-env-refresh) :type 'file-error))
             (should (equal (getenv "PATH") path))
-            (should (equal (gdev-read-file-contents (gdev-env-file)) before))
+            (should (equal (gdev-state-db-entries "ambiente" "") before))
             (should (equal (directory-files gdev-state-directory nil "\\`[^.]")
-                           '("environment.eld")))))
+                           '("copie-stato" "stato.sqlite")))))
       (delete-directory gdev-state-directory t))))
 
 (ert-deftest gdev-test-declaring-modules ()
@@ -1652,6 +1658,35 @@ installerebbero pacchetti dentro il repository."
            ,@body)
        (set-frame-parameter frame 'tabs tabs)
        (unless already-enabled (gdev-layout-mode -1)))))
+
+(ert-deftest gdev-test-new-project-dashboard-works-without-writing-modules ()
+  "Il pulsante, la lettera e il menu restano utilizzabili nel profilo ridotto."
+  (require 'gdev-commands)
+  (load (gdev-module-file :ui 'dashboard ".el") nil t t)
+  (gdev-test-assurance--with-root root
+    (let ((project-list-file (expand-file-name "recenti" root))
+          (project--list nil)
+          (destination (expand-file-name "Cartella con spazi" root)))
+      (gdev-test--with-layout
+        (let ((gdev-modules '((:ui workbench) (:ui dashboard))))
+          (let* ((types (assoc "Nuovo progetto" (gdev-menu-section-items 'gdev-project)))
+                 (commands (mapcar (lambda (item) (aref item 1)) (cdr types))))
+            (should (memq 'gdev-new-empty-project commands))
+            (should (memq 'gdev-article-new-project commands))
+            (should (memq 'gdev-latex-new-project commands)))
+          (gdev-dashboard)
+          (should (eq (key-binding "c") #'gdev-new-project))
+          (goto-char (point-min))
+          (search-forward "Nuovo progetto…")
+          (cl-letf (((symbol-function 'completing-read)
+                     (lambda (_prompt choices &rest _)
+                       (should (eq (cdr (assoc "Vuoto…" choices)) #'gdev-new-empty-project))
+                       "Vuoto…"))
+                    ((symbol-function 'read-directory-name) (lambda (&rest _) destination)))
+            (push-button (1- (point))))
+          (should (file-exists-p (expand-file-name ".project" destination)))
+          (should (file-equal-p destination (car (gdev-workspace-roots))))
+          (should (file-equal-p destination (car (project-known-project-roots)))))))))
 
 (ert-deftest gdev-test-layout-workspace-name-follows-the-editor ()
   "Il fuoco su una vista laterale non dà il suo nome allo spazio salvato."
@@ -3845,7 +3880,6 @@ installerebbero pacchetti dentro il repository."
   "Un riavvio annullato lascia intatti la sessione e l'avvio successivo."
   (require 'gdev-commands)
   (let* ((gdev-state-directory (make-temp-file "gdev-restart-" t))
-         (flag (gdev-state-file "restore-session-on-start"))
          (gdev-session-hot-exit-function nil)
          (kill-emacs-hook nil)
          (saved 0)
@@ -3857,12 +3891,12 @@ installerebbero pacchetti dentro il repository."
             (gdev-restart-and-restore))
           (should (= saved 0))
           (should-not kill-emacs-hook)
-          (should-not (file-exists-p flag))
+          (should-not (gdev-state-db-entries "applicazione" "" "ripristino_richiesto"))
           (cl-letf (((symbol-function 'restart-emacs) (lambda () (run-hooks 'kill-emacs-hook))))
             (gdev-restart-and-restore))
           (should (= saved 1))
           (should-not kill-emacs-hook)
-          (should (file-exists-p flag)))
+          (should (gdev-state-db-entries "applicazione" "" "ripristino_richiesto")))
       (delete-directory gdev-state-directory t))))
 
 (ert-deftest gdev-test-workspace-checkpoint-waits-for-a-pause ()
@@ -3899,7 +3933,7 @@ installerebbero pacchetti dentro il repository."
             (gdev-new-buffer)
             (setq draft (current-buffer))
             (gdev-workspaces-checkpoint)
-            (should-not (file-exists-p (gdev-state-file "gdev-workspaces.eld")))
+            (should-not (gdev-session-db-exists-p))
             (insert "Bozza da recuperare")
             (gdev-workspaces-checkpoint)
             (should (buffer-modified-p))
@@ -3939,7 +3973,7 @@ installerebbero pacchetti dentro il repository."
                 (signature gdev-workspaces--checkpoint-signature))
             (with-current-buffer first (insert " bis"))
             (setq saved nil)
-            (cl-letf (((symbol-function 'rename-file)
+            (cl-letf (((symbol-function 'gdev-session-db--write-tab)
                        (lambda (&rest _) (signal 'file-error '("Disco non scrivibile")))))
               (gdev-workspaces-checkpoint))
             (should (eq gdev-workspaces--checkpoint-signature signature))
@@ -4011,15 +4045,15 @@ installerebbero pacchetti dentro il repository."
             (cl-letf (((symbol-function 'kill-emacs) (lambda (&rest _) (setq killed t))))
               (gdev-workspaces-quit nil)
               (should-not killed)
-              (should-not (file-exists-p (gdev-state-file "gdev-workspaces.eld")))
-              (should-not (file-exists-p (gdev-state-file "restore-session-on-start")))
+              (should-not (gdev-session-db-exists-p))
+              (should-not (gdev-state-db-entries "applicazione" "" "ripristino_richiesto"))
               (should (buffer-modified-p visiting))
               (should (buffer-modified-p draft))
               (let ((confirm-kill-emacs (lambda (_prompt) t)))
                 (gdev-workspaces-quit nil))
               (should killed))
             (should (equal (with-temp-buffer (insert-file-contents file) (buffer-string)) "Dal disco\n"))
-            (should (file-exists-p (gdev-state-file "restore-session-on-start")))
+            (should (gdev-state-db-entries "applicazione" "" "ripristino_richiesto"))
             (switch-to-buffer "*scratch*")
             (dolist (buffer (list visiting draft))
               (with-current-buffer buffer (set-buffer-modified-p nil))
@@ -4586,6 +4620,8 @@ installerebbero pacchetti dentro il repository."
       (keymap-global-set "<f19>" previous)
       (kill-buffer document))))
 
+(load (gdev-config-file "test/gdev-state-db-test.el") nil t t)
+
 ;;;; Prova di avvio (smoke test): l'intera configurazione
 
 (ert-deftest gdev-test-configuration-loads ()
@@ -4635,6 +4671,7 @@ installerebbero pacchetti dentro il repository."
                    ("C-c o w" [menu-bar gdev-tools Apri\ navigatore\ web…] gdev-web-browser)
                    ("C-c o W" [menu-bar gdev-tools Anteprima\ web\ affiancata] gdev-web-preview)
                    ("C-c p e" [menu-bar gdev-project Dipendenze\ del\ progetto] gdev-project-dependencies-show)
+                   ("C-c p n" [menu-bar gdev-file Nuovo\ progetto…] gdev-new-project)
                    ("C-c g 3" [menu-bar gdev-file Unisci\ tre\ file…] gdev-merge-files)
                    ("C-c g !" [menu-bar gdev-file Risolvi\ i\ conflitti…] gdev-merge-conflict)))
     (pcase-let ((`(,key ,menu ,command) entry))

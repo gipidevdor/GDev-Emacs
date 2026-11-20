@@ -12,10 +12,7 @@
 ;;; Code:
 
 (require 'gdev-handlers)
-
-(defun gdev-go-project-p (root)
-  "Indica se ROOT contiene go.mod."
-  (gdev-project-file-exists-p root "go.mod"))
+(require 'gdev-project-types)
 
 (defun gdev-go-command (action _root)
   "Scegli il comando Go per ACTION."

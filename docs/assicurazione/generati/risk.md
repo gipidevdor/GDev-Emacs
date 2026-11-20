@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:6041bf5270f555baf615068a687092a736eb575762ca34c1f671509abeff310d -->
+<!-- Generato da GDev; non modificare. Fonti sha256:8f4c9639734b6a5fae2de48bde65233e4f265603325ef724448621f8d589a9f0 -->
 
 # Analisi dei rischi
 
@@ -333,7 +333,27 @@
                 "gdev-test-xcode-private-profile-prevails-and-view-reads-have-no-io"
                 "gdev-test-xcode-rejects-products-and-directories-outside-project"
                 "gdev-test-command-sidebar-menu-opens-search-when-the-pane-cannot-fit")
-        :procedure "GDEV-VERIFY"))
+        :procedure "GDEV-VERIFY")
+   (:id "GDEV-P12" :version 1
+        :statement "Il profilo deve conservare in SQLite lo stato durevole e le scelte personali, di sessione, di tipo di progetto e di progetto. Il catalogo deve seguire le opzioni dichiarate dai moduli. Lo schema applicativo deve essere in terza forma normale, con tabelle, colonne e indici in italiano."
+        :origin "Richiesta di persistenza di GDev-Emacs"
+        :rationale "Riprendere il lavoro attraverso lo stesso modello di dati in ogni tipo di progetto"
+        :category data :priority must :criticality high :owner "Manutentori di GDev"
+        :status accepted :applicability applicable
+        :acceptance "Valori strutturati, precedenza degli ambiti, impostazioni tardive, cronologie e sessioni sopravvivono alla riapertura. Il progetto attivo determina le preferenze applicate."
+        :method test :procedure "GDEV-VERIFY"
+        :sources ("lisp/gdev-state-db.el" "lisp/gdev-custom-db.el" "lisp/gdev-scoped-options.el" "lisp/gdev-session-db.el" "lisp/gdev-native-state.el" "lisp/gdev-project-types.el" "modules/ui/workbench/gdev-preferences.el")
+        :tests ("gdev-test-state-db-values-and-rollback" "gdev-test-state-db-catalog-preserves-other-instances" "gdev-test-state-db-custom-migration-and-late-option" "gdev-test-preferences-sqlite-project-type-precedence" "gdev-test-preferences-sqlite-scopes-are-live-and-resettable" "gdev-test-preferences-review-external-project" "gdev-test-db-review-ordinary-restore-settings" "gdev-test-state-db-native-histories-round-trip" "gdev-test-db-review-shell-services" "gdev-test-state-db-undo-reopens-and-checks-document" "gdev-test-db-review-child-order" "gdev-test-state-db-project-types-without-active-module" "gdev-test-state-db-project-symlink-and-emacs31-service-files"))
+   (:id "GDEV-Q08" :version 2
+        :statement "La creazione, migrazione, concorrenza, diagnosi, copia e ripresa del database del profilo devono preservare le transazioni confermate e consentire il recupero da una copia verificata."
+        :origin "Segnalazione id_ambito aprendo Articolo e richiesta di robustezza del database"
+        :rationale "Proteggere il lavoro già salvato e rendere recuperabili i profili precedenti"
+        :category quality :priority must :criticality high :owner "Manutentori di GDev"
+        :status accepted :applicability applicable
+        :acceptance "Un profilo vuoto si inizializza senza archivi preesistenti e conserva i valori al secondo avvio, anche con percorsi non ASCII e primi scrittori concorrenti. Articolo legge un profilo precedente dopo la migrazione. Errori SQL, lock, copie corrotte e pubblicazioni interrotte preservano i dati recuperabili. Il ripristino in un nuovo profilo è ripetibile."
+        :method test :procedure "GDEV-VERIFY"
+        :sources ("lisp/gdev-state-db.el" "lisp/gdev-state-db-maintenance.el" "lisp/gdev-session-db.el" "lisp/gdev-workspaces.el")
+        :tests ("gdev-test-state-db-migrates-on-article-session-read" "gdev-test-state-db-migration-is-retryable-after-failure" "gdev-test-state-db-corruption-recovery-and-missing-primary" "gdev-test-state-db-refuses-foreign-future-and-altered-archives" "gdev-test-state-db-busy-and-full-rollback" "gdev-test-db-review-corrupt-daily-copy" "gdev-test-db-review-concurrent-clean-workspace" "gdev-test-db-review-profile-boundary" "gdev-test-db-review-owner-integrity" "gdev-test-db-review-recovery-publication" "gdev-test-state-db-copy-dates-survive-file-copies" "gdev-test-state-db-backup-directory-ownership" "gdev-test-state-db-native-writers-detect-conflicts" "gdev-test-workspaces-historical-collision-remains-recoverable" "gdev-test-state-db-engine-resource-errors" "gdev-test-state-db-copy-supports-strict-sqlite-and-cleans-failures")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
@@ -511,7 +531,7 @@
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")

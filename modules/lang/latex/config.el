@@ -37,15 +37,9 @@
 (declare-function reftex-citation "reftex-cite" (&optional arg))
 (defvar reftex-default-bibliography)
 
-(defconst gdev-latex--marker ".gdev-latex"
-  "File che identifica il progetto LaTeX.")
-
 (defun gdev-latex--find-root (directory)
   "Trova il progetto LaTeX che contiene DIRECTORY."
   (gdev-writing-project-root 'gdev-latex directory))
-
-(cl-defmethod project-root ((project (head gdev-latex)))
-  (cdr project))
 
 (gdev-writing-register-project 'gdev-latex gdev-latex--marker)
 
@@ -274,7 +268,6 @@
                    (vector (aref item 0) (aref item 1) :active
                            (if (> (length item) 2) (aref item 2) t)))
                  gdev-latex--actions))))
-(add-to-list 'major-mode-remap-alist '(latex-mode . gdev-latex-mode))
 
 (defun gdev-latex--file-mode ()
   "Usa LaTeX GDev nel suo progetto e rileva gli altri sorgenti TeX."
@@ -282,6 +275,8 @@
       (gdev-latex-mode)
     (tex-mode)))
 
-(add-to-list 'auto-mode-alist '("\\.tex\\'" . gdev-latex--file-mode))
+(when (gdev-module-p :lang 'latex)
+  (add-to-list 'major-mode-remap-alist '(latex-mode . gdev-latex-mode))
+  (add-to-list 'auto-mode-alist '("\\.tex\\'" . gdev-latex--file-mode)))
 
 ;;; config.el ends here

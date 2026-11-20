@@ -166,18 +166,22 @@
     (skip-unless (executable-find tool)))
   (let* ((root (file-name-as-directory (file-truename (make-temp-file "gdev-cmake-flow-" t))))
          (default-directory root)
+         (process-environment (copy-sequence process-environment))
          (gdev-cmake-build-directory "build con spazi")
          (gdev-build-settings nil))
     (unwind-protect
         (progn
+          (setenv "CCACHE_DIR" (expand-file-name "ccache" root))
+          (setenv "CCACHE_TEMPDIR" (expand-file-name "ccache/tmp" root))
           (with-temp-file (expand-file-name "CMakeLists.txt")
             (insert "cmake_minimum_required(VERSION 3.20)\nproject(Smoke LANGUAGES CXX)\n"
                     "add_executable(gdev_flow main.cpp)\nenable_testing()\n"
                     "add_test(NAME smoke COMMAND gdev_flow)\n"))
           (with-temp-file (expand-file-name "main.cpp") (insert "int main() { return 0; }\n"))
           (with-temp-buffer
-            (should (zerop (call-process-shell-command (gdev-build--command 'test root)
-                                                       nil (current-buffer))))
+            (let ((status (call-process-shell-command (gdev-build--command 'test root) nil t)))
+              (ert-info ((buffer-string))
+                (should (eql status 0))))
             (should (string-match-p "100% tests passed" (buffer-string))))
           (should (equal (gdev-project-programs root)
                          (list (concat "build con spazi/gdev_flow" (if gdev-windows-p ".exe" "")))))

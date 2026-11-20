@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "javascript",
+      "repository": "https://github.com/tree-sitter/tree-sitter-javascript",
+      "revision": "3a837b6f3658ca3618f2022f8707e29739c91364",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "2e0110e07abef7c2548b26ec9d6969775617ca539a0dc8dbeeb14d6452c711d1"
+        },
+        {
+          "path": "test/corpus/destructuring.txt",
+          "sha256": "79dcf38c3be5e614ba479b28e33f58dbcd841b4d36c753088ec0fd771b6cf571"
+        },
+        {
+          "path": "test/corpus/expressions.txt",
+          "sha256": "98d84ce1e0c834c431c0d18a19ff1274b904904db75199f72354b681f82d488a"
+        },
+        {
+          "path": "test/corpus/injectables.txt",
+          "sha256": "53a093f1f9e69f8053b0360d3329d101ba051f22a35256ad73b1e6cea5653cc2"
+        },
+        {
+          "path": "test/corpus/literals.txt",
+          "sha256": "df22ef2f8121521978a9340cee9ba9e4f945c1482850fa22c4030f112ae86f4e"
+        },
+        {
+          "path": "test/corpus/semicolon_insertion.txt",
+          "sha256": "3c3c28f171f9388fe4043cb0bb2f939107b22fe0b5231f527d813719ca561377"
+        },
+        {
+          "path": "test/corpus/statements.txt",
+          "sha256": "625598ab2b3a6248ec8fd1e67d508a022f2a722c2bf8baf4119b0b19e2d92c57"
+        },
+        {
+          "path": "test/highlight/keywords.js",
+          "sha256": "9a66c7a248abc299463167ace12e99ad0e3e1cab94cda4b1a9604d08ec42c451"
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "repository": "https://github.com/tree-sitter/tree-sitter-python",
+      "revision": "bffb65a8cfe4e46290331dfef0dbf0ef3679de11",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "d724405ce238a22c0d35769c5a36b386ad5958192efe8bbb304fb2896254575f"
+        },
+        {
+          "path": "test/corpus/errors.txt",
+          "sha256": "44c4a48ec26b91f4996da988686309e92cc5f316ba6f7de1964ad685c8ee45fb"
+        },
+        {
+          "path": "test/corpus/expressions.txt",
+          "sha256": "597748f21901f4e2e8da4801c4e3149d63da1b8f4ccbf91e3cdb6f657b6f2a0d"
+        },
+        {
+          "path": "test/corpus/literals.txt",
+          "sha256": "c93e99b759077f9ac12035335efb9dea084f94305bcd5b70298fe6801ff849e9"
+        },
+        {
+          "path": "test/corpus/pattern_matching.txt",
+          "sha256": "01b1a468d1b10de9e9fa603cd21d1474106f071a6f60b40d850c1440b3371d4a"
+        },
+        {
+          "path": "test/corpus/statements.txt",
+          "sha256": "3f66e5c58f530180586284f3ea4300d10ed3f41331a09cf17c1df275be93b7f3"
+        },
+        {
+          "path": "test/highlight/keywords.py",
+          "sha256": "5209cfe62baefa489f21f00ca457880a0908c54e3613ab5f73fb0d568e3d9d69"
+        }
+      ]
+    },
+    {
+      "id": "json",
+      "repository": "https://github.com/tree-sitter/tree-sitter-json",
+      "revision": "ee35a6ebefcef0c5c416c0d1ccec7370cfca5a24",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "2e0110e07abef7c2548b26ec9d6969775617ca539a0dc8dbeeb14d6452c711d1"
+        },
+        {
+          "path": "test/corpus/main.txt",
+          "sha256": "0dd8701ad7a3f0a9491e2c60c96ea9f78deea3458b729c26f1c473b21ebe8a55"
+        }
+      ]
+    },
+    {
+      "id": "fourslash",
+      "repository": "https://github.com/microsoft/TypeScript",
+      "revision": "a5e123d9e0690fcea92878ea8a0a382922009fc9",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE.txt",
+      "files": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47"
+        },
+        {
+          "path": "tests/cases/fourslash/completionListOnParam.ts",
+          "sha256": "d62c4cc3f98d46faee1f4be6c5cc691d5d4d6a4f26123f23ff3880943eac0d4e"
+        },
+        {
+          "path": "tests/cases/fourslash/completionListOnMethodParameterName.ts",
+          "sha256": "a8eab1b74dd53b78bc19f638737a3db2f3f0d8ce8b3dbc835479965f49b339a9"
+        },
+        {
+          "path": "tests/cases/fourslash/completionListOnFunctionCallWithOptionalArgument.ts",
+          "sha256": "3a34550455721a3b88c1c0930047623b4537ed84a32716b2b0cf8a8cc54deaa9"
+        },
+        {
+          "path": "tests/cases/fourslash/goToDefinitionSameFile.ts",
+          "sha256": "61d2531be115b524662c43e893d0105e811acf18348793a74a8a3aa9f6f1d3ba"
+        },
+        {
+          "path": "tests/cases/fourslash/goToDefinitionShadowVariable.ts",
+          "sha256": "103d6c85ba283d418f8ebba6e52ecf0c75194b73ef6f67d238d23d34b2237523"
+        },
+        {
+          "path": "tests/cases/fourslash/renameFunctionParameter1.ts",
+          "sha256": "43bdca5c8ea22e0c5de016ac0481200c339a4ad37ae02a81e9e4e6c270accc4d"
+        }
+      ]
+    },
+    {
+      "id": "textmate",
+      "repository": "https://github.com/microsoft/TypeScript-TmLanguage",
+      "revision": "eeeb0dc4daa8793b8227bb3b34ddfc267c85fd81",
+      "license": "MIT",
+      "license_file": "LICENSE.txt",
+      "files": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "3389ba8955988c98891b041000e5cb916c7a3c1ac6f14b433a77755a39517e29"
+        },
+        {
+          "path": "tests/cases/Comments.ts",
+          "sha256": "0b1db60a0e950a8dcff26315675b16ed3935db18891f2247bd392eb0ac8105cc"
+        },
+        {
+          "path": "tests/baselines/Comments.baseline.txt",
+          "sha256": "6a44270ed854aaf7307794b391a9d8e9e0c77902781464b10236243fc4ded781"
+        }
+      ]
+    },
+    {
+      "id": "codemirror",
+      "repository": "https://github.com/codemirror/commands",
+      "revision": "5b9bac974f2c4af3e20b045adef949667872ecad",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "05c6130cda97e7600ca91427a41e8a065efcf82365fc0293e7de80faec494c07"
+        },
+        {
+          "path": "test/test-commands.ts",
+          "sha256": "1002dfb9059e6ff139dfe88bf8c076d249c73078cc992dc912f54ea1ace52e31"
+        }
+      ]
+    },
+    {
+      "id": "monaco",
+      "repository": "https://github.com/microsoft/vscode",
+      "revision": "1dedb183002b007f2bc5a2925488bb90de89f4f0",
+      "license": "MIT",
+      "license_file": "LICENSE.txt",
+      "files": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "9480271317925265e806a9a196aaa33410a962fa9d4d1e248a4a5187bc8c9df9"
+        },
+        {
+          "path": "src/vs/editor/test/common/controller/cursorAtomicMoveOperations.test.ts",
+          "sha256": "cbdaa19512430a6e5ad38b3b34ef73b17d290b59038380e89d62ba4d17782afe"
+        }
+      ]
+    },
+    {
+      "id": "emacs",
+      "repository": "https://github.com/emacs-mirror/emacs",
+      "revision": "8ac894e2246f25d2a2a97d866b10e6e0b0fede5a",
+      "license": "GPL-3.0-or-later",
+      "license_file": "COPYING",
+      "files": [
+        {
+          "path": "COPYING",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        {
+          "path": "test/lisp/electric-tests.el",
+          "sha256": "3f7d86b11445fff5f149c5a0ffd3b4c9eeaf5e77a90e00c45d4ac885f677a3a8"
+        },
+        {
+          "path": "test/lisp/progmodes/js-tests.el",
+          "sha256": "c8ee1410cb928f7a9f72909fd1c627a8f5595e6f36248fc648a63d224f2ff590"
+        },
+        {
+          "path": "test/lisp/progmodes/python-tests.el",
+          "sha256": "497ff82c1cad42141ce8370f361f427bf15e4b256a2d4fb979445c1c480964ee"
+        }
+      ]
+    }
+  ]
+}

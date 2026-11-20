@@ -21,7 +21,8 @@
   "Esegui BODY con i file di stato in una cartella temporanea DIRECTORY."
   (declare (indent 1))
   `(let* ((,directory (file-name-as-directory (make-temp-file "gdev-recupero-" t)))
-          (gdev-workspaces--session-active nil))
+          (gdev-workspaces--session-active nil)
+          (gdev-state-directory ,directory))
      (unwind-protect
          (cl-letf (((symbol-function 'gdev-state-file)
                     (lambda (name) (expand-file-name name ,directory))))
@@ -60,7 +61,7 @@
       (cl-letf (((symbol-function 'gdev-workspaces--read)
                  (lambda (&rest _) (list :drafts '("bozza"))))
                 ((symbol-function 'message) #'ignore)
-                ((symbol-function 'gdev-write-state-data)
+                ((symbol-function 'gdev-session-db-save)
                  (lambda (&rest _) (setq backup-existed (file-exists-p backup)))))
         (gdev-workspaces--write '(:version 1 :tabs nil)))
       (should backup-existed)
@@ -181,7 +182,6 @@
            (gdev-drafts-hot-exit t)
            (gdev-session--restarting nil)
            (file (gdev-state-file "documento.txt"))
-           (session (gdev-state-file "gdev-workspaces.eld"))
            document draft before killed)
       (unwind-protect
           (progn
@@ -193,7 +193,7 @@
             (setq draft (current-buffer))
             (insert "Bozza da scartare\n")
             (gdev-workspaces-checkpoint)
-            (setq before (with-temp-buffer (insert-file-contents session) (buffer-string)))
+            (setq before (gdev-workspaces--read))
             (let ((noninteractive nil)
                   (kill-emacs-hook '(gdev-workspaces-save-on-exit)))
               (cl-letf (((symbol-function 'kill-emacs)
@@ -203,7 +203,7 @@
                 (cl-letf (((symbol-function 'y-or-n-p) (lambda (_) nil)))
                   (call-interactively #'gdev-quit-without-saving))
                 (should-not killed)
-                (should (equal before (with-temp-buffer (insert-file-contents session) (buffer-string))))
+                (should (equal before (gdev-workspaces--read)))
                 (should (buffer-modified-p document))
                 (should (buffer-modified-p draft))
                 (cl-letf (((symbol-function 'y-or-n-p) (lambda (_) t)))

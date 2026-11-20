@@ -15,6 +15,7 @@
 (require 'ert)
 
 (defvar magit-this-process)
+(defvar magit-run-hooks-from-githooks)
 (defvar transient--prefix)
 (defvar transient-force-single-column)
 (defvar gdev-hit-test--section-map)
@@ -71,6 +72,8 @@
   (require 'magit-pull)
   (require 'magit-branch)
   (let ((root (make-temp-file "gdev-hit-ref-" t))
+        ;; Questi repository temporanei non installano hook che chiamano Emacs.
+        (magit-run-hooks-from-githooks nil)
         (process-environment (copy-sequence process-environment)))
     (gdev-hit-test--configure-environment)
     (unwind-protect

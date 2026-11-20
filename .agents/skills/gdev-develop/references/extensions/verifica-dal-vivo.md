@@ -63,6 +63,15 @@ per completare quella verifica.
   di `init.el`, carica prima `early-init.el`, esegui `(require 'package)` e
   `(package-activate-all)`, poi carica `init.el`. Controlla anche l'output:
   un errore di `use-package` può non comparire in `gdev-failed-modules`.
+- Anche le sonde brevi con `-Q` devono caricare `early-init.el` prima delle
+  librerie, oppure usare `--init-directory` su una cartella temporanea.
+  Altrimenti la compilazione automatica può creare `~/.emacs.d/eln-cache`:
+  la nuova `~/.emacs.d` prende precedenza su `~/.config/emacs` e l'app si
+  riapre senza GDev. Per diagnosticare confronta `user-init-file` nell'avvio
+  diretto e nell'avvio con `gdev emacs`. Se la cartella contiene solo cache
+  generate, spostala fuori dal percorso di avvio; conserva tutorial e altri
+  file creati dalla persona. Non cancellare né sovrascrivere configurazioni
+  esistenti.
 - Una prova `--eval` dopo il primo file della riga di comando non deve
   eliminarlo prima che `command-line` ne abbia terminato la gestione.
   Verifica lì modalità e comandi; per il rilascio usa un cambio di modalità

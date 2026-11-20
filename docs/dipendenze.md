@@ -8,6 +8,7 @@ anche il nome originale. Le etichette dell'interfaccia usano il nome GDev.
 
 | Nome GDev | Nome e versione originali | Licenza e modifiche |
 | --- | --- | --- |
+| [Cronologia degli annullamenti](../modules/emacs/undo/config.el) | [undo-fu-session 0.8](../vendor/elpa/undo-fu-session-0.8/undo-fu-session.el) | GPL-3.0-or-later. Il fork permette al profilo di conservare gli annullamenti in SQLite. Verifica dimensione e impronta del documento prima del ripristino. |
 | [Hit](../modules/tools/git/config.el) | [Magit 4.7.2](https://github.com/magit/magit/tree/602760478f6d4a67e7064f5bcd2e294aa3f38f8e) | [GPL-3.0-or-later](../vendor/elpa/magit-4.7.2/LICENSE). Fork per il controllo versione in GDev-Emacs, con menu, viste e azioni localizzate. Sorgenti, attribuzioni e manuale inclusi. |
 | Sezioni Hit | [Magit-Section 4.7.2](https://github.com/magit/magit/blob/602760478f6d4a67e7064f5bcd2e294aa3f38f8e/lisp/magit-section.el) | [GPL-3.0-or-later](../vendor/elpa/magit-section-4.7.2/LICENSE). Nomi delle viste e azioni delle sezioni in italiano. |
 | [Org GDev](../modules/lang/org/config.el) | [Org 9.8.10](https://elpa.gnu.org/packages/org-9.8.10.tar) | [GPL-3.0-or-later](../vendor/elpa/org-9.8.10/COPYING), GNU FDL per i manuali e [CC BY-SA 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/) per i dati CSL. [Modifiche e attribuzioni](../vendor/elpa/org-9.8.10/GDEV.md). |
@@ -18,6 +19,10 @@ anche il nome originale. Le etichette dell'interfaccia usano il nome GDev.
 | [Consult GDev](../modules/completion/vertico/config.el) | [Consult 3.10](https://github.com/minad/consult/tree/3c64214db5cd61a8f8186e4dce89c0e04be1652c) | [GPL-3.0-or-later](../vendor/elpa/consult-3.10/consult.el). Interfaccia in italiano, [riferimenti distinti per colonna](../vendor/elpa/consult-3.10/consult-xref.el) e [visita iterativa dei simboli](../vendor/elpa/consult-3.10/consult-imenu.el), con prefissi costruiti su richiesta. |
 | [Breadcrumb GDev](../modules/ui/breadcrumb/config.el) | [Breadcrumb 1.0.1](https://elpa.gnu.org/packages/breadcrumb.html) | [GPL-3.0-or-later](../vendor/elpa/breadcrumb-1.0.1/breadcrumb.el). Espone i segmenti dei simboli per la navigazione, conserva nomi e posizioni Imenu e riusa l'indice già calcolato. |
 | [Convertitore regex GDev](../modules/tools/git/config.el) | [pcre2el 1.12](../vendor/elpa/pcre2el-1.12/pcre2el.el) | GPL-3.0-or-later, con attribuzione BSD incorporata. Usato dai Promemoria di Hit; aggiorna i flag del minibuffer con l'API delle regioni, conservando testo, prompt e comportamento del cursore. |
+| [BDD Elisp GDev](../test/gdev-bdd.el) | [Buttercup 1.41](../vendor/elpa/buttercup-1.41/GDEV.md) | GPL-3.0-or-later. Fork locale del motore BDD, con segnali falliti e pendenti intercettabili anche da ERT. |
+| [Gherkin GDev](../test/behavior/README.md) | [Parser Ecukes 0.7.0](../vendor/elpa/gdev-gherkin-0.7.0/GDEV.md) | GPL-3.0-or-later. Parser italiano/inglese, outline e controllo dei passi ignorati; riusa F, S e Dash già inclusi. |
+| [Cursori multipli GDev](../modules/editor/multiple-cursors/config.el) | [multiple-cursors 1.5.0](../vendor/elpa/multiple-cursors-1.5.0/multiple-cursors-core.el) | GPL-3.0-or-later. Numero di riga corretto anche in batch e colonna coerente per il primo cursore aggiunto dalla selezione. |
+| Certificati GDev | [x509-mode 20261112.729](../vendor/elpa/x509-mode-20261112.729/x509-mode.el) | MIT. Il caricamento a freddo durante la compilazione di un altro modulo trova i dati nella cartella del fork. |
 
 Hit si attiva con `:tools git`. I simboli Lisp `magit-…` restano disponibili
 alle integrazioni come Forge e alla configurazione, mentre in `M-x` gli stessi
@@ -25,6 +30,14 @@ comandi compaiono come `hit-…`. Quando il modulo è attivo, `gdev compile` com
 il sorgente del fork incluso nella distribuzione.
 
 ## Registro dei fork locali
+
+Il [corpus dei comportamenti](../test/behavior/README.md) conserva separatamente
+fixture da Tree-sitter, GNU Emacs, TypeScript/Fourslash, TypeScript-TmLanguage,
+CodeMirror e Monaco/VS Code. Il suo [registro](../test/behavior/sources.json)
+riporta revisioni e impronte di ogni originale e collega le licenze complete:
+MIT, Apache-2.0 e GPL-3.0-or-later. Gli adattatori sono GPL-3.0-or-later.
+I fixture sono dati di prova; i due moduli BDD eseguibili sono anche nel
+registro dei pacchetti seguente.
 
 Il [registro delle versioni](../vendor/pacchetti.el) elenca i pacchetti Lisp distribuiti,
 con licenza, indirizzo del progetto originale e revisione. Ogni versione è in

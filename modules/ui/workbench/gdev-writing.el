@@ -13,16 +13,24 @@
 ;;; Code:
 
 (require 'gdev-layout)
+(require 'gdev-modules)
 (require 'gdev-handlers)
-(require 'gdev-writing-references)
 (require 'project)
 (require 'seq)
+
+(autoload 'gdev-writing-reference-actions "gdev-writing-references")
+(autoload 'gdev-article-new-project (gdev-module-file :lang 'article) nil t)
+(autoload 'gdev-article-mode (gdev-module-file :lang 'article) nil t)
+(autoload 'gdev-latex-new-project (gdev-module-file :lang 'latex) nil t)
+(autoload 'gdev-latex-mode (gdev-module-file :lang 'latex) nil t)
 
 (declare-function gdev-command-sidebar-select "gdev-command-sidebar" (&optional category keep-focus))
 (declare-function gdev-command-sidebar-find "gdev-command-sidebar" ())
 
-(defvar gdev-writing--project-markers nil
-  "Associa il tipo di progetto di scrittura al file che ne indica la radice.")
+(require 'gdev-project-types)
+
+(cl-defmethod project-root ((project (head gdev-article))) (cdr project))
+(cl-defmethod project-root ((project (head gdev-latex))) (cdr project))
 
 (defun gdev-writing-register-project (type marker)
   "Registra il file MARKER per il tipo di progetto TYPE."
@@ -48,6 +56,16 @@
   (when-let* ((project (gdev-writing-find-project directory))
               ((eq (car project) type)))
     (cdr project)))
+
+(defun gdev-writing--latex-project-file-p ()
+  "Riconosci i sorgenti TeX locali dei modelli anche a un nuovo avvio."
+  (and buffer-file-name (string-suffix-p ".tex" buffer-file-name t)
+       (not (gdev-module-p :lang 'latex))
+       (not (file-remote-p buffer-file-name))
+       (gdev-writing-project-root 'gdev-latex (file-name-directory buffer-file-name))))
+
+(add-to-list 'magic-mode-alist '("\\`#\\+GDEV_TYPE: article\\(?:\n\\|\\'\\)" . gdev-article-mode))
+(add-to-list 'magic-mode-alist '(gdev-writing--latex-project-file-p . gdev-latex-mode))
 
 (defun gdev-writing-context-p ()
   "Restituisci non nil se l'area corrente offre gli strumenti di scrittura."

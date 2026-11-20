@@ -285,6 +285,7 @@ Rigenera questa mappa con `gdev docs` dopo aver modificato le scorciatoie.
 | `C-c p i` | assicurazione del progetto |
 | `C-c p k` | chiudi le aree di testo del progetto |
 | `C-c p l` | elenca i promemoria del progetto |
+| `C-c p n` | nuovo progetto… |
 | `C-c p p` | cambia progetto |
 | `C-c p q` | esegui test al cursore |
 | `C-c p r` | esegui |

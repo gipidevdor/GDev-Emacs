@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:7424cf49f5be2bdc1f2b4680a93bfd3dc3a58852b941c92baabf3042780e64af -->
+<!-- Generato da GDev; non modificare. Fonti sha256:c907c68176e6ed9ab4bb1a448ce053310f1057567adb7a85a759bd8cdcc13ae6 -->
 
 # Manutenzione
 
@@ -11,7 +11,7 @@ Il nucleo SQL conserva istantanee ed esecuzioni immutabili; il Workbench, la
 CLI e MCP leggono gli stessi servizi. I piani automatici restano file
 `.lavorazione`: non esiste un secondo interprete di comandi.
 
-GDev applica questa struttura a se stesso con sedici requisiti in
+GDev applica questa struttura a se stesso con venti requisiti in
 [project.eld](../../../.gdev-assurance/project.eld), sette procedure e nove
 modelli. Il [contratto di autoverifica](../../../.gdev-assurance/self-check.eld)
 richiama gli identificativi del progetto e aggiunge le dimensioni della
@@ -19,7 +19,14 @@ campagna di affidabilità, senza duplicare i requisiti.
 
 ## Creare e compilare un progetto
 
-Dalla cartella del progetto:
+Dal cruscotto scegli **Nuovo progetto… › Formale…** oppure usa **Progetto ›
+Nuovo progetto › Formale…**. Scegli una cartella locale nuova o vuota, poi
+inserisci l’identificativo e il nome. Si apre la sezione **Progetto** con
+i campi da compilare. Per aggiungere la definizione a una cartella già in uso,
+aprila e scegli **Definisci progetto…** nella sezione **Progetto**
+dell’assicurazione.
+
+Da terminale, nella cartella del progetto:
 
 ```sh
 gdev assurance project-init DEMO "Progetto dimostrativo"

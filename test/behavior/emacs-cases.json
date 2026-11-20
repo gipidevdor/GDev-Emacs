@@ -1,0 +1,56 @@
+[
+  {
+    "file": "test/lisp/electric-tests.el",
+    "helpers": [
+      "call-with-saved-electric-modes",
+      "save-electric-modes",
+      "plainer-c-mode"
+    ],
+    "tests": [
+      "electric-pair-backspace-1",
+      "electric-pair-undo-unrelated-state",
+      "electric-pair-open-extra-newline",
+      "electric-pair-mode-newline-between-parens"
+    ]
+  },
+  {
+    "file": "test/lisp/progmodes/js-tests.el",
+    "helpers": [],
+    "tests": [
+      "js-mode-fill-bug-19399",
+      "js-mode-fill-bug-22431",
+      "js-mode-fill-bug-22431-fill-paragraph-at-start",
+      "js-mode-fill-comment-bug",
+      "js-mode-regexp-syntax",
+      "js-mode-auto-fill",
+      "js-mode-regexp-syntax-bug-25529",
+      "js-mode-indentation-error",
+      "js-mode-doc-comment-face",
+      "js-mode-propertize-bug-1",
+      "js-mode-propertize-bug-2",
+      "js-mode-beginning-of-defun",
+      "js-mode-end-of-defun"
+    ]
+  },
+  {
+    "file": "test/lisp/progmodes/python-tests.el",
+    "helpers": [
+      "python-tests-with-temp-buffer",
+      "python-tests-look-at",
+      "python-tests-assert-faces",
+      "python-tests-get-buffer-faces",
+      "python-tests-self-insert",
+      "python-tests-should-not-move"
+    ],
+    "tests": [
+      "python-syntax-context-1",
+      "python-syntax-after-python-backspace",
+      "python-font-lock-keywords-level-1-1",
+      "python-font-lock-keywords-level-1-2",
+      "python-indent-pep8-1",
+      "python-indent-pep8-2",
+      "python-indent-base-case",
+      "python-indent-after-comment-1"
+    ]
+  }
+]

@@ -22,6 +22,7 @@
 (require 'gdev-mcp)
 (require 'gdev-mcp-server)
 (require 'gdev-agent-control)
+(require 'gdev-test-ipc (gdev-config-file "test/gdev-test-ipc"))
 
 (defvar gdev-config-directory)
 
@@ -418,10 +419,89 @@
         (gdev-mcp-server-autostart))
       (should started))))
 
+(ert-deftest gdev-mcp-server-failed-bind-leaves-the-path-free ()
+  "Un avvio fallito non acquisisce il percorso, nemmeno alla chiusura."
+  (gdev-mcp-test--with-runtime directory
+    (let ((file (gdev-mcp-socket-file)))
+      (cl-letf (((symbol-function 'make-network-process)
+                 (lambda (&rest _) (signal 'file-error '("Cannot bind server socket" "Permission denied")))))
+        (should-error (gdev-mcp-server-start) :type 'file-error))
+      (should-not gdev-mcp-server--process)
+      (should-not gdev-mcp-server--file)
+      (should-not gdev-mcp-server--timer)
+      (write-region "creato dopo il rifiuto" nil file nil 'silent)
+      (gdev-mcp-server-stop)
+      (should (file-exists-p file)))))
+
+(ert-deftest gdev-mcp-server-only-reclaims-a-refused-socket ()
+  "Un errore di permessi lascia al proprietario il percorso già occupato."
+  (let ((file (make-temp-file "gdev-mcp-prova-")))
+    (unwind-protect
+        (cl-letf (((symbol-function 'gdev-mcp-private-socket-p) (lambda (_) t)))
+          (dolist (reason '("Permission denied" "Operation not permitted" "Connection refused"))
+            (cl-letf (((symbol-function 'make-network-process)
+                       (lambda (&rest _) (signal 'file-error (list "Failed to connect" reason)))))
+              (if (equal reason "Connection refused")
+                  (progn (should (equal (gdev-mcp-server--free file) file))
+                         (should-not (file-exists-p file)))
+                (should-not (gdev-mcp-server--free file))
+                (should (file-exists-p file))))))
+      (when (file-exists-p file) (delete-file file)))))
+
+(ert-deftest gdev-mcp-server-rolls-back-when-private-modes-fail ()
+  "Se chmod fallisce, l'avvio chiude il listener e libera il proprio percorso."
+  (gdev-mcp-test--with-runtime directory
+    (let ((file (gdev-mcp-socket-file)) listener)
+      (gdev-mcp-server--prepare-directory (file-name-directory file))
+      (cl-letf (((symbol-function 'make-network-process)
+                 (lambda (&rest _)
+                   (write-region "" nil file nil 'silent)
+                   (setq listener (make-pipe-process :name "gdev-mcp-permessi" :noquery t))))
+                ((symbol-function 'set-file-modes)
+                 (lambda (&rest _) (signal 'file-error '("Permission denied")))))
+        (should-error (gdev-mcp-server-start) :type 'file-error))
+      (should (processp listener))
+      (should-not (process-live-p listener))
+      (should-not (file-exists-p file))
+      (should-not gdev-mcp-server--file)
+      (should-not gdev-mcp-server--timer))))
+
+(ert-deftest gdev-mcp-server-retries-after-a-failed-repair ()
+  "Il timer riprova dopo un errore e preserva il file subentrato al primo."
+  (gdev-mcp-test--with-runtime directory
+    (let ((file (gdev-mcp-socket-file)) (attempts 0) warning)
+      ;; La macchina a stati usa processi pipe. I test del trasporto aprono socket Unix.
+      (cl-letf (((symbol-function 'make-network-process)
+                 (lambda (&rest args)
+                   (cl-incf attempts)
+                   (when (= attempts 2) (signal 'file-error '("Cannot bind server socket" "Permission denied")))
+                   (write-region "" nil (plist-get args :service) nil 'silent)
+                   (make-pipe-process :name "gdev-mcp-ripristino" :noquery t
+                                      :filter (plist-get args :filter) :sentinel (plist-get args :sentinel))))
+                ((symbol-function 'display-warning) (lambda (_ text &rest _) (setq warning text))))
+        (should (equal (gdev-mcp-server-start) file))
+        (let ((timer gdev-mcp-server--timer)
+              (replacement (make-temp-file (expand-file-name "altro-" directory))))
+          (rename-file replacement file t)
+          (should (gdev-mcp-server--socket-lost-p))
+          (gdev-mcp-server--repair)
+          (should warning)
+          (should (eq timer gdev-mcp-server--timer))
+          (should-not (process-live-p gdev-mcp-server--process))
+          (gdev-mcp-server--repair)
+          (should (process-live-p gdev-mcp-server--process))
+          (should (equal (format "%s-%d" file (emacs-pid)) gdev-mcp-server--file))
+          (should (eq timer gdev-mcp-server--timer))
+          (gdev-mcp-server-stop)
+          (should (file-exists-p file))
+          (gdev-mcp-server--repair)
+          (should (= attempts 3)))))))
+
 (ert-deftest gdev-mcp-socket-serves-the-bridge-with-flow-control ()
   "Il ponte trova il socket privato, inoltra le chiamate e conferma i byte."
   (require 'gdev-commands)
   (gdev-mcp-test--with-runtime directory
+    (gdev-test-ipc-require-unix directory)
     (let ((socket (gdev-mcp-server-start))
           (session (gdev-mcp-session-create :tools #'gdev-mcp--bridge-tools
                                             :call #'gdev-mcp--bridge-call)))
@@ -489,6 +569,7 @@
 (ert-deftest gdev-mcp-server-reopens-a-socket-whose-file-vanished ()
   "Se la pulizia di TMPDIR rimuove il socket, l'editor lo riapre da solo."
   (gdev-mcp-test--with-runtime directory
+    (gdev-test-ipc-require-unix directory)
     (let ((socket (gdev-mcp-server-start)))
       (delete-file socket)
       (should (gdev-mcp-server--socket-lost-p))
@@ -523,6 +604,7 @@
   "Dopo il riavvio dell'editor la prima chiamata riapre il collegamento e riesce."
   (require 'gdev-commands)
   (gdev-mcp-test--with-runtime directory
+    (gdev-test-ipc-require-unix directory)
     (gdev-mcp-server-start)
     (let ((session (gdev-mcp-session-create :tools #'gdev-mcp--bridge-tools
                                             :call #'gdev-mcp--bridge-call)))
@@ -544,6 +626,7 @@
 (ert-deftest gdev-mcp-bridge-reports-a-silent-editor ()
   "Un editor che non risponde produce l'errore di tempo scaduto e chiude il collegamento."
   (gdev-mcp-test--with-runtime directory
+    (gdev-test-ipc-require-unix directory)
     (let* ((file (expand-file-name "muto" directory))
            (listener (make-network-process
                       :name "gdev-mcp-muto" :server t :family 'local :service file
@@ -648,6 +731,7 @@
     (unwind-protect
         (progn
           (make-directory runtime)
+          (gdev-test-ipc-require-unix runtime)
           (setq live (gdev-mcp-test--spawn
                       "gdev-mcp-editor" environment
                       (list (expand-file-name invocation-name invocation-directory) "--batch" "-Q"

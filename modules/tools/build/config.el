@@ -26,6 +26,8 @@
 ;;; Code:
 
 (require 'gdev-lib)
+(require 'gdev-state-db)
+(require 'gdev-project-types)
 (require 'gdev-handlers)
 (require 'gdev-compilation)
 (require 'gdev-launch)
@@ -36,16 +38,13 @@
 (require 'json)
 
 (declare-function gdev-python-project-command "../../lang/python/config")
-(defvar gdev-python-project-files)
-(defvar project-vc-extra-root-markers)
 (defvar project-kill-buffers-display-buffer-list)
 (defvar project-switch-commands)
 (defvar savehist-additional-variables)
 
 ;;;; project.el
 
-(setq project-vc-extra-root-markers '(".project")
-      project-kill-buffers-display-buffer-list t
+(setq project-kill-buffers-display-buffer-list t
       project-switch-commands
       '((project-find-file "File" ?f)
         (consult-ripgrep "Cerca" ?g)
@@ -213,42 +212,34 @@ Con REPEAT usa l'ultima attività eseguita in questo progetto."
 (defvar gdev-build-settings nil
   "Alist: radice del progetto -> plist delle scelte (:preset :type :target...).")
 
-(with-eval-after-load 'savehist
-  (add-to-list 'savehist-additional-variables 'gdev-build-settings))
+(defun gdev-build--import-settings ()
+  "Importa le scelte di compilazione caricate dalla vecchia cronologia."
+  (when gdev-build-settings
+    (gdev-state-db-with (_db t)
+      (unless (gdev-state-db-entries "migrazione" "" "compilazione")
+        (pcase-dolist (`(,root . ,options) gdev-build-settings)
+          (cl-loop for (key value) on options by #'cddr
+                   unless (gdev-state-db-entries "compilazione" root (symbol-name key))
+                   do (gdev-state-db-set "compilazione" root (symbol-name key) value)))
+        (gdev-state-db-set "migrazione" "" "compilazione" t)))
+    (setq gdev-build-settings nil)))
 
 (defun gdev-build--get (key &optional root)
   "Restituisce l'impostazione KEY per ROOT (predefinito: il progetto corrente)."
-  (plist-get (alist-get (or root (gdev-project-root)) gdev-build-settings nil nil #'equal) key))
+  (gdev-build--import-settings)
+  (cdar (gdev-state-db-entries "compilazione" (or root (gdev-project-root)) (symbol-name key))))
 
 (defun gdev-build--put (key value &optional root)
-  "Memorizza l'impostazione KEY = VALUE per ROOT; restituisce VALUE."
-  (let ((root (or root (gdev-project-root))))
-    (setf (alist-get root gdev-build-settings nil nil #'equal)
-          (plist-put (alist-get root gdev-build-settings nil nil #'equal) key value))
-    value))
+  "Memorizza subito l'impostazione KEY = VALUE per ROOT."
+  (gdev-build--import-settings)
+  (gdev-state-db-set "compilazione" (or root (gdev-project-root)) (symbol-name key) value))
 
 ;;;; Riconoscere il sistema di compilazione
 
 (defun gdev-build-system (&optional root)
   "Restituisce il sistema di compilazione del progetto in ROOT.
 Il risultato è un simbolo, oppure nil."
-  (let ((root (or root (gdev-project-root))))
-    (cond ((gdev-project-file-exists-p root "CMakeLists.txt") 'cmake)
-          ((gdev-project-file-exists-p root "meson.build") 'meson)
-          ((gdev-xcode-container root) 'xcode)
-          ((gdev-project-file-exists-p root "Build.PL") 'perl-build)
-          ((gdev-project-file-exists-p root "Makefile.PL") 'perl-make)
-          ((gdev-project-file-exists-p root "deno.json" "deno.jsonc") 'deno)
-          ((gdev-project-file-exists-p root "GNUmakefile" "Makefile" "makefile") 'make)
-          ((gdev-project-file-exists-p root "build.ninja") 'ninja)
-          ((gdev-project-file-exists-p root "package.json") 'node)
-          ((directory-files root nil "\\.asd\\'" t 1) 'asdf)
-          ((and (file-directory-p (expand-file-name "t" root))
-                (file-directory-p (expand-file-name "lib" root)))
-           'perl-prove)
-          ((and (fboundp 'gdev-python-project-command)
-                (apply #'gdev-project-file-exists-p root gdev-python-project-files))
-           'python))))
+  (gdev-project-build-system (or root (gdev-project-root)) (fboundp 'gdev-python-project-command)))
 
 (defun gdev-build--jobs ()
   "Restituisce il numero di processi paralleli per compilazioni e test."
@@ -940,7 +931,9 @@ Con FROM-USER, vero da tastiera e menu, agisce sul documento attivo."
   (gdev-call-for-document
    (lambda ()
      (let ((root (gdev-build--root)))
-       (setf (alist-get root gdev-build-settings nil 'remove #'equal) nil)
+       (gdev-build--import-settings)
+       (gdev-state-db-with (db t)
+         (sqlite-execute db "DELETE FROM ambito WHERE tipo='compilazione' AND riferimento=?" (list root)))
        (message "Scelte di compilazione di %s dimenticate" (abbreviate-file-name root))))
    from-user))
 

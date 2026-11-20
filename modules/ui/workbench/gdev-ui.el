@@ -249,7 +249,7 @@ al massimo ogni 30 secondi, in un processo separato: Emacs non attende."
 (defvar gdev-ui--appearance-checked-at 0 "Quando è stato letto l'ultima volta l'aspetto del sistema.")
 (defvar gdev-ui--appearance-request nil "Identità della lettura di sistema ancora valida.")
 
-(defun gdev-ui--appearance-cache () (gdev-state-file "appearance"))
+(require 'gdev-state-db)
 
 (defvar gdev-ui-after-theme-hook nil
   "Funzioni eseguite dopo ogni cambio di tema, per ritoccare le facce (faces).")
@@ -514,9 +514,7 @@ Non fa nulla se è già quello mostrato, salvo con FORCE."
       (dolist (frame (frame-list))
         (set-frame-parameter frame 'ns-appearance appearance)))
     ;; early-init.el lo legge per colorare la prima finestra del prossimo avvio.
-    (ignore-errors
-      (with-temp-file (gdev-ui--appearance-cache)
-        (insert (symbol-name appearance))))))
+    (gdev-state-db-set "applicazione" "" "aspetto" appearance)))
 
 (defun gdev-ui--sync-appearance ()
   "Leggi l'aspetto di macOS se il tema segue ancora il sistema."
@@ -590,8 +588,7 @@ La scelta vale anche al prossimo avvio, come in Preferenze."
   "Mostra subito l'aspetto salvato, poi lo conferma in modo asincrono."
   (unless noninteractive
     (gdev-ui-apply-appearance
-     (if (string-prefix-p "dark" (or (gdev-read-file-contents (gdev-ui--appearance-cache)) ""))
-         'dark 'light)
+     (or (gdev-state-db-appearance) 'light)
      'force)
     (when gdev-macos-p
       (add-hook 'emacs-startup-hook #'gdev-ui--sync-appearance)

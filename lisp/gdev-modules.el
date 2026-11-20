@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'gdev-lib)
+(require 'gdev-state-db)
 (require 'gdev-handlers)
 
 (defvar gdev-user-directory)            ; early-init.el
@@ -285,9 +286,52 @@ ricerca in una lista; l'installazione avviene solo se il pacchetto manca."
     (setf (alist-get key gdev-module-load-times nil nil #'equal)
           (- (float-time) start))))
 
+(defun gdev-modules-load-selection (&optional source-only)
+  "Leggi il blocco gdev! e applica le scelte del profilo anche dalla CLI."
+  (gdev-modules--load-private "init" source-only)
+  (let ((overrides (gdev-state-db-entries "moduli" "")))
+    (when overrides
+      (let (extra)
+        (pcase-dolist (`(,key . ,choice) overrides)
+          (pcase-let* ((`(,category ,module) (mapcar #'intern (split-string key "/")))
+                       (old (gdev-module--declaration category module)))
+            (cond ((eq choice 'disattivato) (setq gdev-modules (delq old gdev-modules)))
+                  (old (setcdr (cdr old) (cdr choice)))
+                  ((and (eq (car-safe choice) 'attivo) (memq category gdev-module-categories)
+                        (file-regular-p (gdev-module-file category module ".el")))
+                   (push (append (list category module) (cdr choice)) extra)))))
+        ;; I nuovi moduli precedono il modulo finale che configura i comandi.
+        (when extra
+          (let ((position (or (cl-position :config gdev-modules :key #'car) (length gdev-modules))))
+            (setq gdev-modules (append (seq-take gdev-modules position)
+                                       (nreverse extra) (nthcdr position gdev-modules)))))
+        (gdev-modules--add-private-load-path)))))
+
+(defun gdev-modules-edit-selection ()
+  "Configura un modulo del profilo per il prossimo avvio."
+  (interactive)
+  (let* ((modules (mapcar (lambda (entry) (format "%s/%s" (car entry) (cdr entry)))
+                          (gdev-modules-available)))
+         (name (completing-read "Modulo: " modules nil t))
+         (saved (cdar (gdev-state-db-entries "moduli" "" name)))
+         (action (completing-read "Al prossimo avvio: "
+                                  '("Segui init.el" "Attiva con opzioni" "Disattiva") nil t)))
+    (pcase action
+      ("Segui init.el"
+       (gdev-state-db-with (db t)
+         (sqlite-execute db "DELETE FROM impostazione WHERE id_ambito=? AND nome=?"
+                         (list (gdev-state-db--scope db "moduli" "") name))))
+      ("Disattiva" (gdev-state-db-set "moduli" "" name 'disattivato))
+      ("Attiva con opzioni"
+       (let* ((entry (apply #'gdev-module--declaration (mapcar #'intern (split-string name "/"))))
+              (flags (if (consp saved) (cdr saved) (cddr entry)))
+              (text (read-string "Opzioni separate da spazi: " (mapconcat #'symbol-name flags " "))))
+         (gdev-state-db-set "moduli" "" name (cons 'attivo (mapcar #'intern (split-string text nil t)))))))
+    (message "Scelta salvata per %s. Esegui gdev sync e riavvia Emacs." name)))
+
 (defun gdev-modules-initialize ()
   "Carica init.el e packages.el privati, ogni modulo attivo, poi config.el."
-  (gdev-modules--load-private "init")
+  (gdev-modules-load-selection)
   (gdev-modules--load-private "packages")
   (pcase-dolist (`(,category ,module . ,_) gdev-modules)
     (gdev-modules--load category module))

@@ -14,15 +14,10 @@
 ;;; Code:
 
 (require 'gdev-handlers)
+(require 'gdev-project-types)
 (require 'gdev-language-modes)
 
 (gdev-language-register-tree-sitter 'java-mode 'java-ts-mode 'java)
-
-(defconst gdev-java-gradle-files '("build.gradle" "build.gradle.kts" "settings.gradle" "settings.gradle.kts"))
-
-(defun gdev-java-project-p (root)
-  "Indica se ROOT contiene un progetto Maven o Gradle."
-  (apply #'gdev-project-file-exists-p root "pom.xml" gdev-java-gradle-files))
 
 (defun gdev-java-command (action root)
   "Scegli Maven o Gradle per ACTION in ROOT."

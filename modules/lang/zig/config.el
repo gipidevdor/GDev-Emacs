@@ -12,15 +12,12 @@
 ;;; Code:
 
 (require 'gdev-handlers)
+(require 'gdev-project-types)
 
 (use-package zig-mode
   :ensure t
   :mode ("\\.zig\\(?:\\.zon\\)?\\'" . zig-mode)
   :custom (zig-format-on-save nil))
-
-(defun gdev-zig-project-p (root)
-  "Indica se ROOT contiene build.zig."
-  (gdev-project-file-exists-p root "build.zig"))
 
 (defun gdev-zig-command (action _root)
   "Scegli il comando Zig per ACTION."

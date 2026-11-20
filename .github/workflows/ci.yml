@@ -26,6 +26,7 @@ jobs:
           - os: macos-15
             emacs: stabile
     env:
+      GDEV_TEST_REQUIRE_IPC: "1"
       GDEV_STATE_DIR: ${{ github.workspace }}/../gdev-state
       GDEV_USER_DIR: ${{ github.workspace }}/../gdev-user
     steps:
@@ -51,7 +52,12 @@ jobs:
             # La mappa dei tasti comprende Jinx, attivato soltanto con Enchant.
             brew install ripgrep enchant
           else
-            sudo apt-get update && sudo apt-get install -y ripgrep
+            sudo apt-get update && sudo apt-get install -y ripgrep postgresql libpq-dev
+            pg_bin=$(pg_config --bindir)
+            for tool in initdb pg_ctl psql; do
+              test -x "$pg_bin/$tool"
+            done
+            echo "$pg_bin" >> "$GITHUB_PATH"
           fi
       - name: Assistenti nativi di macOS
         if: runner.os == 'macOS'
@@ -91,6 +97,14 @@ jobs:
         env:
           GDEV_TEST_SMOKE: "1"
         run: emacs --batch -Q -l early-init.el -l test/gdev-test.el -f ert-run-tests-batch-and-exit
+      - name: Deno per il corpus LSP
+        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
+        with:
+          deno-version: v2.9.8
+      - name: Corpus dei comportamenti e BDD obbligatorio
+        env:
+          GDEV_TEST_REQUIRE_BEHAVIORS: "1"
+        run: emacs --batch -Q -l early-init.el -l test/gdev-test.el --eval '(ert-run-tests-batch-and-exit "gdev-test-behavior-")'
       - name: Contratti di CLI e MCP
         run: python3 test/gdev-cli-contract-test.py
       - name: Contratto Git e firme dell'assicurazione

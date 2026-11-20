@@ -15,6 +15,7 @@
 (require 'ert)
 (require 'cl-lib)
 (require 'gdev-lib)
+(require 'gdev-test-ipc (gdev-config-file "test/gdev-test-ipc"))
 (require 'gdev-llvm-coverage)
 (require 'gdev-language-modes)
 (require 'gdev-doctor)
@@ -314,8 +315,7 @@
   "Con la porta già occupata il servizio non parte e il navigatore non si apre."
   (let ((use-package-ensure-function #'ignore))
     (load (gdev-module-file :lang 'web ".el") nil t t))
-  (let* ((listener (make-network-process :name "gdev-prova-porta" :server t :host "127.0.0.1"
-                                         :service t :noquery t))
+  (let* ((listener (gdev-test-ipc-listen 'ipv4 :name "gdev-prova-porta" :host "127.0.0.1" :service t))
          (port (process-contact listener :service))
          (gdev-web-server-port port))
     (unwind-protect

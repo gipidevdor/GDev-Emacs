@@ -262,9 +262,10 @@ def mutations(output):
                                    stderr=subprocess.STDOUT, text=True, timeout=120)
             data = json.loads(report.read_text()) if report.exists() else {}
             killed = child.returncode == 1 and data.get("failures", 0) > 0 and data.get("errors") == 0
+            log = child.stdout.replace(str(ROOT) + os.sep, "")
             output.append({"name": name, "status": "killed" if killed else "survived" if child.returncode == 0 else "invalid",
                            "source": filename, "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
-                           "case": case, "log": child.stdout[-12000:]})
+                           "case": case, "log": log[-12000:]})
 
 
 def source_inventory():

@@ -22,7 +22,7 @@
 
 (defun gdev-article-test--load ()
   "Carica il modulo Articolo del checkout se serve."
-  (unless (fboundp 'gdev-article-new-project)
+  (unless (featurep 'gdev-article)
     (require 'package)
     (package-activate-all)
     (load (gdev-module-file :lang 'article ".el") nil t t)))

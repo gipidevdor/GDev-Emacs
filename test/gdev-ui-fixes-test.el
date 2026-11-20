@@ -32,8 +32,7 @@
     (cl-letf (((symbol-function 'load-theme) #'ignore)
               ((symbol-function 'disable-theme) #'ignore)
               ((symbol-function 'gdev-ui--refine-faces) #'ignore)
-              ((symbol-function 'gdev-ui--appearance-cache)
-               (lambda () (make-temp-file "gdev-aspetto-"))))
+              ((symbol-function 'gdev-state-db-set) #'ignore))
       (gdev-ui-apply-appearance 'dark)
       (should (equal (alist-get 'background-color default-frame-alist) "#1e1e20"))
       (when gdev-macos-p

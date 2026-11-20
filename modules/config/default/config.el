@@ -430,6 +430,7 @@
                "V" "rapporto di copertura" 'gdev-test-coverage-show)))
 (gdev-default--with :ui workbench
   (gdev-bind gdev-project-map
+             "n" "nuovo progetto…" 'gdev-new-project
              "i" "assicurazione del progetto" 'gdev-assurance-show
              "I" "catalogo degli standard" 'gdev-assurance-catalog))
 (gdev-default--with :tools git
@@ -612,8 +613,7 @@
              "O" "struttura del documento" 'gdev-outline-show
              "L" "pannello Lavorazioni" 'gdev-lavorazioni-pannello
              "r" "sposta strumento nell'area di modifica" 'gdev-popup-raise)
-  (when (or (gdev-module-p :lang 'article) (gdev-module-p :lang 'latex))
-    (gdev-bind gdev-workspace-map "W" "strumenti di scrittura" 'gdev-writing-open)))
+  (gdev-bind gdev-workspace-map "W" "strumenti di scrittura" 'gdev-writing-open))
 (gdev-default--with :ui window-select
   (gdev-bind gdev-workspace-map
              "w" "scegli finestra" #'ace-window

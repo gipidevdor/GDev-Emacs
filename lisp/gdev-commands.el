@@ -18,6 +18,7 @@
 (require 'gdev-handlers)
 (require 'gdev-keys)
 (require 'gdev-layout)
+(require 'gdev-native-state)
 (require 'gdev-workspace-state)
 (require 'gdev-workspace-roots)
 (require 'gdev-command-context)
@@ -1131,6 +1132,32 @@ I moduli di linguaggio dicono qual è il compagno; altrimenti si usa
 (defvar gdev-open-folder-hook nil
   "Funzioni chiamate con il percorso della cartella appena aperta.")
 
+(add-to-list 'project-vc-extra-root-markers ".project")
+(add-to-list 'project-vc-extra-root-markers ".gdev-assurance")
+
+(defun gdev-create-project-directory (directory initialize)
+  "Prepara DIRECTORY, nuova o vuota, con INITIALIZE e aprila a creazione conclusa."
+  (let ((root (file-name-as-directory (expand-file-name directory)))
+        created complete)
+    (if (file-exists-p (directory-file-name root))
+        (unless (and (file-directory-p root) (gdev-directory-empty-p root))
+          (user-error "Scegli una cartella nuova o vuota per il progetto"))
+      (make-directory root)
+      (setq created t))
+    (unwind-protect
+        (progn (funcall initialize root) (setq complete t))
+      (when (and created (not complete)) (ignore-errors (delete-directory root))))
+    ;; La cartella può essere già stata visitata prima di avere il marcatore.
+    (let ((project-vc-cache-timeout 0) (non-essential nil))
+      (gdev-open-folder root))
+    root))
+
+(defun gdev-new-empty-project (directory)
+  "Crea in DIRECTORY un progetto vuoto e aprilo nello spazio corrente."
+  (interactive (list (read-directory-name "Cartella del nuovo progetto: ")))
+  (gdev-create-project-directory
+   directory (lambda (root) (write-region "" nil (expand-file-name ".project" root) nil 'silent nil 'excl))))
+
 (defun gdev--read-workspace-directory (directory)
   "Convalida DIRECTORY prima di modificare lo spazio di lavoro."
   (unless (file-directory-p directory)
@@ -1507,12 +1534,12 @@ Una seconda chiamata ripristina la disposizione precedente."
   (require 'desktop)
   (let ((directory (gdev-state-file "session/")))
     (make-directory directory t)
-    (desktop-save directory t)))
+    (gdev-native-state-desktop directory t)))
 
 (defun gdev--desktop-load ()
   "Ripristina la sessione salvata da `gdev--desktop-save'."
   (require 'desktop)
-  (desktop-read (gdev-state-file "session/")))
+  (gdev-native-state-desktop (gdev-state-file "session/") nil))
 
 (defvar gdev-session-save-function #'gdev--desktop-save
   "Salva buffer, finestre e schede.
@@ -1594,12 +1621,13 @@ il dialogo di Emacs e perderebbe le bozze; EVENT è l'evento di chiusura."
 
 (defun gdev-session--save-for-restart ()
   "Prepara il ripristino dopo la conferma di uscita."
-  (funcall gdev-session-save-function)
-  (gdev-session--mark-restore))
+  (gdev-state-db-with (_db t)
+    (funcall gdev-session-save-function)
+    (gdev-session--mark-restore)))
 
 (defun gdev-session--mark-restore ()
   "Richiedi il ripristino della sessione all'avvio successivo."
-  (write-region "" nil (gdev-state-file "restore-session-on-start") nil 'silent))
+  (gdev-state-db-set "applicazione" "" "ripristino_richiesto" (gdev-state-db--print (current-time))))
 
 (defvar desktop-restore-eager)
 (defvar desktop-load-locked-desktop)
@@ -1608,10 +1636,18 @@ il dialogo di Emacs e perderebbe le bozze; EVENT è l'evento di chiusura."
 
 (defun gdev-session--restore-on-start ()
   "Riprendi la sessione salvata, lasciando la richiesta in caso di errore."
-  (let ((flag (gdev-state-file "restore-session-on-start")))
-    (when (file-exists-p flag)
+  (let* ((flag (gdev-state-file "restore-session-on-start"))
+         (request (gdev-state-db-entries "applicazione" "" "ripristino_richiesto")))
+    (when (or request (file-exists-p flag))
       (condition-case err
-          (progn (gdev-session-load) (delete-file flag))
+          (progn
+            (gdev-session-load)
+            (when request
+              (gdev-state-db-with (db t)
+                (when (equal request (gdev-state-db-entries "applicazione" "" "ripristino_richiesto"))
+                  (sqlite-execute db "DELETE FROM impostazione WHERE id_ambito=? AND nome='ripristino_richiesto'"
+                                  (list (gdev-state-db--scope db "applicazione" ""))))))
+            (when (file-exists-p flag) (delete-file flag)))
         (error (display-warning 'gdev (error-message-string err)))))))
 
 (add-hook 'window-setup-hook #'gdev-session--restore-on-start)

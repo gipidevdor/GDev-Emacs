@@ -40,6 +40,22 @@ editor attivo, anche quando il fuoco è in Esplora file, in Comandi o in un pann
 
 ## Progetti e spazi di lavoro
 
+Per creare un progetto scegli **Nuovo progetto…** sul cruscotto (lettera `c`)
+o nel menu **File**. La scorciatoia è `C-c p n`. Nel menu **Progetto › Nuovo
+progetto** puoi scegliere direttamente lo stesso tipo. Indica una cartella
+nuova o vuota. La creazione apre la cartella nello spazio corrente.
+
+| Tipo | Cosa trovi dopo la creazione |
+| --- | --- |
+| **Vuoto…** | Una cartella per i sorgenti, riconosciuta da Emacs grazie al file `.project`. |
+| **Formale…** | Dopo aver indicato identificativo e nome, si apre la scheda del progetto con i campi da compilare, i requisiti e le procedure. |
+| **Articolo…** | Si apre `articolo.org` con le cartelle per bozze e ricerche. |
+| **LaTeX…** | Si apre `main.tex` con una bibliografia BibTeX. |
+
+Il Workbench offre entrambi i modelli di scrittura anche nei profili precedenti.
+Gli strumenti si caricano quando scegli il modello o riapri il suo documento locale.
+Una cartella che contiene già file si apre dal cruscotto.
+
 1. Dal cruscotto scegli **Apri cartella…** (`⇧⌘O`) per iniziare da una cartella, oppure **Apri
    progetto…** (`C-c w p`) per riprendere un progetto conosciuto. I progetti recenti sono
    selezionabili con le frecce e `Invio`, oppure con un clic. La cartella si apre direttamente
@@ -369,11 +385,22 @@ Nella stessa scheda trovi carattere e dimensione del testo nell'editor.
 
 Apri **Strumenti › Preferenze…** (`⌘,`) e usa **Cerca…** per filtrare le opzioni.
 Su macOS anche **Impostazioni…** nel menu dell’app apre le Preferenze.
-I valori salvati da **Personali** prevalgono su quelli predefiniti di GDev al
-prossimo avvio; il file `config.el` privato, caricato per ultimo, prevale su
-entrambi. **Progetto** scrive i valori di rientro, tabulazione e margine nel file
-`.dir-locals.el` della cartella attiva. Salva il file e riapri il documento per
-leggere i valori. In **Strumenti › Scorciatoie…** cerca per nome dell’azione o per
+In **Personali › Scegli impostazione…** trovi le opzioni di Emacs e dei
+moduli caricati. Il comando di salvataggio di Customize registra la scelta
+nel database del profilo. Il file privato `config.el` viene caricato per ultimo.
+
+**Sessione** applica una preferenza a tutti i documenti della sessione.
+In **Tipo di progetto** puoi scegliere, per esempio, una larghezza del testo
+comune a tutti i progetti LaTeX. La scheda indica il tipo riconosciuto dalla
+cartella. **Progetto** applica un'eccezione alla cartella indicata.
+Il valore del singolo progetto prevale su quello del tipo, che prevale
+sulla scelta di sessione. Le tre schede offrono **Scegli impostazione…**
+per cercare le opzioni locali al documento. Un cambio di tabulazione, per
+esempio, aggiorna anche i file già aperti. **Ripristina** rimuove la scelta
+di quell'ambito e rende di nuovo effettivo il valore ereditato. Le regole
+condivise del repository possono sempre essere definite in `.dir-locals.el`.
+
+In **Strumenti › Scorciatoie…** cerca per nome dell’azione o per
 tasto. Fai clic sulla riga o raggiungila con `Tab` e premi `Invio` per assegnare
 un nuovo tasto globale. La conferma indica il
 comando già assegnato e i conflitti nella vista di origine. Usa **Ripristina**
@@ -1045,6 +1072,13 @@ Flymake usa Checkdoc anche in Appunti e nei file Lisp appena aperti.
 La byte-compilazione automatica segue le autorizzazioni di Emacs in
 `trusted-content`, così puoi abilitarla per i tuoi file Lisp.
 
+Per sviluppare GDev, il [corpus dei comportamenti e BDD](../test/behavior/README.md)
+integra scenari `.feature`, Buttercup, il parser Gherkin derivato da Ecukes
+e casi originali GNU Emacs, Tree-sitter, Fourslash, TextMate, CodeMirror e
+Monaco. I fork sono locali e ogni scenario viene registrato nella suite ERT
+ordinaria. La guida spiega come aggiungere passi, eseguire il corpus con
+prerequisiti obbligatori e aggiornare le fonti conservando licenze e oracoli.
+
 ## Macchine remote e amministrazione di sistema
 
 Le macchine remote sono elencate in `~/.ssh/config`. `C-c r r` apre una macchina in Dired,
@@ -1061,7 +1095,8 @@ dell'esecuzione.
 
 ## Scrivere un articolo
 
-Da **Progetto › Nuovo progetto › Articolo…** scegli una cartella. Il
+Da **Progetto › Nuovo progetto ›
+Articolo…** scegli una cartella. Il
 manoscritto `articolo.org` si apre all’**Apertura**, pronto per scrivere.
 Premi `C-c j` da un documento dell’articolo o scegli **Progetto ›
 Panoramica dell’articolo**. Lo stesso comando è nel riquadro **Scrittura**.
@@ -1087,7 +1122,8 @@ aggiorna la panoramica o la revisione, `q` torna al documento.
 
 ## Scrivere un documento LaTeX
 
-Da **Progetto › Nuovo progetto › LaTeX…** prepara un progetto con un
+Da **Progetto › Nuovo progetto ›
+LaTeX…** prepara un progetto con un
 documento `main.tex` e `bibliografia.bib`. A destra trovi le azioni per
 sezioni, ambienti, formule, citazioni e compilazione. **Compila PDF**
 (`C-c C-c`) usa `latexmk` se disponibile e, altrimenti, `pdflatex` della

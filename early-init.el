@@ -17,7 +17,7 @@
 ;;   3. nessuno sfarfallio: le decorazioni della finestra sono decise prima
 ;;      che la finestra esista.
 ;;
-;; Qui non si carica nessun pacchetto.
+;; Il lettore dello stato usa il supporto SQLite incluso in Emacs.
 
 ;;; Code:
 
@@ -279,14 +279,15 @@ utenti del Mac."
 ;; Avvio a finestra massimizzata: l'editor di lavoro occupa lo schermo.
 (push '(fullscreen . maximized) initial-frame-alist)
 
-;; La prima finestra prende il colore del tema che sta per caricarsi, così
-;; su una scrivania scura non c'è un lampo bianco.  L'aspetto lo salva
-;; :ui workbench (si legge un piccolo file, nessun sottoprocesso).
-(let* ((cache (expand-file-name "appearance" gdev-state-directory))
-       (dark (and (file-readable-p cache)
-                  (with-temp-buffer
-                    (insert-file-contents cache)
-                    (string-prefix-p "dark" (buffer-string))))))
+(add-to-list 'load-path (expand-file-name "lisp" gdev-config-directory))
+(require 'gdev-state-db)
+(defvar gdev-state-maintenance-startup nil)
+(defvar gdev-state-startup-issue nil)
+
+;; Usa lo stesso valore che governa i cambi di tema nella sessione.
+(let ((dark (unless gdev-state-maintenance-startup
+              (condition-case err (eq (gdev-state-db-appearance) 'dark)
+                (error (setq gdev-state-startup-issue (error-message-string err)) nil)))))
   (push `(background-color . ,(if dark "#1e1e20" "#ffffff")) default-frame-alist)
   (when (eq system-type 'darwin)
     (push '(ns-transparent-titlebar . t) default-frame-alist)

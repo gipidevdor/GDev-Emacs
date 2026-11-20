@@ -7,17 +7,19 @@
 ;;; Commentary:
 
 ;; Raccoglie le opzioni frequenti e usa Customize per salvare le preferenze
-;; personali. Le opzioni di progetto seguono le regole di .dir-locals.el.
+;; personali. Le opzioni dei documenti si applicano per progetto o sessione.
 
 ;;; Code:
 
 (require 'button)
-(require 'files-x)
+(require 'gdev-scoped-options)
+(require 'wid-edit)
 (require 'gdev-layout)
 (require 'gdev-menu)
 (require 'gdev-lib)
 (require 'gdev-workspace-state)
 
+(declare-function gdev-modules-edit-selection "gdev-modules")
 (declare-function gdev-workspace-directory "gdev-workspace-roots")
 (declare-function gdev-open-private-config "gdev-commands" ())
 
@@ -51,8 +53,12 @@
                       'gdev-preferences-entry (or id label)))
 
 (defun gdev-preferences--root ()
-  (let ((directory (and (fboundp 'gdev-workspace-directory) (gdev-workspace-directory))))
-    (or directory (gdev-project-root))))
+  (if-let* ((file (or buffer-file-truename buffer-file-name)))
+      (or (and (fboundp 'gdev-workspace-roots)
+               (gdev-workspace-root-for file (gdev-workspace-roots)))
+          (gdev-project-root (file-name-directory file)))
+    (or (and (fboundp 'gdev-workspace-directory) (gdev-workspace-directory))
+        (gdev-project-root))))
 
 (defun gdev-preferences-open (&optional scope)
   "Apri le preferenze nel gruppo editor attivo, eventualmente in SCOPE."
@@ -181,7 +187,8 @@
     (erase-buffer)
     (insert (propertize "Preferenze" 'face 'gdev-ui-view-title) "\n\n")
     (dolist (entry '((personal . "Personali") (appearance . "Aspetto")
-                     (project . "Progetto") (keys . "Scorciatoie")))
+                     (project . "Progetto") (project-type . "Tipo di progetto")
+                     (session . "Sessione") (keys . "Scorciatoie")))
       (if (eq (car entry) gdev-preferences--scope)
           (insert (propertize (cdr entry) 'face 'gdev-ui-action-primary))
         (gdev-preferences--button
@@ -201,18 +208,46 @@
       (_
        (when (eq gdev-preferences--scope 'project)
          (insert (propertize (abbreviate-file-name gdev-preferences--project) 'face 'gdev-ui-secondary) "\n\n"))
-       (dolist (option gdev-preferences--options)
-         (pcase-let ((`(,symbol ,label . ,type) option))
-           (when (and (boundp symbol) (or type (eq gdev-preferences--scope 'personal))
-                      (gdev-preferences--matching-p label (symbol-name symbol)))
-             (gdev-preferences--button
-              label (lambda () (if (eq gdev-preferences--scope 'project)
-                                    (gdev-preferences--edit-project symbol (car type))
-                                  (customize-option symbol))))
-             (insert "\n"))))
+       (let* ((personal (eq gdev-preferences--scope 'personal))
+              (kind (and (eq gdev-preferences--scope 'project-type)
+                         (gdev-scoped-options-project-type gdev-preferences--project)))
+              (saved (pcase gdev-preferences--scope
+                       ('project (gdev-state-db-entries "preferenze_progetto" (gdev-scoped-options-project-ref gdev-preferences--project)))
+                       ('project-type (gdev-state-db-entries "preferenze_tipo_progetto" kind))
+                       ('session (gdev-scoped-options-session))))
+              (options (append gdev-preferences--options
+                               (cl-loop for (name . _) in saved for var = (intern name)
+                                        unless (assq var gdev-preferences--options)
+                                        collect (list var name)))))
+         (when kind
+           (insert (propertize (pcase kind ("gdev-article" "Articolo") ("gdev-latex" "LaTeX")
+                                      (_ (capitalize kind))) 'face 'gdev-ui-secondary) "\n\n"))
+         (gdev-preferences--button
+          "Scegli impostazione…"
+          (lambda ()
+            (let ((option (gdev-scoped-options-choose personal)))
+              (if personal (customize-option option)
+                (gdev-preferences--edit-project option nil)))))
+         (insert "\n")
+         (dolist (option options)
+           (pcase-let ((`(,symbol ,label . ,type) option))
+             (when (and (boundp symbol) (or personal (gdev-scoped-options-local-p symbol))
+                        (gdev-preferences--matching-p label (symbol-name symbol)))
+               (gdev-preferences--button
+                label (lambda () (if personal (customize-option symbol)
+                                   (gdev-preferences--edit-project symbol (car type)))) symbol)
+               (when-let* ((entry (assoc (symbol-name symbol) saved)))
+                 (insert "  " (propertize (format "%S" (cdr entry)) 'face 'gdev-ui-secondary) "  ")
+                 (gdev-preferences--button
+                  "Ripristina" (lambda ()
+                                 (gdev-scoped-options-set gdev-preferences--scope gdev-preferences--project symbol nil t)
+                                 (gdev-preferences--render)) (cons 'reset symbol)))
+               (insert "\n")))))
        (when (eq gdev-preferences--scope 'personal)
          (insert "\n")
          (gdev-preferences--button "Tutte le opzioni di Emacs…" #'customize-browse)
+         (insert "\n")
+         (gdev-preferences--button "Moduli del profilo…" #'gdev-modules-edit-selection)
          (insert "\n")
          (gdev-preferences--button "Apri configurazione privata…" #'gdev-open-private-config))))
     (let ((button (and selected (next-button (point-min) t))))
@@ -224,16 +259,19 @@
     (set-buffer-modified-p nil)))
 
 (defun gdev-preferences--edit-project (symbol type)
-  (let* ((default-directory gdev-preferences--project)
-         (file (expand-file-name dir-locals-file))
-         (value (if (eq type 'boolean)
-                    (equal (completing-read "Valore: " '("Sì" "No") nil t) "Sì")
-                  (read-number "Valore: " (default-value symbol)))))
+  (let* ((source (if (buffer-live-p gdev-preferences--source) gdev-preferences--source (current-buffer)))
+         (current (buffer-local-value symbol source))
+         (value (pcase type
+                  ('boolean (equal (completing-read "Valore: " '("Sì" "No") nil t) "Sì"))
+                  ('integer (read-number "Valore: " current))
+                  (_ (read--expression "Valore Lisp: " (gdev-state-db--print current))))))
     (when (and (eq type 'integer) (not (and (integerp value) (> value 0))))
       (user-error "Inserisci un numero intero positivo"))
-    ;; Il file si apre per essere rivisto: l'impostazione vale quando lo salvi.
-    (add-dir-local-variable nil symbol value file)
-    (message "Salva %s per applicare l'impostazione" (abbreviate-file-name file))))
+    (gdev-scoped-options-set gdev-preferences--scope gdev-preferences--project symbol value)
+    (when (buffer-live-p gdev-preferences--source)
+      (with-current-buffer source
+        (gdev-scoped-options-apply (unless buffer-file-name default-directory))))
+    (gdev-preferences--render)))
 
 (defun gdev-preferences--global-entry (sequence)
   "Leggi l'associazione originale del tasto SEQUENCE, compresa l'eventuale
