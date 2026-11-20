@@ -50,6 +50,10 @@ ogni prerequisito assente un fallimento; senza flag ERT indica i singoli
 casi saltati con il motivo. Deno 2.9.8 è fissato nel workflow CI.
 Le prove LSP usano solo documenti locali e cache temporanee, chiudono il
 server e verificano che la rinomina non salvi il documento implicitamente.
+La pulizia chiude il trasporto JSON-RPC e verifica la terminazione del
+processo anche dopo un errore. Questo evita di dipendere dal messaggio
+di chiusura di Eglot 30, i cui parametri null vengono rifiutati da Deno;
+il dialogo LSP di chiusura non è fra gli oracoli Fourslash adattati.
 
 Anche le sonde brevi devono caricare `early-init.el` prima delle librerie:
 un Emacs `-Q` senza una directory isolata può creare `~/.emacs.d` e

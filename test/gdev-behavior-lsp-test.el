@@ -56,11 +56,18 @@
             (funcall function code markers)
             ;; Completamenti, navigazione e rinomina non salvano da soli.
             (should (equal code (with-temp-buffer (insert-file-contents path) (buffer-string))))))
-      (when (and server (jsonrpc-running-p server)) (eglot-shutdown server))
-      (when (buffer-live-p buffer)
-        (with-current-buffer buffer (set-buffer-modified-p nil))
-        (kill-buffer buffer))
-      (delete-directory root t))))
+      (unwind-protect
+          (when (and server (jsonrpc-running-p server))
+            ;; Questi oracoli riguardano editing e navigazione. Chiudi
+            ;; il trasporto della fixture anche con Eglot 30, il cui
+            ;; messaggio shutdown con params:null viene rifiutato da Deno.
+            (jsonrpc-shutdown server)
+            (should-not (jsonrpc-running-p server)))
+        (unwind-protect
+            (when (buffer-live-p buffer)
+              (with-current-buffer buffer (set-buffer-modified-p nil))
+              (kill-buffer buffer))
+          (delete-directory root t))))))
 
 (dolist (entry '(("completionListOnParam" "Blah")
                  ("completionListOnFunctionCallWithOptionalArgument" "q")
