@@ -10,6 +10,13 @@ in GDev con una prova su una fixture indipendente dal progetto originale.
 
 1. Leggi scoperta, radice, progetto, scheda e stato della lavorazione.
    Conserva il tipo agente e registra il mandato della persona dove previsto.
+   Consulta gli hazard pertinenti nel catalogo autorevole, i requisiti
+   collegati e i rischi residui. Distingui difetti, limiti architetturali e
+   comportamenti intenzionali del contratto, compresi i rifiuti previsti.
+   Un errore osservato non autorizza a cambiare routing, retry, visibilità
+   o punti di conferma. Verifica la necessità di una decisione architetturale
+   e di campagne dedicate prima di scegliere la correzione. I risultati
+   tecnici e l'accettazione del rischio restano separati.
 2. Riproduci il minimo caso fallito e conserva input, revisione, esito e
    diagnosi. Le fonti modificate invalidano i risultati precedenti.
 3. Correggi il proprietario del comportamento. Aggiungi una regressione che
