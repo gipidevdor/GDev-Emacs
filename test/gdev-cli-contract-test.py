@@ -16,6 +16,7 @@ import tempfile
 import time
 import unittest
 import importlib.util
+import hashlib
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +24,52 @@ EMACS = os.environ.get("EMACS") or shutil.which("emacs")
 
 
 class CliContracts(unittest.TestCase):
+    def test_external_catalog_is_queryable_paged_and_recoverable_from_cli_and_mcp(self):
+        root = self.directory / "external project è"
+        authority = root / "authority"
+        authority.mkdir(parents=True)
+        source = authority / "gates.yaml"
+        source.write_text("original authority\n")
+        formal = root / ".gdev-assurance"
+        formal.mkdir()
+        (formal / "project.eld").write_text('''(:version 1 :id "EXTERNAL" :name "External" :profile quality :criticality normal
+ :catalogs ((:id "SOURCE" :path ".gdev-assurance/catalog.json" :directories ("authority")
+             :refresh ("python3" "export.py"))))''')
+
+        def publish():
+            data = {"schema_version": 1, "id": "SOURCE",
+                    "inputs": [{"path": "authority/gates.yaml", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}],
+                    "records": [{"id": f"GATE-{number:03}", "kind": "gate", "state": "IMPLEMENTATA",
+                                 "path": "authority/gates.yaml", "data": {"evidence": []}}
+                                for number in range(105)]}
+            (formal / "catalog.json").write_text(json.dumps(data))
+
+        def read(argument):
+            return json.loads(self.cli("agente", "assicurazione", str(root), "catalogo", argument).stdout)["data"]
+
+        publish()
+        page = read("GATE-")
+        self.assertEqual(100, len(page["items"]))
+        self.assertEqual(105, page["total"])
+        last = read(page["next_argument"])
+        self.assertEqual(5, len(last["items"]))
+        self.assertEqual(page["catalogs"][0]["inputs_sha256"], last["catalogs"][0]["inputs_sha256"])
+        with self.editor() as socket:
+            (reply,) = self.mcp(socket, [self.call("gdev_assurance", command="catalog", root=str(root), argument="GATE-001")])
+            live = self.payload(reply)["assurance"]
+            self.assertEqual("GATE-001", live["items"][0]["id"])
+            self.assertEqual("IMPLEMENTATA", live["items"][0]["state"])
+            self.assertFalse(live["certification"])
+        source.write_text("changed authority\n")
+        stale = read("GATE-")
+        self.assertEqual([], stale["items"])
+        self.assertEqual("INVALID", stale["catalogs"][0]["status"])
+        self.assertEqual(["python3", "export.py"], stale["catalogs"][0]["recovery"]["argv"])
+        self.assertFalse(stale["catalogs"][0]["recovery"]["automatic"])
+        publish()
+        self.assertEqual("CURRENT", read("GATE-001")["catalogs"][0]["status"])
+        self.assertFalse((root / ".gdev").exists(), "Le letture non creano un archivio")
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="gdev-contract-")
         self.addCleanup(temporary.cleanup)

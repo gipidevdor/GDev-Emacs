@@ -123,7 +123,7 @@
      "lisp/gdev-trace.el" "lisp/gdev-adoption.el" "lisp/gdev-documents.el"
      "lisp/gdev-assurance-git.el" "lisp/gdev-assurance-requests.el"
      "lisp/gdev-assurance-actions.el" "lisp/gdev-assurance-lavorazione.el"
-     "lisp/gdev-standard-catalog.el" "lisp/gdev-standard-assessment.el")
+     "lisp/gdev-standard-catalog.el" "lisp/gdev-standard-assessment.el" "lisp/gdev-project-catalog.el")
    "^\\(?:gdev-test-\\(?:project\\|assurance\\|capability\\|assessment\\|standards\\)-\\|gdev-agent-interface-headless-\\)" t))
 
 (provide 'gdev-coverage)

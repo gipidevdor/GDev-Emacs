@@ -163,6 +163,10 @@
              "k" "interrompi" 'gptel-abort))
 (gdev-default--with :tools agent
   (gdev-bind gdev-agent-map
+             "o" "Codex" #'gdev-codex
+             "O" "riprendi Codex" #'gdev-codex-resume
+             "d" "rivedi modifiche del progetto" #'gdev-codex-diff
+             "Q" "ferma Codex" #'gdev-codex-stop
              "c" "Claude Code" #'claude-code-ide
              "C" "menu di Claude Code" #'claude-code-ide-menu
              "q" "ferma una sessione di Claude Code…" #'claude-code-ide-stop))

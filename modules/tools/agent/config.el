@@ -30,6 +30,11 @@
 (require 'gdev-modules)
 (require 'gdev-handlers)
 
+(autoload 'gdev-codex "gdev-codex" nil t)
+(autoload 'gdev-codex-resume "gdev-codex" nil t)
+(autoload 'gdev-codex-stop "gdev-codex" nil t)
+(autoload 'gdev-codex-diff "gdev-codex" nil t)
+
 (gdev-doctor-executable "claude" "brew install --cask claude-code")
 
 (autoload 'gdev-mcp-server-autostart "gdev-mcp-server")

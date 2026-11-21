@@ -32,12 +32,16 @@ Rigenera questa mappa con `gdev docs` dopo aver modificato le scorciatoie.
 | Scorciatoia | Azione |
 | --- | --- |
 | `C-c a C` | menu di Claude Code |
+| `C-c a O` | riprendi Codex |
+| `C-c a Q` | ferma Codex |
 | `C-c a a` | conversazione |
 | `C-c a c` | Claude Code |
+| `C-c a d` | rivedi modifiche del progetto |
 | `C-c a f` | aggiungi file al contesto |
 | `C-c a g` | agente |
 | `C-c a k` | interrompi |
 | `C-c a m` | menu |
+| `C-c a o` | Codex |
 | `C-c a q` | ferma una sessione di Claude Code… |
 | `C-c a r` | riscrivi selezione |
 | `C-c a s` | invia |

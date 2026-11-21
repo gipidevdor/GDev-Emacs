@@ -217,12 +217,26 @@
         (insert (propertize "Definizione compilata. Le verifiche e le approvazioni restano distinte.\n" 'face 'gdev-ui-secondary)))
       (insert "\n")
       (gdev-assurance--entries
-       (append (alist-get 'requirements project) nil) (lambda (row) (list 'requirement (alist-get 'id row)))
+       (append (alist-get 'requirements project) nil
+               (apply #'append
+                      (mapcar (lambda (view)
+                                (mapcar (lambda (row) (cons (cons 'external (alist-get 'id view)) row))
+                                        (append (alist-get 'records (alist-get 'catalog view)) nil)))
+                              (append (alist-get 'catalogs detail) nil))))
+       (lambda (row) (list (or (alist-get 'external row) 'requirement) (alist-get 'id row)))
        (lambda (row)
-         (gdev-assurance--row (list 'requirement (alist-get 'id row)) (alist-get 'id row)
+         (if (alist-get 'external row)
+             (let ((path (alist-get 'path row)) (root gdev-assurance--root))
+               (gdev-assurance--row
+                (list (alist-get 'external row) (alist-get 'id row)) (alist-get 'id row)
+                (format "%s · %s\n%s\nFonte: %s\nStato della fonte, nessuna approvazione aggiunta da GDev."
+                        (alist-get 'kind row) (alist-get 'state row)
+                        (or (alist-get 'titolo (alist-get 'data row)) "") path)
+                (lambda () (gdev-assurance-visit (gdev-project-file root path)))))
+           (gdev-assurance--row (list 'requirement (alist-get 'id row)) (alist-get 'id row)
                               (format "%s\n%s · %s · %s\nAccettazione: %s\nVerifica: %s"
                                       (alist-get 'statement row) (gdev-assurance--project-label (alist-get 'status row)) (gdev-assurance--project-label (alist-get 'category row))
-                                      (alist-get 'owner row) (alist-get 'acceptance row) (gdev-assurance--project-label (alist-get 'method row)))))))))
+                                      (alist-get 'owner row) (alist-get 'acceptance row) (gdev-assurance--project-label (alist-get 'method row))))))))))
 
 (defun gdev-assurance--taxonomy ()
   "Disegna la copertura delle fonti e la gerarchia già acquisita."

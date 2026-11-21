@@ -122,7 +122,7 @@ del chiamante: una richiesta di agente non diventa umana."
     ("scheda" . "work") ("progetto" . "project") ("tassonomie" . "taxonomy")
     ("suggerisci" . "suggest") ("modelli" . "snippets") ("procedure" . "procedures")
     ("piano-procedura" . "procedure-plan") ("esecuzioni" . "runs")
-    ("verifica-modello" . "model-check")
+    ("verifica-modello" . "model-check") ("catalogo" . "catalog")
     ("apri" . "open") ("avanza" . "advance") ("collega-scheda" . "work-bind")
     ("collega-progetto" . "project-bind") ("esegui-procedura" . "procedure-run")
     ("riprendi-procedura" . "procedure-resume") ("registra-prova" . "evidence")

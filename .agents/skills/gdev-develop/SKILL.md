@@ -50,6 +50,8 @@ Rileggi il catalogo dopo un cambio di revisione o un intervento sulle dichiarazi
 - **Prove dal vivo e in batch.** Per applicare una correzione in un'istanza aperta e per le differenze tra batch e finestra grafica, leggi [Verifica dal vivo e insidie del batch](references/extensions/verifica-dal-vivo.md).
 - **Corpus e BDD.** Per importare test a monte o aggiungere scenari `.feature`, leggi [Corpus di comportamenti e BDD](references/extensions/corpus-bdd.md). Usa i fork locali e collega ogni caso alla suite ERT ordinaria e alla CI.
 
+Per difetti emersi in un progetto esterno, applica il [ciclo di correzioni tra progetti](references/extensions/ciclo-correzioni-progetti.md). Mantieni la regressione nel livello che governa il comportamento.
+
 ## Riesamina la skill a ogni utilizzo
 
 Prima di concludere, confronta le istruzioni seguite con le prove del

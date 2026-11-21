@@ -197,6 +197,19 @@ Senza archivio restano consultabili lo stato assente e il catalogo."
   "Leggi COMMAND dai sorgenti di ROOT, senza connessioni SQLite."
   (require 'gdev-project)
   (pcase command
+    ("catalog"
+     (let* ((data (gdev-project-read root))
+            (views (mapcar (lambda (descriptor) (gdev-project-catalog-data root descriptor)) (plist-get data :catalogs)))
+            (filter (car (and argument (split-string argument "@"))))
+            (rows (apply #'append (mapcar
+                                   (lambda (view)
+                                     (mapcar (lambda (row) (cons (cons 'catalog_id (alist-get 'id view)) row))
+                                             (append (alist-get 'records (alist-get 'catalog view)) nil))) views))))
+       (when (and filter (not (string-empty-p filter)))
+         (setq rows (seq-filter (lambda (row) (string-prefix-p filter (alist-get 'id row))) rows)))
+       (append `((catalogs . ,(vconcat (mapcar (lambda (view) (assq-delete-all 'catalog (copy-sequence view))) views)))
+                 (human_approval . "NOT_VERIFIED") (certification . :false))
+               (gdev-assurance--source-page rows argument (min 100 (or limit 100))))))
     ("project" (let ((stage (and argument (gdev-assurance-state-code argument))))
                  (when (and stage (not (memq stage gdev-process-states))) (user-error "Fase sconosciuta: %s" argument))
                  (gdev-project-data root stage)))
@@ -234,7 +247,7 @@ gli altri segnalano
     (signal 'gdev-assurance-no-transaction (list argument)))
   (unless (gdev-assurance-operands-p command (and argument (list argument)))
     (user-error "Operandi non validi per %s" command))
-  (if (member command '("project" "taxonomy" "suggest" "snippets" "procedures" "procedure-plan" "model-check"))
+  (if (member command '("project" "catalog" "taxonomy" "suggest" "snippets" "procedures" "procedure-plan" "model-check"))
       (gdev-assurance--project-source-data command root argument limit)
   (if (equal command "standards")
       (progn (require 'gdev-standard-catalog) (gdev-standard-catalog-data argument))
@@ -561,7 +574,7 @@ soddisfatto, altrimenti 0."
   (princ "\n")
   (if (or (eq :false (alist-get 'ok data)) (member (alist-get 'status data) '("INCOMPLETE" "MISSING"))) 1 0))
 
-(dolist (command '(work project taxonomy suggest snippets procedures procedure-plan runs model-check))
+(dolist (command '(work project catalog taxonomy suggest snippets procedures procedure-plan runs model-check))
   (defalias (intern (concat "gdev-assurance--render-" (symbol-name command))) #'gdev-assurance--render-project-data))
 
 (defconst gdev-assurance--usage

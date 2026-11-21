@@ -17,7 +17,7 @@
   '(("status" 0 0) ("list" 0 1) ("show" 1 1) ("verify" 0 0)
     ("assess" 1 1) ("capability" 0 1) ("trace" 0 0) ("impact" 0 1) ("requests" 0 1)
     ("standards" 0 1) ("standard-assess" 1 1)
-    ("work" 1 1) ("project" 0 1) ("taxonomy" 0 1) ("suggest" 1 1) ("snippets" 0 1)
+    ("work" 1 1) ("project" 0 1) ("catalog" 0 1) ("taxonomy" 0 1) ("suggest" 1 1) ("snippets" 0 1)
     ("procedures" 0 0) ("procedure-plan" 1 1) ("runs" 0 1) ("model-check" 0 0))
   "Comandi di lettura: (NOME MINIMO-OPERANDI MASSIMO-OPERANDI).")
 

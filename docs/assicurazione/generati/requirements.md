@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:5feefe49d2811f2739ba537f27d8aec3d95bcec4fbc0ab3c76c763d4a8b2864f -->
+<!-- Generato da GDev; non modificare. Fonti sha256:ceae2b631d95bb2649a0446b7dd8236333e4e3753e4bbca793b6a4e400373b26 -->
 
 # Requisiti
 
@@ -588,9 +588,44 @@ La verifica di copertura dello stato condiviso richiede tutte le righe strumenta
                 "gdev-test-voice-view-opens-without-audio-and-preserves-document"
                 "gdev-test-behavior-voice-selezione-strutturale-e-modifica-annullabile"
                 "gdev-test-behavior-voice-sequenza-incompleta-senza-effetti-parziali"
-                "test/gdev-voice-contract-test.py" "test/gdev-cli-contract-test.py")))
+                "test/gdev-voice-contract-test.py" "test/gdev-cli-contract-test.py"))
+   (:id "GDEV-P16" :version 1 :statement "I cataloghi esterni conservano autorità, stati e provenienza e rifiutano viste superate o record ambigui."
+    :origin "Mandato utente, integrazione di GlifiStore" :rationale "Ogni errore generale produce una regressione riutilizzabile."
+    :category data :priority must :criticality high :owner "Manutentori GDev" :status accepted :applicability applicable
+    :acceptance "Fonti modificate, aggiunte, rimosse o esterne e record duplicati producono una diagnosi riproducibile."
+    :method test :sources ("lisp/gdev-project-catalog.el" "lisp/gdev-project.el" "lisp/gdev-project-store.el" "lisp/gdev-work.el" "lisp/gdev-assurance.el" "lisp/gdev-assurance-api.el")
+    :tests ("gdev-test-project-catalog-preserves-source-status-and-no-approval"
+            "gdev-test-project-catalog-invalidates-change-add-delete-and-snapshot"
+            "gdev-test-project-catalog-rejects-duplicate-ids-paths-and-escaping-symlinks"
+            "gdev-test-project-catalog-malformed-missing-and-future-versions-fail-closed"
+            "gdev-test-project-catalog-json-order-and-agent-query-are-stable"
+            "gdev-test-project-catalog-workbench-keeps-source-identity-and-opening"
+            "gdev-test-project-catalog-work-procedure-refusal-names-the-contract"
+            "test/gdev-cli-contract-test.py") :procedure "GDEV-AGENT-PROJECT")
+   (:id "GDEV-P17" :version 1 :statement "Codex usa sessioni isolate per radice e il server MCP della distribuzione, conservando le protezioni configurate dalla persona."
+    :origin "Mandato utente, integrazione Codex" :rationale "Stesse operazioni di progetto per persone e agenti."
+    :category interface :priority must :criticality high :owner "Manutentori GDev" :status accepted :applicability applicable
+    :acceptance "Argv senza shell, radici omonime distinte, ripresa nativa e arresto limitato al progetto corrente."
+    :method test :sources ("lisp/gdev-codex.el" "modules/tools/agent/config.el")
+    :tests ("gdev-test-codex-mcp-is-independent-of-the-external-project"
+            "gdev-test-codex-missing-tools-and-stop-without-session-are-actionable"
+            "gdev-test-codex-stop-targets-only-the-current-project"
+            "gdev-test-codex-preserves-a-buffer-with-the-same-display-name") :procedure "GDEV-AGENT-PROJECT")
+
+   (:id "GDEV-P18" :version 1 :statement "Gli strumenti C++ rispettano la versione del formatter fissata dal progetto e il database del preset CMake selezionato."
+    :origin "Integrazione GlifiStore" :rationale "Evitare formattazioni divergenti e diagnosi basate su un'altra configurazione."
+    :category compatibility :priority must :criticality high :owner "Manutentori GDev" :status accepted :applicability applicable
+    :acceptance "Una versione diversa è rifiutata prima di modificare il documento; clangd riceve il database selezionato quando esiste."
+    :method test :sources ("modules/lang/cc/config.el")
+    :tests ("gdev-test-project-native-tools-formatter-pin-fails-before-edits"
+            "gdev-test-project-native-tools-clangd-follows-selected-database") :procedure "GDEV-AGENT-PROJECT")
+)
 	  :procedures
-	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
+	  ((:id "GDEV-AGENT-PROJECT" :version 1 :title "Cataloghi esterni e Codex" :mode verification :types ("feature" "bugfix" "refactor" "docs")
+      :requirements ("GDEV-P16" "GDEV-P17" "GDEV-P18")
+      :steps ((:id "agents" :plan ".gdev-assurance/procedures/agent-project.lavorazione" :timeout 180 :replay safe :required t
+               :outputs nil :inputs ("test/gdev-project-catalog-test.el" "test/gdev-codex-test.el" "test/gdev-project-native-tools-test.el"))))
+     (:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
 		("docs/assicurazione/generati/project.md") :steps
 		((:id "preflight" :plan

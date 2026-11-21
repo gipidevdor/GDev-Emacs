@@ -295,3 +295,54 @@ socket e controllo di flusso.
 Le skill possono aggiungere
 procedure verificate nelle proprie cartelle `references/extensions/`,
 preservando quelle esistenti e riprovando i flussi già supportati.
+
+## Codex e progetti con cataloghi esterni
+
+Il modulo `:tools agent` offre `gdev-codex`, `gdev-codex-resume`,
+`gdev-codex-diff` e `gdev-codex-stop`, rispettivamente sui tasti
+`C-c a o`, `C-c a O`, `C-c a d` e `C-c a Q`. Ogni radice canonica ha
+una sessione Eat distinta, anche con cartelle omonime. La ripresa usa
+il selettore nativo di Codex; gli errori e il terminale restano visibili.
+Il confronto usa il servizio Git di Emacs. Le modifiche alla copia di
+lavoro si rivedono prima di registrarle, con gli stessi vincoli degli
+altri agenti. GDev non cambia le protezioni o le credenziali di Codex.
+
+Il server MCP passato a Codex appartiene alla distribuzione di GDev,
+anche quando il progetto aperto è un altro repository. Per un avvio da
+terminale il bootstrap installa anche `gdev-mcp` in `~/.local/bin`;
+il file `.codex/config.toml` del progetto lo richiama dal PATH.
+Le scritture MCP di assicurazione restano proposte con conferma e
+mantengono il tipo agente. Nessun successo tecnico aggiunge una firma umana.
+
+Un manifesto può dichiarare `:catalogs`, per esempio
+
+```elisp
+:catalogs ((:id "EXTERNAL" :path ".gdev-assurance/catalog.json"
+            :directories ("assurance/requirements" "assurance/gates")
+            :files ("tools/export_catalog.py")
+            :refresh ("python3" "tools/export_catalog.py")))
+```
+
+Il formato JSON versione 1 contiene `id`, `schema_version`, `inputs`
+con `path` e `sha256`, e `records` con `id`, `kind`, `path`, `state` e
+`data`. `data` conserva il record originale, compresi collegamenti e
+rischi. Percorsi e fonti restano interni al progetto. Il lettore rifiuta
+file oltre 16 MiB, oltre 20.000 record, identificativi duplicati, fonti
+esterne e viste superate. Le letture non eseguono il produttore della vista.
+La freschezza delle impronte non attesta la correttezza del produttore,
+che va collegata alla procedura di verifica del progetto.
+
+Per evitare risposte troppo grandi, l'agente può chiedere
+`gdev agente assicurazione RADICE catalogo PREFISSO-ID`. Il servizio
+tecnico `catalog` è disponibile anche dalla CLI e da `gdev_assurance`
+in MCP. Restituisce al massimo 100 record per pagina, anche se il limite generale
+richiesto è maggiore, con `total`, `offset` e `next_argument`. Una vista
+invalida conserva il problema e `recovery` con directory e argv suggeriti.
+L'agente controlla la causa e il mandato, corregge la fonte, rigenera,
+poi rilegge. Un catalogo invalido non viene presentato come vuoto valido.
+
+Il ciclo di correzione tra progetti è descritto nell'estensione
+[Correzioni tra GDev e un progetto esterno](../.agents/skills/gdev-develop/references/extensions/ciclo-correzioni-progetti.md).
+
+Nelle letture paginate confronta `inputs_sha256` dei cataloghi tra le pagine.
+Se cambia, riparti dalla prima pagina sulla nuova revisione delle fonti.

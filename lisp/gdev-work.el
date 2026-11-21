@@ -33,7 +33,9 @@
     (gdev-project--plist selected '(:id :version))
     (unless (and procedure (equal (plist-get selected :version) (plist-get procedure :version))
                  (member (symbol-name (plist-get data :type)) (plist-get procedure :types)))
-      (gdev-process-refuse "Procedura, versione o tipo non compatibili con la lavorazione")))
+      (gdev-process-refuse "Procedura %s: richiesta versione %S per tipo %s; disponibile versione %S per tipi %S. Correggi :procedure della scheda o :types della procedura."
+                           (plist-get selected :id) (plist-get selected :version) (plist-get data :type)
+                           (plist-get procedure :version) (plist-get procedure :types))))
   data)
 
 (defun gdev-work-latest (db tx-id)

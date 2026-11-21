@@ -57,6 +57,8 @@
 (load (gdev-config-file "test/gdev-capability-test.el") nil t t)
 (load (gdev-config-file "test/gdev-trace-test.el") nil t t)
 (load (gdev-config-file "test/gdev-project-catalog-test.el") nil t t)
+(load (gdev-config-file "test/gdev-codex-test.el") nil t t)
+(load (gdev-config-file "test/gdev-project-native-tools-test.el") nil t t)
 (load (gdev-config-file "test/gdev-assurance-roadmap-test.el") nil t t)
 (load (gdev-config-file "test/gdev-standard-implementation-test.el") nil t t)
 (load (gdev-config-file "test/gdev-dialog-test.el") nil t t)

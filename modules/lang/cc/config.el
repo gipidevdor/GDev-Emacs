@@ -40,6 +40,15 @@
 (defvar c-ts-base-mode-map)
 (defvar c-mode-map)
 (defvar c++-mode-map)
+(declare-function gdev-cmake--context "../../tools/build/config" (root &optional ask action))
+
+(defun gdev-cc-compilation-database ()
+  "Trova il database del preset CMake selezionato, senza chiedere una scelta."
+  (when-let* ((root (locate-dominating-file (or buffer-file-name default-directory) "CMakePresets.json"))
+              (_ (fboundp 'gdev-cmake--context))
+              (directory (plist-get (gdev-cmake--context root nil 'build) :directory))
+              (_ (file-regular-p (expand-file-name "compile_commands.json" directory))))
+    directory))
 
 (defconst gdev-cc-modes '(c-ts-mode c++-ts-mode c-mode c++-mode objc-mode)
   "Modalità principali per il codice della famiglia C.")
@@ -89,6 +98,8 @@
          (format "-j=%d" (max 2 (/ (num-processors) 2)))
          (concat "--query-driver=" (string-join gdev-cc-query-drivers ","))
          "--log=error")
+    (when-let* ((directory (gdev-cc-compilation-database)))
+      (list (concat "--compile-commands-dir=" directory)))
     (when gdev-linux-p '("--malloc-trim"))))
 
 (defun gdev-cc-clangd-server (&optional _interactive _project)
@@ -141,13 +152,27 @@ ripiega su `ff-find-other-file'."
 
 (declare-function gdev-format-with-program "../../editor/format/config")
 
+(defun gdev-cc-check-format-version (program)
+  "Richiedi a PROGRAM la versione fissata dal progetto, prima di modificare testo."
+  (when-let* ((root (locate-dominating-file (or buffer-file-name default-directory) ".clang-format-version")))
+    (let ((expected (string-trim (with-temp-buffer
+                                  (insert-file-contents (expand-file-name ".clang-format-version" root)) (buffer-string)))))
+      (unless (string-match-p "\\`[0-9]+\\(?:\\.[0-9]+\\)+\\'" expected)
+        (user-error "Versione clang-format del progetto non valida"))
+      (with-temp-buffer
+        (unless (and (eq 0 (process-file program nil t nil "--version"))
+                     (string-match "version \\([0-9]+\\(?:\\.[0-9]+\\)+\\)" (buffer-string))
+                     (equal expected (match-string 1 (buffer-string))))
+          (user-error "Il progetto richiede clang-format %s; controlla %s e gli strumenti locali" expected program))))))
+
 (defun gdev-cc-clang-format ()
   "Formatta l'area di testo con clang-format e il .clang-format del progetto.
 Vince il clang-format fissato dal progetto (vedi
 `gdev-project-tool-directories'), poi quello nel PATH, poi quello di LLVM
 di Homebrew."
-  (gdev-format-with-program (or (executable-find "clang-format") (gdev-cc-llvm-tool "clang-format"))
-                            (concat "--assume-filename=" (or buffer-file-name "x.cpp"))))
+  (let ((program (or (executable-find "clang-format") (gdev-cc-llvm-tool "clang-format"))))
+    (gdev-cc-check-format-version program)
+    (gdev-format-with-program program (concat "--assume-filename=" (or buffer-file-name "x.cpp")))))
 
 (gdev-set-formatter gdev-cc-modes #'gdev-cc-clang-format)
 

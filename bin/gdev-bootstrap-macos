@@ -162,6 +162,15 @@ else
     ln -s "$root/bin/gdev" "$cli_link"
     note "collegato $cli_link -> $root/bin/gdev"
 fi
+# Stesso collegamento stabile per gli agenti aperti in progetti esterni.
+mcp_link=$HOME/.local/bin/gdev-mcp
+if [ -L "$mcp_link" ] && [ "$mcp_link" -ef "$root/bin/gdev-mcp" ]; then
+    note "$mcp_link -> $root/bin/gdev-mcp"
+elif [ -e "$mcp_link" ] || [ -L "$mcp_link" ]; then
+    note "$mcp_link esistente conservato"
+else
+    ln -s "$root/bin/gdev-mcp" "$mcp_link"
+fi
 case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;
     *) note "aggiungi ~/.local/bin al PATH nel profilo della shell per usare gdev ovunque" ;;
