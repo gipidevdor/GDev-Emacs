@@ -172,6 +172,33 @@
           (should-not gdev-env--refresh-process)
           (should-not gdev-env--refresh-request))))))
 
+(ert-deftest gdev-test-operational-process-sentinel-drains-output-and-notifies-once ()
+  "L'output completo precede l'unica notifica finale di un figlio già uscito."
+  (skip-unless (file-executable-p "/bin/sh"))
+  (let* ((output (generate-new-buffer " *gdev-process-output*"))
+         (errors (generate-new-buffer " *gdev-process-errors*"))
+         (process (make-process :name "gdev-process-test" :buffer output :stderr errors
+                                :command '("/bin/sh" "-c" "printf 'città\\n'")
+                                :coding 'utf-8-unix :connection-type 'pipe
+                                :noquery t :sentinel #'ignore))
+         (calls 0) text)
+    (unwind-protect
+        (progn
+          (let ((deadline (+ (float-time) 5)))
+            (while (and (process-live-p process) (< (float-time) deadline))
+              (call-process "/bin/sleep" nil nil nil "0.02")))
+          (should (eq (process-status process) 'exit))
+          (gdev-set-process-sentinel
+           process (lambda (_child _event)
+                     (cl-incf calls)
+                     (setq text (with-current-buffer output (buffer-string)))))
+          (should (equal text "città\n"))
+          (accept-process-output nil 0.02)
+          (should (= calls 1)))
+      (when (process-live-p process) (delete-process process))
+      (kill-buffer output)
+      (kill-buffer errors))))
+
 (ert-deftest gdev-test-operational-environment-exit-before-sentinel-is-delivered ()
   "Una shell già terminata viene consegnata senza aspettare il timeout."
   (skip-unless (file-executable-p "/bin/sh"))
@@ -183,8 +210,10 @@
                    (let ((process (apply make arguments)))
                      ;; Simula l'uscita prima che il lettore abbia installato
                      ;; proprietà, timeout e sentinel definitivo.
-                     (while (process-live-p process)
-                       (accept-process-output process 0.02))
+                     (let ((deadline (+ (float-time) gdev-env--shell-timeout)))
+                       (while (and (process-live-p process) (< (float-time) deadline))
+                         (call-process "/bin/sleep" nil nil nil "0.02")))
+                     (should (eq (process-status process) 'exit))
                      process))))
         (let ((process (gdev-env-refresh t)))
           (should (process-get process 'gdev-env-finished))

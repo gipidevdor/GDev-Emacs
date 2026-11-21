@@ -176,6 +176,26 @@ archivio."
 La ricerca avviene in `exec-path'."
   (cl-some #'executable-find names))
 
+(defun gdev-set-process-sentinel (process sentinel)
+  "Installa SENTINEL su PROCESS e restituisci PROCESS.
+Se il figlio è già terminato, leggi prima tutto l'output pendente.
+La notifica finale viene consegnata una sola volta, anche se Emacs
+la pubblica durante la lettura oppure era già stata consumata."
+  (let* ((finished nil)
+         (notify (lambda (child event)
+                   (unless finished
+                     (when (memq (process-status child) '(exit signal failed))
+                       (setq finished t))
+                     (funcall sentinel child event)))))
+    (set-process-sentinel process notify)
+    (when (memq (process-status process) '(exit signal failed))
+      ;; `process-status' può essere già finale con dati ancora nella pipe.
+      ;; Durante la lettura Emacs può invocare NOTIFY: la guardia evita
+      ;; di ripetere la consegna esplicita successiva.
+      (while (accept-process-output process 0))
+      (funcall notify process "finished\n")))
+  process)
+
 (defvar gdev--xcrun-cache (make-hash-table :test #'equal)
   "Percorsi trovati da `gdev-xcrun-find', per strumento.")
 

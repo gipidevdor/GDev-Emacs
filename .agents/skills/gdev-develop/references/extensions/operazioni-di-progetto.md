@@ -85,6 +85,9 @@ precedere l'esecuzione della sentinella.
 
 Se installi la sentinella dopo la creazione del processo, gestisci anche
 un processo già terminato: la notifica precedente non viene ripetuta.
+Usa `gdev-set-process-sentinel` per leggere prima l'output ancora nella
+pipe e consegnare la notifica finale una sola volta. Lo stato `exit`
+non garantisce che il buffer contenga già tutto il risultato.
 Prova questa sequenza facendo terminare il processo reale prima che
 `make-process` restituisca il controllo al chiamante. Il completamento
 deve pubblicare l'esito una sola volta, senza aspettare il timeout né

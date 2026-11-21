@@ -35,9 +35,11 @@
                        (setq output (plist-get arguments :buffer)
                              errors (plist-get arguments :stderr)
                              child (apply make-process-function arguments))
+                       ;; Un'attesa sincrona lascia lo stdout nella pipe,
+                       ;; anche quando il figlio risulta già terminato.
                        (let ((deadline (+ (float-time) 5)))
                          (while (and (process-live-p child) (< (float-time) deadline))
-                           (accept-process-output child 0.01)))
+                           (call-process "/bin/sleep" nil nil nil "0.02")))
                        (should (eq (process-status child) 'exit))
                        (should (zerop (process-exit-status child)))
                        child)))

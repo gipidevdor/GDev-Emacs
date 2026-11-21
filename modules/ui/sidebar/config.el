@@ -429,9 +429,7 @@ Con LIMIT restituisci nil se la cartella contiene più di LIMIT voci."
                        :sentinel #'ignore))
                 (let ((process gdev-sidebar--directory-process))
                   (process-put process 'gdev-sidebar-cold-times cold-times)
-                  (set-process-sentinel process sentinel)
-                  (when (memq (process-status process) '(exit signal failed))
-                    (funcall sentinel process ""))
+                  (gdev-set-process-sentinel process sentinel)
                   process))
             (file-error
              (setq gdev-sidebar--directory-paths nil)
