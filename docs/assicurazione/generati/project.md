@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:61ea003907da7d1c7fe369a88956a0fef7f2f0f79e574dc7f98efc4d97342172 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:fd85870ae20be1b2a00d62e7cd60438ccfc7617044d7cf89bbc7fe5432ecd88e -->
 
 # GDev-Emacs
 
@@ -105,7 +105,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-assurance-db.el | f14337ac47b9320a79ce7f4a80367dc8aedfecca758d6aa74736d85922fc24ee |
 | lisp/gdev-assurance-git.el | a2c3e784e833132b9859731c1e42a07c9eb7e607ac0d190e78a977acced96f6d |
 | lisp/gdev-assurance-labels.el | be1a4bf1a47e9308fff7ad6de6012242704099bbf42d8f37d3ffd3e7bebdbe6d |
-| lisp/gdev-assurance.el | 86ed5b1c2821ddc788d83024a07ea120011c5ba85b3ef4d935fe0b66c8857974 |
+| lisp/gdev-assurance.el | 37316a89932c8b9b191095857f232e989972f0fbb818d7e86441b3c0a2239902 |
 | lisp/gdev-auto-modules.el | 721f5131485c82f3f1b6d716c3e6795f009c5fadf062e0fde145821282592795 |
 | lisp/gdev-capability.el | aeee58454258091d21b8ed49c37b25195cf97bb79f88eec3159caf89b83689ba |
 | lisp/gdev-cli.el | a5eb20365f76d94a5cbc9623abe6c104591af42486a12696aace548be0948c86 |
@@ -152,7 +152,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-workspace-state.el | 51814b04bc20efc7661665d9b8fbe1bc323f5e869ced81740c2166a47b513ab1 |
 | lisp/gdev-workspaces.el | 897b21ce6cc65a46fada3c900a3a23729cb193513c672c333024851a366c8b29 |
 | lisp/gdev-xcode.el | eb92cd5cc5e44147609ad96560161196b719aeb40c68f9044df66d3fd7a68ef4 |
-| modules/config/default/config.el | 21537d2b9dfb8873bd2c7c97e1ce128af78d5cb4f3f0beed53c82e941d2abe40 |
+| modules/config/default/config.el | 0ace7b67a0ddac4933a06e1d456c3fe6a9df671f833a710de3535059fc6d7241 |
 | modules/emacs/ibuffer/config.el | 1850b66d2cd7e635d30dbf8233d2952b05afaffc36f18a79279b056048f96b2f |
 | modules/lang/cc/config.el | 382c9c1385d0f97cb5ad7dafc647d24f88c681e0546932a16d408c82a1c47ece |
 | modules/lang/javascript/config.el | ed23ef532d94b43c6536b5f4512318f905e1c0588e11d62605981555814f65d5 |

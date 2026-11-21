@@ -33,6 +33,10 @@
 (require 'gdev-commands)
 
 (declare-function gdev-lsp-start "../../tools/lsp/config" ())
+(declare-function gdev-codex "../../../lisp/gdev-codex" (&optional resume))
+(declare-function gdev-codex-resume "../../../lisp/gdev-codex" ())
+(declare-function gdev-codex-stop "../../../lisp/gdev-codex" ())
+(declare-function gdev-codex-diff "../../../lisp/gdev-codex" ())
 
 (defmacro gdev-default--with (category module &rest body)
   "Esegue BODY quando MODULE di CATEGORY è attivo."

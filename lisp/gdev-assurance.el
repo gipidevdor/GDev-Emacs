@@ -50,6 +50,7 @@
 (declare-function gdev-project-data "gdev-project" (root &optional stage))
 (declare-function gdev-project-read "gdev-project" (root))
 (declare-function gdev-project-json "gdev-project" (data))
+(declare-function gdev-project-catalog-data "gdev-project-catalog" (root descriptor))
 (declare-function gdev-project-suggest "gdev-project" (standard))
 (declare-function gdev-taxonomy-data "gdev-taxonomy" (&optional id))
 (declare-function gdev-procedures-plan "gdev-procedures" (root id))
