@@ -9,6 +9,9 @@ compilazione nativa. I processi separati rivelano dipendenze e legami
 dinamici che gli altri moduli possono aver già dichiarato nel processo
 che compila il bytecode.
 
+Usa percorsi assoluti per `GDEV_STATE_DIR` e `GDEV_USER_DIR`: un processo
+di compilazione nativa può partire da una cartella diversa dal chiamante.
+
 Un `require` nel corpo di una funzione non rende disponibili le macro durante
 la compilazione a freddo. Se il ponte usa una macro SQL definita nel nucleo,
 sposta quell'ambito in una funzione pubblica del modulo proprietario e dichiara

@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:c197d1ddf5379818d8a6acf22f85db7d89acecbfdfddf56c2be992f86556a62a -->
+<!-- Generato da GDev; non modificare. Fonti sha256:61ea003907da7d1c7fe369a88956a0fef7f2f0f79e574dc7f98efc4d97342172 -->
 
 # GDev-Emacs
 
@@ -109,7 +109,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-auto-modules.el | 721f5131485c82f3f1b6d716c3e6795f009c5fadf062e0fde145821282592795 |
 | lisp/gdev-capability.el | aeee58454258091d21b8ed49c37b25195cf97bb79f88eec3159caf89b83689ba |
 | lisp/gdev-cli.el | a5eb20365f76d94a5cbc9623abe6c104591af42486a12696aace548be0948c86 |
-| lisp/gdev-codex.el | b6ce2ac2e5bc8257da8fc57dd2f20f5c31e8654b55a074d96de8971ce12839ba |
+| lisp/gdev-codex.el | 03aad6902fa026f852d85f81ef94d906c5cc06f8aae0cb1acd2aa8b17e494983 |
 | lisp/gdev-commands.el | af6235669884c6fd15de021d331468e45befa2554567a547c2d2968a8c1fb80d |
 | lisp/gdev-compilation.el | 4e769449ff5a6695e8b87611eb29bc368ba7b024499cf260efeedeb61486249e |
 | lisp/gdev-core.el | f271dcfe1f7a04649e65b13d4feb74b5056429e79e3c723da2db4976f37d21fa |
@@ -178,7 +178,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | templates/assurance/catalog.eld | 755eb786cf469f677074359db2cc59a91f5ac185f98301d1312921ac05c979a2 |
 | test/behavior/project.feature | aff20e2119f54e4d2ae0cd2f045168c40c5849b528b311e93277b8361e80255c |
 | test/behavior/voice.feature | d7a30f5878f0c25bd9c51ba0cb2b1f07aa60f5160843ce55d171b886fef88e22 |
-| test/gdev-codex-test.el | 1d00c5dc4aab45b6d25bd4525e9c0a56cd122e124db2a4abbd287fbae6be6afa |
+| test/gdev-codex-test.el | d344fbf790d9820421ef2cc4ad3adf349a0f6149396e2ea7d8f1118d1057cdf0 |
 | test/gdev-gui-startup-check.el | 058f7536127bfd76c8c30eb106ac9d161e25320e280b1d2c680340ea436bf731 |
 | test/gdev-gui-startup-runner-test.py | 3ec06794e16efe40c10cb5877373938482a4b0f5c1365589c32e62a498caefa9 |
 | test/gdev-gui-startup-test.py | 2bdf4b39c49ad56d706bfdbc21ed8b62b7eb228e71a5381158de2996215878bf |
@@ -191,7 +191,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | test/gdev-reliability-worker.el | 9abc5583b4e4a3496ed2b5da42ac7654c1dc005e7b5f0b40062b31dc2b439907 |
 | test/gdev-self-assurance-test.el | 683a8b099a392fe2a65f973c1fb70973cea5b74b3699b3c61eb9a7e6588707a1 |
 | test/gdev-test-discovery-recovery-test.el | af1a7ba7f788a248bef2461ddbc25e06f54dbdc108ff07cc29d02f2a804649b5 |
-| test/gdev-voice-audio-test.el | cae67c03aa3187e623d6a8dc4734dcf0757b7de467d0ceda37f3f5333ceaafeb |
+| test/gdev-voice-audio-test.el | 6844e826c9239c550644cab4e6d299466299dde41909615338e218314b7412fc |
 | test/requirements-project-build.txt | 4c06121ce11e45bd57ded71af974982c8d8c2d211689b37b6a4d0bd23646c7be |
 | vendor/elpa/consult-3.10/consult-imenu.el | b517dca651e85dbe493b952f372785cc84d4b12d0dd8045f861790c1526fa653 |
 | vendor/elpa/earwig-0.2.0/GDEV.md | 9a9581a95878d670c1db27dd72c262af09e9b94d5388fba6f1c938e873501f44 |

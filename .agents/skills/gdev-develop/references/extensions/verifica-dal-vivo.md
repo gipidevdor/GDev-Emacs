@@ -98,6 +98,13 @@ per completare quella verifica.
   `cursor-in-non-selected-windows`, cambiano con `setq` solo nel buffer
   corrente. Per un'impostazione globale usa `setq-default` e verifica il
   valore in un buffer nuovo in un processo separato.
+- Per riconoscere il proprietario di un buffer richiedi anche
+  `local-variable-p`: `buffer-local-value` può restituire il valore
+  predefinito ereditato. Prova un buffer omonimo senza metadati locali
+  mentre il valore predefinito coincide con quello della sessione.
+- Le simulazioni delle primitive devono accettarne gli argomenti opzionali.
+  Il codice compilato può passare esplicitamente i valori nil che il
+  sorgente omette: verifica la prova anche con la libreria nativa caricata.
 - `test/gdev-test.el` carica già i file di prova: aggiungere `-l` sullo
   stesso file ridefinisce i test e interrompe l'esecuzione. Seleziona i
   test con l'espressione passata a `ert-run-tests-batch-and-exit`.

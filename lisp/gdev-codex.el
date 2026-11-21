@@ -44,7 +44,9 @@
 (defun gdev-codex--buffer (root)
   "Trova il terminale di ROOT senza riusare buffer di un altro proprietario."
   (let ((buffer (get-buffer (concat "*" (gdev-codex--name root) "*"))))
-    (when (and buffer (not (equal root (buffer-local-value 'gdev-codex-root buffer))))
+    (when (and buffer
+               (not (and (local-variable-p 'gdev-codex-root buffer)
+                         (equal root (buffer-local-value 'gdev-codex-root buffer)))))
       (user-error "Il nome del terminale Codex è occupato da un altro buffer; rinominalo prima di riprovare"))
     buffer))
 

@@ -256,8 +256,10 @@
                 ((symbol-function 'process-send-string) (lambda (_process text) (setq sent text)))
                 ((symbol-function 'process-send-eof) (lambda (_) (setq eof t)))
                 ((symbol-function 'process-live-p) (lambda (process) (eq process 'reader)))
-                ((symbol-function 'signal-process) (lambda (_process signal) (push signal signals)))
-                ((symbol-function 'continue-process) (lambda (_) (push 'continue signals))))
+                ((symbol-function 'signal-process)
+                 (lambda (_process signal &optional _remote) (push signal signals)))
+                ((symbol-function 'continue-process)
+                 (lambda (&optional _process _current-group) (push 'continue signals))))
         (unwind-protect
             (progn
               (gdev-voice-read)

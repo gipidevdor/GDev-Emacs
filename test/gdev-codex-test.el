@@ -38,8 +38,10 @@
     (unwind-protect
         (progn
           (with-current-buffer buffer (insert "User content"))
-          (should-error (gdev-codex--buffer root) :type 'user-error)
-          (should-error (gdev-codex-stop) :type 'user-error)
+          ;; Un valore ereditato non costituisce un'identità della sessione.
+          (cl-letf (((default-value 'gdev-codex-root) root))
+            (should-error (gdev-codex--buffer root) :type 'user-error)
+            (should-error (gdev-codex-stop) :type 'user-error))
           (should (equal "User content" (with-current-buffer buffer (buffer-string)))))
       (with-current-buffer buffer (set-buffer-modified-p nil))
       (kill-buffer buffer))))
