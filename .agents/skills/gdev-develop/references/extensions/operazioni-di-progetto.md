@@ -82,3 +82,10 @@ stesso processo. La vista deve mostrare un esito coerente con il registro,
 pubblicarlo una volta e conservare la selezione e il fuoco correnti.
 Nelle prove attendi la pubblicazione dell'esito: l'uscita del processo può
 precedere l'esecuzione della sentinella.
+
+Se installi la sentinella dopo la creazione del processo, gestisci anche
+un processo già terminato: la notifica precedente non viene ripetuta.
+Prova questa sequenza facendo terminare il processo reale prima che
+`make-process` restituisca il controllo al chiamante. Il completamento
+deve pubblicare l'esito una sola volta, senza aspettare il timeout né
+sostituire una richiesta avviata da un hook nel frattempo.

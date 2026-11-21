@@ -28,6 +28,8 @@
         (progn
           (with-temp-file (expand-file-name "earwig-edit.el" directory)
             (insert "(error \"Copia ELPA non autorizzata\")\n"))
+          (with-temp-file (expand-file-name "earwig.el" directory)
+            (insert "(error \"Autoload ELPA non autorizzato\")\n"))
           (with-temp-buffer
             (should
              (zerop
@@ -41,10 +43,39 @@
                 `(progn
                    (require 'gdev-voice)
                    (push ,directory load-path)
-                   (gdev-voice--fork 'earwig-edit)
-                   (unless (file-in-directory-p (symbol-file 'earwig-part-range 'defun)
-                                                (gdev-bundled-package-directory 'earwig))
-                     (error "Il simbolo non appartiene al fork locale")))))))))
+                   (autoload 'earwig-mode ,(expand-file-name "earwig" directory) nil t)
+                   (gdev-voice--fork)
+                   (dolist (symbol '(earwig-part-range earwig-mode))
+                     (unless (and (not (autoloadp (symbol-function symbol)))
+                                  (file-in-directory-p (symbol-file symbol 'defun)
+                                                       (gdev-bundled-package-directory 'earwig)))
+                       (error "Il simbolo non appartiene al fork locale: %S" symbol))))))))))
+      (delete-directory directory t))))
+
+(ert-deftest gdev-test-voice-rejects-an-already-loaded-foreign-fork ()
+  "Un autoload può essere sostituito; codice esterno caricato va rifiutato."
+  (let ((directory (make-temp-file "gdev-voice-foreign-" t)))
+    (unwind-protect
+        (progn
+          (with-temp-file (expand-file-name "earwig-edit.el" directory)
+            (insert "(defun earwig-part-range (&rest _) nil)\n(provide 'earwig-edit)\n"))
+          (with-temp-buffer
+            (should
+             (zerop
+              (call-process
+               (expand-file-name invocation-name invocation-directory) nil (current-buffer) nil
+               "--batch" "-Q" "-l" (gdev-config-file "early-init.el")
+               "-L" (gdev-config-file "lisp/")
+               "-L" (gdev-config-file "modules/ui/workbench/")
+               "--eval"
+               (prin1-to-string
+                `(progn
+                   (require 'gdev-voice)
+                   (load ,(expand-file-name "earwig-edit.el" directory) nil t t)
+                   (condition-case nil
+                       (progn (gdev-voice--fork 'earwig-edit)
+                              (error "È stata accettata una copia esterna"))
+                     (user-error nil)))))))))
       (delete-directory directory t))))
 
 (defmacro gdev-voice-test--document (text &rest body)

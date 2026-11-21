@@ -99,8 +99,8 @@
               (gdev-open-folder root)
               (should (equal (gdev-workspace-directory) root))
               (with-selected-window (gdev-layout-editor)
-                (should (equal root (gdev-default-directory)))
-                (should (equal root (gdev-build--root))))
+                (should (file-equal-p root (gdev-default-directory)))
+                (should (file-equal-p root (gdev-build--root))))
               (let ((compilation-start-hook
                      (cons (lambda (process) (setq build process)) compilation-start-hook)))
                 (call-interactively #'gdev-build))

@@ -155,6 +155,11 @@ timer, buffer e variabili della richiesta, anche se la configurazione cambia."
                                     #'gdev-env--finish-reader process nil
                                     '(error "Tempo scaduto durante la lettura dell'ambiente")))
           (set-process-sentinel process #'gdev-env--reader-sentinel)
+          ;; Un processo molto rapido può essere terminato mentre il
+          ;; sentinel era ancora `ignore'. La notifica non viene ripetuta
+          ;; quando lo sostituiamo: consegniamo anche questo esito già noto.
+          (when (memq (process-status process) '(exit signal))
+            (gdev-env--reader-sentinel process "finished\n"))
           process)
       (error
        (when (processp process) (delete-process process))

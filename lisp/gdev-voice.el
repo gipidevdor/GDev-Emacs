@@ -95,7 +95,11 @@ Si applicano a parole intere, anche composte, senza alterare i comandi scritti."
     (unless directory (user-error "Il fork Voce GDev non è nel registro dei pacchetti"))
     (setq load-path (cons directory (delete directory load-path)))
     (dolist (symbol '(earwig-part-range earwig-mode))
-      (when-let* ((file (and (fboundp symbol) (symbol-file symbol 'defun))))
+      ;; Un autoload è una promessa, non codice già caricato. In Emacs 30
+      ;; `symbol-file' può restituirne il nome di libreria non assoluto.
+      (when-let* ((file (and (fboundp symbol)
+                            (not (autoloadp (symbol-function symbol)))
+                            (symbol-file symbol 'defun))))
         (unless (file-in-directory-p file directory)
           (user-error "È già caricata un'altra copia di Earwig: riavvia GDev per usare il fork incluso"))))
     (let ((feature (or feature 'earwig)))

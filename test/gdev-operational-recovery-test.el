@@ -171,6 +171,26 @@
           (should-not gdev-env--refresh-process)
           (should-not gdev-env--refresh-request))))))
 
+(ert-deftest gdev-test-operational-environment-exit-before-sentinel-is-delivered ()
+  "Una shell già terminata viene consegnata senza aspettare il timeout."
+  (skip-unless (file-executable-p "/bin/sh"))
+  (gdev-test-operational--with-shell
+      "export GDEV_ENV_TEST_VALUE=completo\nexec /bin/sh -c \"$4\""
+    (let ((make (symbol-function 'make-process)))
+      (cl-letf (((symbol-function 'make-process)
+                 (lambda (&rest arguments)
+                   (let ((process (apply make arguments)))
+                     ;; Simula l'uscita prima che il lettore abbia installato
+                     ;; proprietà, timeout e sentinel definitivo.
+                     (while (process-live-p process)
+                       (accept-process-output process 0.02))
+                     process))))
+        (let ((process (gdev-env-refresh t)))
+          (should (process-get process 'gdev-env-finished))
+          (should (equal (getenv "GDEV_ENV_TEST_VALUE") "completo"))
+          (should-not gdev-env--refresh-process)
+          (should-not gdev-env--refresh-request))))))
+
 (ert-deftest gdev-test-operational-environment-synchronous-reader-is-bounded ()
   "La compatibilità Lisp mantiene errori sincroni e un limite per la shell."
   (skip-unless (file-executable-p "/bin/sh"))
