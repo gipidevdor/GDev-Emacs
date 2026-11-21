@@ -25,7 +25,6 @@
           (gdev-test-operational-shell (expand-file-name "shell" gdev-test-operational-directory))
           (gdev-state-directory (file-name-as-directory gdev-test-operational-directory))
           (gdev-env-variables '("GDEV_ENV_TEST_VALUE"))
-          (gdev-env--shell-timeout 2)
           (gdev-env--refresh-process nil)
           (gdev-env--refresh-request nil)
           (process-environment (copy-sequence process-environment))
@@ -43,9 +42,11 @@
 
 (defun gdev-test-operational--wait (process)
   "Attendi PROCESS con un limite indipendente dal timeout del lettore."
-  (let ((deadline (+ (float-time) 4)))
+  ;; Il caso riuscito usa il limite dell'applicazione, anche su CI carica.
+  ;; Le prove di scadenza hanno invece un limite breve esplicito.
+  (let ((deadline (+ (float-time) gdev-env--shell-timeout 2)))
     (while (and (not (process-get process 'gdev-env-finished)) (< (float-time) deadline))
-      (accept-process-output process 0.02))
+      (accept-process-output nil 0.02))
     (should (process-get process 'gdev-env-finished))
     (should-not (process-live-p process))
     (should-not (buffer-live-p (process-buffer process)))
@@ -190,6 +191,14 @@
           (should (equal (getenv "GDEV_ENV_TEST_VALUE") "completo"))
           (should-not gdev-env--refresh-process)
           (should-not gdev-env--refresh-request))))))
+
+(ert-deftest gdev-test-operational-environment-drains-output-before-delivering-exit ()
+  "La chiusura dello stdout non impedisce di ricevere l'uscita della shell."
+  (skip-unless (file-executable-p "/bin/sh"))
+  (gdev-test-operational--with-shell
+      "export GDEV_ENV_TEST_VALUE=completo\n/bin/sh -c \"$4\"\nexec 1>&-\n/bin/sleep 0.1"
+    (should (equal (gdev-env--from-login-shell)
+                   '(("GDEV_ENV_TEST_VALUE" . "completo"))))))
 
 (ert-deftest gdev-test-operational-environment-synchronous-reader-is-bounded ()
   "La compatibilità Lisp mantiene errori sincroni e un limite per la shell."

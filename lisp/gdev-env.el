@@ -175,7 +175,9 @@ La chiamata Lisp resta sincrona, lasciando eseguire timer e annullamento."
         (progn
           (setq process (gdev-env--read-login-shell
                          (lambda (values error) (setq done t pairs values failure error))))
-          (while (not done) (accept-process-output process 0.05))
+          ;; Attendi anche gli altri canali: stdout può essere già chiuso
+          ;; mentre stderr o la notifica di uscita devono ancora arrivare.
+          (while (not done) (accept-process-output nil 0.05))
           (if failure (signal (car failure) (cdr failure)) pairs))
       (when (and process (not done))
         (gdev-env--finish-reader process nil '(quit))))))

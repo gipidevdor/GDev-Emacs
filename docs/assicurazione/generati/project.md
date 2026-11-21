@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:3582b957ac3bddd9e205157ce3c2a563519eb98b508a536014183163339ac836 -->
+<!-- Generato da GDev; non modificare. Fonti sha256:4a1d30de3249344634f244e9a10a36dfd8fe1ed0977cf505b641d3b385405d50 -->
 
 # GDev-Emacs
 
@@ -110,7 +110,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-core.el | f271dcfe1f7a04649e65b13d4feb74b5056429e79e3c723da2db4976f37d21fa |
 | lisp/gdev-custom-db.el | 2b14e9553a8c0f91d9729a79e488e4c1280a351e94966a8f3132efc934f1b88e |
 | lisp/gdev-documents.el | 440e155c94a6c4ec62312d451509d83741a20877bf772ddf925163cd4be10dfc |
-| lisp/gdev-env.el | 2de9c5080b6a100736a5fed2c57309f240037100787ec293f499f6cf5601b11b |
+| lisp/gdev-env.el | 6fa4d40e870d7a9cb5d4ce5501b26aa9ef74441ca258bb5cd17c98a01813c414 |
 | lisp/gdev-evidence.el | 8b629159cedd0922c0b918f2e6c7f9ab5d20cfed8b1011099a08a124ebc661ba |
 | lisp/gdev-formal.el | ac02087c8f5eecf7bcfcf5686500410438a2b4d98a290769e7df814ead0bdd6d |
 | lisp/gdev-graph.el | 6c2d6348c545020ee07d5324dcb1310d77da782989464b5d1d40e8f97bdef6fd |
@@ -141,7 +141,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-voice-backend.el | 56f38459ca2a76e1d4d4eecac2925182c8b5afb5bc8a85d21e4c36973c86fe94 |
 | lisp/gdev-voice-italian.el | 71ec05e348a2c5f8f12452ce12cd0a5e138b7f084aea53bc86877ba6136a972c |
 | lisp/gdev-voice-view.el | f2ce7afe8b9b5b97f2bdc323f1821d0ab23c655c784ca15142f99589729745e6 |
-| lisp/gdev-voice.el | 5f2069d571ff9a8b880999a43f75fd35a225883b468d31dabcf0f3e658a49425 |
+| lisp/gdev-voice.el | 46eee733a581140f239936e32a42179f83f2d1df1c10e42181ec724f71cb2222 |
 | lisp/gdev-workspace-state.el | 51814b04bc20efc7661665d9b8fbe1bc323f5e869ced81740c2166a47b513ab1 |
 | lisp/gdev-workspaces.el | 897b21ce6cc65a46fada3c900a3a23729cb193513c672c333024851a366c8b29 |
 | lisp/gdev-xcode.el | eb92cd5cc5e44147609ad96560161196b719aeb40c68f9044df66d3fd7a68ef4 |
@@ -173,8 +173,8 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | test/gdev-gui-startup-runner-test.py | 3ec06794e16efe40c10cb5877373938482a4b0f5c1365589c32e62a498caefa9 |
 | test/gdev-gui-startup-test.py | 2bdf4b39c49ad56d706bfdbc21ed8b62b7eb228e71a5381158de2996215878bf |
 | test/gdev-install-test.el | c215955b46b1199751bcae74217a1a595643c519ab0a0cb7139a7384d28edd77 |
-| test/gdev-operational-recovery-test.el | 9e5d4146fd1dd0e86e0dfd9e3faaf32e5398839d59ad6fc5f53429f64fef4315 |
-| test/gdev-project-bdd-test.el | 254264db8d32c760b98190f943a5f0e83e184999f021c81404270b7870870c8b |
+| test/gdev-operational-recovery-test.el | b00b8136fa26e1c1d5900b1ab4cb0ba72440548b07bece4201e99d7998a10889 |
+| test/gdev-project-bdd-test.el | f0f1dce3bbe3537c2dd782d2ee89f6fb007b363660d06026acdb2408f5780ba6 |
 | test/gdev-reliability-test.py | 1903c98796ef047fbdce5b541cbe939a0093a52c316d3162938b851928ac682b |
 | test/gdev-reliability-worker.el | 9abc5583b4e4a3496ed2b5da42ac7654c1dc005e7b5f0b40062b31dc2b439907 |
 | test/gdev-self-assurance-test.el | 683a8b099a392fe2a65f973c1fb70973cea5b74b3699b3c61eb9a7e6588707a1 |
