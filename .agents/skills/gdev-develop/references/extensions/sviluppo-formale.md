@@ -20,7 +20,12 @@ che dichiarano un manifesto formale.
    nella nota del passaggio; il decisore è la persona, l'esecuzione è
    dell'agente. Una decisione autonoma dell'agente conserva il tipo agente.
    Non aggiungere revisioni umane, firme o certificazioni mai avvenute.
-5. Dopo il codice finale ricollega scheda e istantanea aggiornate, passa a
+5. Quando cambia il manifesto, rigenera anche i documenti che lo includono
+   con `gdev agente assicurazione RADICE documenti`, poi il rapporto con
+   `rapporto-progetto`. Verifica entrambi con l'argomento `check` prima di
+   fissare l'istantanea e avviare la campagna: un rapporto aggiornato non
+   aggiorna automaticamente requisiti, rischi e tracciabilità.
+   Dopo il codice finale ricollega scheda e istantanea aggiornate, passa a
    **In verifica** ed esegui la procedura richiesta con
    `esegui-procedura ID PROCEDURA`. Conserva anche errori, interruzioni e
    tentativi superati; non riscrivere l'audit per far apparire un successo.
