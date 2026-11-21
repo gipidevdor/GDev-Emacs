@@ -150,10 +150,18 @@ else
     note "collegato $config_home/emacs -> $root"
 fi
 for shadow in "$HOME/.emacs" "$HOME/.emacs.el" "$HOME/.emacs.d"; do
-    [ -e "$shadow" ] && note "$shadow conservato; GDev usa --init-directory e non dipende da questa precedenza"
+    [ -e "$shadow" ] && note "$shadow verrà conservato nel backup dell'ingresso Emacs"
 done
-ln -sf "$root/bin/gdev" "$HOME/.local/bin/gdev"
-note "collegato ~/.local/bin/gdev -> bin/gdev"
+cli_link=$HOME/.local/bin/gdev
+if [ -L "$cli_link" ] && [ "$cli_link" -ef "$root/bin/gdev" ]; then
+    note "$cli_link -> $root/bin/gdev"
+elif [ -e "$cli_link" ] || [ -L "$cli_link" ]; then
+    note "$cli_link esistente conservato; da terminale usa \"$root/bin/gdev\""
+else
+    # Senza -f: anche una destinazione creata nel frattempo resta intatta.
+    ln -s "$root/bin/gdev" "$cli_link"
+    note "collegato $cli_link -> $root/bin/gdev"
+fi
 case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;
     *) note "aggiungi ~/.local/bin al PATH nel profilo della shell per usare gdev ovunque" ;;
@@ -169,8 +177,9 @@ fi
 
 cat <<'EOF'
 
-Installazione completata. L'ingresso grafico dedicato è GDev-Emacs.app
-in ~/Applications (oppure GDEV_APPLICATIONS_DIR). Puoi aggiungerlo al Dock.
+Installazione completata. Anche l'icona Emacs ordinaria apre GDev.
+L'ingresso dedicato GDev-Emacs.app è in ~/Applications (oppure
+GDEV_APPLICATIONS_DIR). Puoi aggiungere entrambe le icone al Dock.
 Da terminale usa gdev emacs: seleziona esplicitamente questa distribuzione.
 
 I segreti non vanno mai nei file.  Salva ciascuno, una volta sola, nel

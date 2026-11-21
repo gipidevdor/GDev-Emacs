@@ -25,6 +25,7 @@
 (require 'cl-lib)
 (require 'gdev-lib)
 (require 'gdev-handlers)
+(require 'gdev-project-types)
 (require 'gdev-keys)
 (require 'gdev-language-modes)
 
@@ -73,38 +74,38 @@
 
 (declare-function gdev-run-file-with "../../tools/build/config")
 
-(defun gdev-js--deno-p ()
+(defun gdev-js--deno-p (&optional root)
   "Restituisce non nil se il file aperto va eseguito con Deno.
-Sempre per TypeScript; per JavaScript, a meno che il progetto abbia un
-package.json e Node sia installato."
-  (or (derived-mode-p 'typescript-ts-base-mode)
-      (not (executable-find "node"))
-      (not (gdev-project-file-exists-p (gdev-project-root) "package.json"))
-      (gdev-project-file-exists-p (gdev-project-root) "deno.json" "deno.jsonc")))
+JavaScript e TypeScript seguono i manifesti del progetto. Per un file
+isolato, senza manifesto, usa Deno. ROOT, se presente, indica il pacchetto."
+  (not (eq (gdev-project-javascript-runtime
+            (or root (gdev-project-javascript-root default-directory (gdev-project-root)))) 'node)))
 
 (defun gdev-js-run-file (&optional ask-arguments)
   "Esegue il file aperto; con ASK-ARGUMENTS richiede di nuovo gli argomenti."
-  (gdev-run-file-with (if (gdev-js--deno-p) '("deno" "run" "--allow-read" "--allow-env") '("node"))
-                      ask-arguments))
+  (let ((root (gdev-project-javascript-root default-directory (gdev-project-root))))
+    (gdev-run-file-with (if (gdev-js--deno-p root) '("deno" "run" "--allow-read" "--allow-env") '("node"))
+                        ask-arguments root)))
 
 (defun gdev-js-test-file ()
   "Esegue i test del file aperto (deno test, o node --test)."
   (let ((file (or buffer-file-name (user-error "Apri prima il file di test")))
-        (root (gdev-project-root)))
+        (root (gdev-project-javascript-root default-directory (gdev-project-root))))
     (save-buffer)
-    (gdev-compile (if (gdev-js--deno-p)
+    (gdev-compile (if (gdev-js--deno-p root)
                       (gdev-command-line "deno" "test" (file-local-name file))
                     (gdev-command-line "node" "--test" (file-local-name file)))
                   (format "Test JavaScript · %s" (abbreviate-file-name file)) root)))
 
 (defun gdev-js-repl ()
   "Restituisci un buffer con l'interprete JavaScript di Deno o Node."
-  (let* ((default-directory (gdev-project-root))
+  (let* ((default-directory (gdev-project-javascript-root default-directory (gdev-project-root)))
          (name (format "Interprete JavaScript · %s"
-                       (abbreviate-file-name (directory-file-name default-directory)))))
-    (if (and (executable-find "deno") (gdev-js--deno-p))
-        (make-comint name "deno" nil "repl")
-      (make-comint name "node" nil "--interactive"))))
+                       (abbreviate-file-name (directory-file-name default-directory))))
+         (program (if (gdev-js--deno-p default-directory) "deno" "node")))
+    (unless (gdev-executable-in program default-directory)
+      (user-error "%s non è disponibile per questo progetto" program))
+    (make-comint name program nil (if (equal program "deno") "repl" "--interactive"))))
 
 (defun gdev-js-debug-file ()
   "Esegue passo passo del file aperto con lo strumento di diagnosi di Node.

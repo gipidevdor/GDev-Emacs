@@ -75,7 +75,10 @@ Una cartella che contiene già file si apre dal cruscotto.
 In Emacs un'area di testo può contenere un file, un documento senza nome o il
 testo mostrato da uno strumento, come i risultati di una compilazione.
 
-Gli spazi di lavoro si salvano all'uscita. Dal cruscotto, **Riprendi ultima sessione**
+Gli spazi di lavoro si conservano ogni 30 secondi, alla prima pausa nella
+scrittura, e all'uscita. Il recupero periodico comprende anche cambiamenti
+di schede, cartelle, documento attivo e disposizione dei gruppi, senza
+richiedere una nuova modifica al testo. Dal cruscotto, **Riprendi ultima sessione**
 (`C-c q l`) ripristina lo spazio attivo, i file locali con la posizione del cursore,
 i gruppi di modifica, le cartelle e la vista laterale. Terminali, agenti e risultati
 temporanei appartengono alla sessione in corso.
@@ -308,6 +311,10 @@ una voce per eseguirla o usa **Esegui tutti i test**. Dopo una prova puoi
 rieseguire i falliti o aprire il sorgente dalla stessa vista.
 Negli spazi con più pacchetti la vista segue il pacchetto del documento attivo.
 Quando cambi pacchetto, usa **Rileva test** per caricare il nuovo catalogo.
+Se il rilevamento fallisce, **Apri registro** mostra comando, cartella e
+diagnosi completa; **Riprova** ripete il rilevamento. Durante l'attesa puoi
+usare **Interrompi rilevamento**. Un risultato interrotto o superato non
+sostituisce il catalogo corrente.
 
 #### Ispezionare le variabili
 
@@ -831,8 +838,12 @@ lunghezza normale. I file più grandi usano la modalità lessicale.
 anche per file piccoli. Puoi sempre scegliere una modalità esplicita,
 per esempio `M-x js-ts-mode`.
 
-Deno fornisce il server di linguaggio, la formattazione e l'esecuzione dei test nei
-progetti Deno e Node. I modelli di pagina di Template Toolkit, Mojolicious e Jinja
+Deno fornisce il server di linguaggio e la formattazione. Esecuzione, test
+del documento e riquadro **Test** seguono lo stesso pacchetto: `deno.json`
+o `deno.jsonc` scelgono Deno, `package.json` sceglie Node; senza manifesto
+si usa Deno. La regola vale anche per TypeScript e per i pacchetti annidati.
+Se manca il motore scelto, il comando segnala il prerequisito da preparare.
+I modelli di pagina di Template Toolkit, Mojolicious e Jinja
 si aprono in `web-mode`. Emmet espande `ul>li*3` con `C-j`. `C-c l b` apre la pagina
 nel navigatore e `C-c l s` avvia un server locale per la cartella. In una sezione Org con
 l'etichetta `:verb:`, `C-c C-r C-r` invia la richiesta HTTP scritta sotto il titolo.

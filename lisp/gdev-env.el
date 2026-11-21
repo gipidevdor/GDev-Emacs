@@ -40,6 +40,18 @@ I segreti (chiavi API, token) mancano di proposito: il file salvato è in
 chiaro.  Le credenziali arrivano invece da auth-source."
   :type '(repeat string))
 
+(defconst gdev-env--shell-timeout 5
+  "Secondi massimi concessi alla shell per leggere l'ambiente.")
+
+(defvar gdev-env--refresh-process nil
+  "Lettura asincrona dell'ambiente ancora in corso.")
+
+(defvar gdev-env--refresh-request nil
+  "Identità della richiesta corrente, pubblicata prima di avviare la shell.")
+
+(defvar gdev-env-after-refresh-hook nil
+  "Funzioni che aggiornano gli strumenti dopo una nuova lettura dell'ambiente.")
+
 (defun gdev-env-file ()
   "Restituisce il file in cui è salvato l'ambiente."
   (gdev-state-db-file))
@@ -80,32 +92,145 @@ chiaro.  Le credenziali arrivano invece da auth-source."
   (gdev-env--write (mapcar (lambda (name) (cons name (getenv name))) gdev-env-variables))
   (message "Salvate %d variabili in %s" (length gdev-env-variables) (gdev-env-file)))
 
-(defun gdev-env--from-login-shell ()
-  "Restituisce i valori di `gdev-env-variables' in una shell di login.
-La shell è interattiva, come quella di un terminale.  I valori arrivano
-separati da NUL, quindi un a capo dentro un valore non crea problemi."
-  (let* ((shell (or (getenv "SHELL") "/bin/zsh"))
-         (marker "__GDEV_ENV__")
-         ;; Il marcatore separa i valori da qualunque messaggio stampi la shell.
-         (script (concat (format "printf '\\0%s\\0'; " marker)
-                         (mapconcat (lambda (name) (format "printf '%%s\\0' \"${%s-}\"" name))
-                                    gdev-env-variables "; ")))
-         (output (with-temp-buffer
-                   (call-process shell nil '(t nil) nil "-l" "-i" "-c" script)
-                   (buffer-string)))
-         (values (cdr (member marker (split-string output "\0")))))
-    (unless (>= (length values) (length gdev-env-variables))
-      (error "Impossibile leggere l'ambiente da %s" shell))
-    (cl-mapcar (lambda (name value) (cons name (unless (string-empty-p value) value)))
-               gdev-env-variables values)))
+(defun gdev-env--finish-reader (process pairs failure)
+  "Termina PROCESS una sola volta e consegna PAIRS oppure FAILURE."
+  (unless (process-get process 'gdev-env-finished)
+    (process-put process 'gdev-env-finished t)
+    (when-let* ((timer (process-get process 'gdev-env-timer)))
+      (cancel-timer timer)
+      (process-put process 'gdev-env-timer nil))
+    (set-process-sentinel process #'ignore)
+    (when (process-live-p process) (delete-process process))
+    (dolist (buffer (list (process-buffer process) (process-get process 'gdev-env-errors)))
+      (when (buffer-live-p buffer)
+        (when-let* ((child (get-buffer-process buffer)))
+          (set-process-query-on-exit-flag child nil)
+          (delete-process child))
+        (kill-buffer buffer)))
+    (funcall (process-get process 'gdev-env-callback) pairs failure)))
 
-(defun gdev-env-refresh ()
-  "Leggi l'ambiente da una shell di login, salvalo e applicalo."
+(defun gdev-env--reader-sentinel (process _event)
+  "Convalida l'uscita della shell PROCESS prima di consegnare i valori."
+  (when (memq (process-status process) '(exit signal))
+    (condition-case err
+        (progn
+          (unless (and (eq (process-status process) 'exit) (zerop (process-exit-status process)))
+            (error "La shell non ha completato la lettura dell'ambiente"))
+          (let* ((variables (process-get process 'gdev-env-variables))
+                 (values (with-current-buffer (process-buffer process)
+                           (cdr (member "__GDEV_ENV__" (split-string (buffer-string) "\0"))))))
+            ;; Ogni valore, anche vuoto, deve avere il proprio NUL finale.
+            (unless (> (length values) (length variables))
+              (error "La shell ha restituito un ambiente incompleto"))
+            (gdev-env--finish-reader
+             process (cl-mapcar (lambda (name value) (cons name (unless (string-empty-p value) value)))
+                                variables values) nil)))
+      (error (gdev-env--finish-reader process nil err)))))
+
+(defun gdev-env--read-login-shell (callback)
+  "Leggi l'ambiente in un processo e consegna a CALLBACK valori ed errore.
+La shell interattiva di login ha un tempo limitato. Il processo possiede
+timer, buffer e variabili della richiesta, anche se la configurazione cambia."
+  (let* ((shell (or (getenv "SHELL") "/bin/zsh"))
+         (variables (copy-sequence gdev-env-variables))
+         (script (concat "printf '\\0__GDEV_ENV__\\0'; "
+                         (mapconcat (lambda (name) (format "printf '%%s\\0' \"${%s-}\"" name))
+                                    variables "; ")))
+         (default-directory temporary-file-directory)
+         (process-environment (default-value 'process-environment))
+         (exec-path (default-value 'exec-path))
+         (output (generate-new-buffer " *gdev-env-output*"))
+         (errors (generate-new-buffer " *gdev-env-errors*"))
+         process)
+    (condition-case err
+        (progn
+          (setq process (make-process :name "gdev-env" :noquery t :connection-type 'pipe
+                                      :buffer output :stderr errors :coding 'utf-8-unix
+                                      :command (list shell "-l" "-i" "-c" script) :sentinel #'ignore))
+          (process-put process 'gdev-env-callback callback)
+          (process-put process 'gdev-env-errors errors)
+          (process-put process 'gdev-env-variables variables)
+          (process-put process 'gdev-env-timer
+                       (run-at-time (max 0.01 gdev-env--shell-timeout) nil
+                                    #'gdev-env--finish-reader process nil
+                                    '(error "Tempo scaduto durante la lettura dell'ambiente")))
+          (set-process-sentinel process #'gdev-env--reader-sentinel)
+          process)
+      (error
+       (when (processp process) (delete-process process))
+       (kill-buffer output)
+       (kill-buffer errors)
+       (signal (car err) (cdr err))))))
+
+(defun gdev-env--from-login-shell ()
+  "Restituisci l'ambiente della shell entro `gdev-env--shell-timeout'.
+La chiamata Lisp resta sincrona, lasciando eseguire timer e annullamento."
+  (let (done pairs failure process)
+    (unwind-protect
+        (progn
+          (setq process (gdev-env--read-login-shell
+                         (lambda (values error) (setq done t pairs values failure error))))
+          (while (not done) (accept-process-output process 0.05))
+          (if failure (signal (car failure) (cdr failure)) pairs))
+      (when (and process (not done))
+        (gdev-env--finish-reader process nil '(quit))))))
+
+(defun gdev-env-refresh-cancel ()
+  "Annulla la lettura dell'ambiente conservando i valori precedenti."
   (interactive)
-  (let ((pairs (gdev-env--from-login-shell)))
+  (let ((process gdev-env--refresh-process))
+    (setq gdev-env--refresh-request nil gdev-env--refresh-process nil)
+    (when process
+      (gdev-env--finish-reader process nil '(quit))
+      (when (called-interactively-p 'interactive) (message "Aggiornamento dell'ambiente annullato")))))
+
+(defun gdev-env--publish (pairs)
+  "Salva PAIRS prima di applicarlo all'applicazione, fuori dai buffer di progetto."
+  (with-temp-buffer
     (gdev-env--write pairs)
     (gdev-env--apply pairs)
-    (message "Ambiente aggiornato da %s" (getenv "SHELL"))))
+    (with-demoted-errors "Aggiornamento degli strumenti: %S"
+      (run-hooks 'gdev-env-after-refresh-hook))))
+
+(defun gdev-env--complete-refresh (request file pairs failure)
+  "Pubblica PAIRS di REQUEST soltanto nel profilo FILE ancora corrente.
+FAILURE viene segnalato solo per la richiesta ancora valida."
+  (when (eq request gdev-env--refresh-request)
+    (setq gdev-env--refresh-request nil gdev-env--refresh-process nil)
+    (when failure (signal (car failure) (cdr failure)))
+    (unless (equal file (gdev-env-file))
+      (error "Il profilo è cambiato durante la lettura dell'ambiente"))
+    (gdev-env--publish pairs)
+    (message "Ambiente aggiornato dalla shell")))
+
+(defun gdev-env-refresh (&optional asynchronous)
+  "Leggi l'ambiente della shell, salvalo e applicalo soltanto se completo.
+Con ASYNCHRONOUS, e nell'uso interattivo, lascia libero l'editor durante
+la lettura. Una nuova richiesta annulla quella precedente."
+  (interactive (list t))
+  (gdev-env-refresh-cancel)
+  (let ((file (gdev-env-file)) (request (list t)) process)
+    (setq gdev-env--refresh-request request)
+    (if (not asynchronous)
+        (unwind-protect
+            (gdev-env--complete-refresh request file (gdev-env--from-login-shell) nil)
+          (when (eq request gdev-env--refresh-request)
+            (setq gdev-env--refresh-request nil)))
+      (condition-case err
+          (setq process
+                (gdev-env--read-login-shell
+                 (lambda (pairs failure)
+                   (condition-case err
+                       (gdev-env--complete-refresh request file pairs failure)
+                     (error (display-warning 'gdev (format "%s. Conservo l'ambiente precedente."
+                                                          (error-message-string err))))))))
+        (error
+         (when (eq request gdev-env--refresh-request) (setq gdev-env--refresh-request nil))
+         (signal (car err) (cdr err))))
+      ;; Il sentinel o un hook possono aver completato o sostituito la
+      ;; richiesta già durante l'avvio. Non sovrascrivere quella successiva.
+      (when (eq request gdev-env--refresh-request) (setq gdev-env--refresh-process process))
+      process)))
 
 (defun gdev-env-load ()
   "Applica l'ambiente salvato se è leggibile e valido."
@@ -143,7 +268,7 @@ Da Dock o Finder la variabile SHLVL manca: lì serve l'ambiente salvato."
          (not (gdev-env--from-shell-p)))
     (or (gdev-env-load)
         (condition-case nil
-            (progn (gdev-env-refresh) t)
+            (progn (gdev-env--add-tool-directories) (gdev-env-refresh t) t)
           (error
            (display-warning 'gdev "Uso l’ambiente di avvio. Per aggiornarlo esegui gdev env dal terminale.")
            (gdev-env--add-tool-directories))))

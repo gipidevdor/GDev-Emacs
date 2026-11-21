@@ -23,6 +23,7 @@
 (require 'gdev-writing)
 
 (declare-function gdev-editor-document "gdev-commands")
+(declare-function gdev-voice-session-kind "gdev-voice" (session))
 (declare-function gdev-context--timeline-target "gdev-context" ())
 
 ;;;; Menu dalle mappe dei tasti
@@ -279,7 +280,7 @@ scorciatoia completa."
                 (with-current-buffer (window-buffer editor) (gdev-writing-context-p)))]
      ["Scegli vista laterale…" gdev-activity-select :key-sequence "C-c w v"]
      ("Attività"
-      ["Esplora file" gdev-sidebar-focus]
+      ["Esplora file" gdev-sidebar-select]
       ["Cerca" gdev-search-show]
       ["Hit" gdev-project-view-git :visible (gdev-module-p :tools 'git)]
       ["Debug dello spazio" gdev-project-view-run]
@@ -412,6 +413,22 @@ scorciatoia completa."
      (:group "Azioni di controllo versione" gdev-git-map "C-c g"))
     (gdev-tools "Strumenti"
      ["Tavolozza dei comandi…" gdev-command-palette :key-sequence "s-P"]
+     ("Voce"
+      ["Pannello Voce" gdev-voice-open :key-sequence "C-c v v"]
+      ["Comando in italiano…" gdev-voice-execute :key-sequence "C-c v x"]
+      ["Dettatura" gdev-voice-start-dictation :key-sequence "C-c v d"]
+      ["Comando vocale" gdev-voice-start-command :key-sequence "C-c v c"]
+      ["Leggi testo" gdev-voice-read :key-sequence "C-c v l" :active (gdev-editor-document)]
+      ["Pausa o riprendi lettura" gdev-voice-pause :key-sequence "C-c v p"
+       :active (and (bound-and-true-p gdev-voice--session)
+                    (eq 'read (gdev-voice-session-kind gdev-voice--session)))]
+      ["Interrompi voce" gdev-voice-stop :key-sequence "C-c v s"
+       :active (bound-and-true-p gdev-voice--active)]
+      "--"
+      ["Scegli voce italiana…" gdev-voice-select-voice :key-sequence "C-c v i"]
+      ["Memorizza correzione vocale…" gdev-voice-learn-correction :key-sequence "C-c v r"]
+      ["Diagnosi del motore vocale" gdev-voice-diagnostics]
+      ["Attiva riconoscimento locale…" gdev-voice-prepare :key-sequence "C-c v a"])
      ["Preferenze…" (gdev-preferences-open gdev-open-private-config) :key-sequence "s-,"]
      ["Scorciatoie…" gdev-preferences-open-shortcuts]
      ["Filtra preferenze…" gdev-preferences-filter :active (derived-mode-p 'gdev-preferences-mode)]
@@ -439,6 +456,7 @@ scorciatoia completa."
      (:group "Agenti" gdev-agent-map "C-c a")
      (:group "Note e procedure" gdev-notes-map "C-c n")
      ["Installa grammatiche dei linguaggi" gdev-treesit-install-grammars]
+     ["Sincronizza il profilo GDev" gdev-sync]
      (:tool-actions)
      (:catalog))
     (gdev-window "Finestra"
@@ -477,6 +495,7 @@ scorciatoia completa."
      ["Ingrandisci o ripristina riquadro" gdev-toggle-maximize-window]
      (:group "Disposizione e spazi di lavoro" gdev-workspace-map "C-c w"))
     (gdev-help "Aiuto"
+     ["Primi passi con GDev…" gdev-dashboard-first-steps]
      ["Scorciatoie di GDev" gdev-cheat-sheet]
      ["Diagnosi dell’ambiente" gdev-doctor]
      ("Ambiente della shell"

@@ -111,8 +111,8 @@
 		("project-report"
 		 "gdev-test-project-real-lifecycle-requires-current-runs-and-invalidates-changes")
 		:procedure "GDEV-VERIFY")
-   (:id "GDEV-P07" :version 3 :statement
-		"Tasti, pulsanti, menu, CLI e MCP devono usare gli stessi servizi e preservare il contesto dello spazio. La consultazione evita scansioni di verifica superflue e mantiene navigazione, filtri e azioni accessibili nelle finestre strette. La selezione di un risultato di ricerca aggiorna solo il suo controllo e il riepilogo; le frecce, Invio e Spazio mantengono distinte navigazione, apertura e selezione per la sostituzione."
+   (:id "GDEV-P07" :version 4 :statement
+		"Tasti, pulsanti, menu, CLI e MCP devono usare gli stessi servizi e preservare il contesto dello spazio. La consultazione evita scansioni di verifica superflue e mantiene navigazione, filtri e azioni accessibili nelle finestre strette. La selezione di un risultato di ricerca aggiorna solo il suo controllo e il riepilogo; le frecce, Invio e Spazio mantengono distinte navigazione, apertura e selezione per la sostituzione. Il rilevamento dei test conserva la diagnosi dei comandi falliti e offre apertura del registro, ripetizione e annullamento; comandi sul documento e catalogo condividono radice e runtime JavaScript e TypeScript."
 		:origin "Mandato dell’utente e AGENTS.md" :rationale
 		"Rendere lo sviluppo controllato e dimostrabile"
 		:category usability :priority must :criticality high
@@ -127,7 +127,12 @@
 		 "lisp/gdev-assurance.el"
 		 "lisp/gdev-cli.el"
 		 "lisp/gdev-assurance-actions.el"
-		 "lisp/gdev-assurance-api.el")
+		 "lisp/gdev-assurance-api.el"
+                "lisp/gdev-project-types.el"
+                "modules/lang/javascript/config.el"
+                "modules/ui/workbench/gdev-project-view.el"
+                "modules/ui/workbench/gdev-test-catalog.el"
+                "test/gdev-test-discovery-recovery-test.el")
 		:tests
 		("gdev-test-assurance-ui-all-sections-render-and-official-source-is-an-explicit-action"
 		 "gdev-test-assurance-view-keeps-informational-reads-small"
@@ -144,7 +149,17 @@
 		 "gdev-test-search-selection-rebuilds-after-geometry-or-component-change"
 		 "gdev-test-search-arrows-open-and-selection-share-visible-target"
 		 "gdev-test-search-selection-keeps-button-role-with-font-padding"
-		 "test/gdev-cli-contract-test.py")
+		 "test/gdev-cli-contract-test.py"
+                "gdev-test-discovery-retains-stderr-and-opens-the-log"
+                "gdev-test-discovery-retry-replaces-the-failed-request"
+                "gdev-test-discovery-cancel-discards-a-late-notification"
+                "gdev-test-discovery-replacement-rejects-an-old-result"
+                "gdev-test-discovery-log-is-released-when-the-view-closes"
+                "gdev-test-discovery-changing-project-releases-the-old-log"
+                "gdev-test-discovery-immediate-completion-keeps-the-result"
+                "gdev-test-discovery-javascript-runtime-follows-the-same-manifests"
+                "gdev-test-discovery-javascript-document-and-catalog-follow-the-nested-package"
+                "gdev-test-discovery-javascript-repl-does-not-substitute-a-missing-runtime")
 		:procedure "GDEV-VERIFY")
 	   (:id "GDEV-P08" :version 1 :statement
 		"La simulazione deve validare tutto il piano senza scritture o creazione implicita di un archivio."
@@ -201,8 +216,8 @@
 		 "test/gdev-reliability-test.py")
 		:tests ("test/gdev-reliability-test.py") :procedure
 		"GDEV-VERIFY")
-	   (:id "GDEV-Q03" :version 1 :statement
-		"Gli spazi devono conservare stato coerente e isolato attraverso aggiornamenti, errori e ripristini."
+	   (:id "GDEV-Q03" :version 2 :statement
+		"Gli spazi devono conservare stato coerente e isolato attraverso aggiornamenti, errori e ripristini. Il checkpoint comprende schede, cartelle e disposizione anche senza nuove modifiche al testo. L'ambiente della shell viene pubblicato completo, con attesa limitata e senza accettare richieste annullate o superate."
 		:origin "Mandato dell’utente e AGENTS.md" :rationale
 		"Rendere lo sviluppo controllato e dimostrabile"
 		:category quality :priority must :criticality high
@@ -211,8 +226,23 @@
 		"Tutti i casi di verifica collegati devono risultare superati sulla revisione corrente."
 		:method test :sources
 		("lisp/gdev-workspace-state.el"
-		 "test/gdev-reliability-worker.el")
-		:tests ("test/gdev-reliability-test.py") :procedure
+		 "test/gdev-reliability-worker.el"
+                "lisp/gdev-workspaces.el"
+                "lisp/gdev-env.el"
+                "lisp/gdev-core.el"
+                "test/gdev-operational-recovery-test.el")
+		:tests ("test/gdev-reliability-test.py"
+                "gdev-test-operational-environment-refresh-keeps-the-editor-responsive"
+                "gdev-test-operational-environment-timeout-preserves-the-cache"
+                "gdev-test-operational-environment-cancel-and-supersede"
+                "gdev-test-operational-environment-invalid-output-and-profile-change"
+                "gdev-test-operational-environment-immediate-completion-keeps-request-identity"
+                "gdev-test-operational-environment-synchronous-reader-is-bounded"
+                "gdev-test-operational-environment-failed-shell-and-write-are-atomic"
+                "gdev-test-operational-environment-keeps-project-overrides"
+                "gdev-test-operational-environment-refreshes-automatic-xref-only"
+                "gdev-test-operational-checkpoint-keeps-workspace-changes-without-edits"
+                "gdev-test-operational-checkpoint-ignores-cursor-motion") :procedure
 		"GDEV-VERIFY")
 	   (:id "GDEV-Q04" :version 1 :statement
 		"Le letture non devono scrivere dati e l’audit deve rilevare alterazioni anche quando i trigger vengono ripristinati."
@@ -239,11 +269,18 @@
 		:method test :sources
 		("vendor/pacchetti.el"
 		 "modules/emacs/ibuffer/config.el"
-		 "lisp/gdev-commands.el")
+		 "lisp/gdev-commands.el"
+                "lisp/gdev-voice-audio.el"
+                "lisp/gdev-voice-backend.el"
+                "test/gdev-voice-audio-test.el")
 		:tests
 		("gdev-test-forks-multiple-cursors-imports-the-same-clipboard-order"
 		 "gdev-test-forks-rebuilder-roundtrips-pcre-and-rx"
-		 "gdev-test-forks-sly-completion-fills-a-displayed-window-before-resizing")
+		 "gdev-test-forks-sly-completion-fills-a-displayed-window-before-resizing"
+                "gdev-test-voice-transcription-after-cancel-does-not-deliver"
+                "gdev-test-voice-transcription-immediate-result-does-not-retain-request"
+                "gdev-test-voice-transcription-releases-request-and-tracks-applied-text"
+                "gdev-test-voice-upstream-selection-preserves-transient-mark-mode")
 		:procedure "GDEV-VERIFY")
 	   (:id "GDEV-Q06" :version 1 :statement
 		"Il motore di assicurazione deve essere verificato sulle stesse fonti distribuite, distinguendo fixture e approvazioni reali."
@@ -367,8 +404,8 @@
                 "gdev-agent-interface-headless-procedure-failure-is-an-error"
                 "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
                 "test/gdev-cli-contract-test.py"))
-   (:id "GDEV-P14" :version 3
-        :statement "Le operazioni di progetto devono riconoscere il contesto dai manifesti, attivare gli adattatori necessari e preparare gli artefatti richiesti prima dell'esecuzione effettiva. Le scelte esplicite prevalgono sulle deduzioni; errori, annullamenti e risposte superate non producono un successo."
+   (:id "GDEV-P14" :version 4
+        :statement "Le operazioni di progetto devono riconoscere il contesto dai manifesti, attivare gli adattatori necessari e preparare gli artefatti richiesti prima dell'esecuzione effettiva. Le scelte esplicite prevalgono sulle deduzioni; errori, annullamenti e risposte superate non producono un successo. L'installazione instrada anche l'icona Emacs ordinaria verso GDev, conserva in un backup privato gli ingressi personali precedenti e ripristina gli spostamenti se la pubblicazione fallisce. La verifica nativa distingue i due ingressi e conserva avvisi e riscontri."
         :origin "Mandato dell'utente sull'ergonomia e l'autoconfigurazione per ogni tipo di progetto, inclusi Cpp, Perl e Python"
         :rationale "Governare l'integrazione automatica con un contratto tematico comune ed esiti osservabili"
         :category functional :priority must :criticality high :owner "Manutentori di GDev"
@@ -383,8 +420,15 @@
                   "modules/tools/build/gdev-project-control.el" "modules/tools/build/gdev-mise.el"
                   "modules/lang/python/config.el" ".gdev-project.eld"
                   "test/behavior/project.feature" "test/gdev-project-bdd-test.el" "test/requirements-project-build.txt"
-                  "docs/operazioni-progetto.md")
+                  "docs/operazioni-progetto.md"
+                ".github/workflows/ci.yml"
+                "test/gdev-gui-startup-test.py"
+                "test/gdev-gui-startup-check.el"
+                "test/gdev-gui-startup-runner-test.py"
+                "test/gdev-install-test.el"
+                ".gdev-assurance/procedures/cli.lavorazione")
         :tests ("gdev-test-make-recognizes-folders-without-git-for-every-marker"
+                "gdev-test-project-operation-fileless-editor-uses-workspace-and-keeps-explicit-context"
                 "gdev-test-make-default-build-produces-a-real-executable"
                 "gdev-test-make-variables-are-data-and-persist-per-project"
                 "gdev-test-project-operation-declarations-refresh-and-respect-personal-choices"
@@ -414,7 +458,42 @@
                 "gdev-test-behavior-project-test-python-dalla-cartella-senza-un-documento-aperto"
                 "gdev-test-behavior-project-un-errore-di-compilazione-conserva-il-percorso-di-recupero"
                 "gdev-test-behavior-project-configurazione-condivisa-dalla-sottocartella"
-                "gdev-test-behavior-project-preparazione-python-senza-ambiente-preliminare")))
+                "gdev-test-behavior-project-preparazione-python-senza-ambiente-preliminare"
+                "gdev-test-install-standard-entry-preserves-originals-and-is-idempotent"
+                "gdev-test-install-standard-entry-preserves-directory-and-broken-links"
+                "gdev-test-install-standard-entry-rolls-back-before-publication"
+                "gdev-test-install-standard-entry-backs-up-shadowing-bytecode"
+                "test/gdev-gui-startup-runner-test.py"))
+   (:id "GDEV-P15" :version 2
+        :statement "Comandi scritti, dettatura e lettura italiana devono integrarsi con le azioni e il contesto dell'editor, senza dipendenze vocali obbligatorie. Il riconoscitore facoltativo deve essere costruito dal fork gipidevdor/whisper.cpp alla revisione dichiarata e verificare origine, revisione e impronta dell'eseguibile, distintamente dai pesi GGML."
+        :origin "Mandato dell'utente: integrazione italiana, licenze compatibili, Whisper facoltativo, dipendenze minime"
+        :rationale "Usare l'editor con testo e voce senza perdere il controllo del documento o scaricare modelli implicitamente"
+        :category functional :priority must :criticality normal :owner "Manutentori di GDev"
+        :status accepted :applicability applicable :method test :procedure "GDEV-VERIFY"
+        :acceptance "Comandi scritti e vocali condividono grammatica e catalogo; sequenze incomplete non applicano effetti parziali. La lettura usa voci di sistema. Risposte superate, cambi di documento e arresti non scrivono altrove e rilasciano l'audio. Il riconoscimento è disattivato per impostazione iniziale; solo l'attivazione esplicita prepara modello e strumenti. Download riprendibile, dimensione, SHA-256, origine e licenza sono verificati. Le prove acustiche reali restano distinte dalle simulazioni senza microfono."
+        :sources ("lisp/gdev-voice.el" "lisp/gdev-voice-italian.el" "lisp/gdev-voice-audio.el"
+                  "lisp/gdev-voice-backend.el" "lisp/gdev-voice-view.el"
+                  "lisp/gdev-keys.el" "lisp/gdev-commands.el" "modules/config/default/config.el"
+                  "modules/ui/workbench/gdev-menu.el" "bin/gdev-voice-prepare.py"
+                  "bin/gdev-voice-models.json" "vendor/pacchetti.el" "vendor/elpa/earwig-0.2.0/GDEV.md"
+                  "vendor/licenze/Whisper-MIT.txt" "test/behavior/voice.feature" "docs/voce.md")
+        :tests ("gdev-test-voice-command-edits-the-real-document-and-can-undo"
+                "gdev-test-voice-upstream-contracts-have-verified-provenance"
+                "gdev-test-voice-loads-the-local-fork-before-an-elpa-namesake"
+                "gdev-test-voice-canceled-preparation-can-be-started-again"
+                "gdev-test-voice-preparation-completion-does-not-stop-reading-or-enable-after-cancel"
+                "gdev-test-voice-readiness-requires-a-real-health-response"
+                "gdev-test-voice-command-keeps-literals-and-validates-the-whole-chain"
+                "gdev-test-voice-disabled-does-not-install-start-or-download"
+                "gdev-test-voice-context-and-human-edit-invalidate-pending-text"
+                "gdev-test-voice-late-result-cannot-affect-a-new-session"
+                "gdev-test-voice-cancel-releases-recorders-requests-files-and-hooks"
+                "gdev-test-voice-italian-dictation-keeps-punctuation-and-literal-words"
+                "gdev-test-voice-reading-uses-stdin-selection-and-native-controls"
+                "gdev-test-voice-view-opens-without-audio-and-preserves-document"
+                "gdev-test-behavior-voice-selezione-strutturale-e-modifica-annullabile"
+                "gdev-test-behavior-voice-sequenza-incompleta-senza-effetti-parziali"
+                "test/gdev-voice-contract-test.py" "test/gdev-cli-contract-test.py")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs
@@ -592,7 +671,7 @@
 		("GDEV-P01" "GDEV-P02" "GDEV-P03" "GDEV-P04"
 		 "GDEV-P05" "GDEV-P06" "GDEV-P07" "GDEV-P08"
 		 "GDEV-P09" "GDEV-Q01" "GDEV-Q02" "GDEV-Q03"
-		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13" "GDEV-P14")
+		 "GDEV-Q04" "GDEV-Q05" "GDEV-Q06" "GDEV-Q07" "GDEV-P10" "GDEV-P11" "GDEV-P12" "GDEV-Q08" "GDEV-P13" "GDEV-P14" "GDEV-P15")
 		:outputs
 		("docs/assicurazione/generati/project.md"
 		 ".gdev/assurance/reports/reliability.json")

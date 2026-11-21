@@ -21,7 +21,7 @@
 ;;   gdev rollback [REV] prepara una copia di recupero di una revisione Git
 ;;   gdev --profile NOME COMANDO gestisce configurazione e stato del profilo
 ;;   gdev [--profile NOME] emacs [ARGOMENTI] avvia Emacs con la configurazione GDev
-;;   gdev doctor       diagnosi dell'ambiente, con il rimedio a ogni problema
+;;   gdev doctor [--json] diagnosi dell'ambiente, con il rimedio a ogni problema
 ;;   gdev stato verifica [FILE] | copie | copia [FILE] | recupera COPIA NUOVA_CARTELLA
 ;;                     verifica, copia o recupera lo stato del profilo
 ;;   gdev env          salva l'ambiente dell'interprete dei comandi (shell)
@@ -31,6 +31,8 @@
 ;;                     -w mostra gli avvisi
 ;;   gdev clean        elimina il bytecode del progetto e dei tre file privati
 ;;   gdev bench [N]    misura N volte l'avvio grafico (5 se omesso)
+;;   gdev bench flussi misura tavolozza, viste, ricerca e compilazione
+;;   gdev novita       elenca le modifiche registrate dopo l’ultimo tag v*
 ;;   gdev docs         rigenera docs/keymap.md dalle mappe dei tasti
 ;;   gdev audit        inventario JSON di moduli, menu, tasti e viste
 ;;   gdev test         esegue i test ERT con stato e configurazione temporanei
@@ -71,7 +73,7 @@
 (declare-function package-autoremove "package")
 (declare-function package-upgrade-all "package")
 (declare-function package-vc-upgrade-all "package-vc")
-(declare-function gdev-treesit-install-grammars "../modules/tools/tree-sitter/config" (&optional jobs))
+(declare-function gdev-treesit-install-grammars "../modules/tools/tree-sitter/config" (&optional jobs background))
 (declare-function gdev-doctor-run "gdev-doctor")
 (declare-function gdev-doctor-format "gdev-doctor")
 (declare-function gdev-fork-merge "gdev-fork-merge" (package base incoming))
@@ -400,7 +402,11 @@ ARGUMENTS può contenere -u per aggiornare prima tutti i pacchetti."
     (gdev-cli-doctor)
     (when (and (zerop status) (eq system-type 'darwin))
       (require 'gdev-install)
-      (gdev-cli--say "Ingresso grafico: %s" (gdev-install-macos-application)))
+      (gdev-cli--say "Ingresso grafico: %s" (gdev-install-macos-application))
+      (let ((entry (gdev-install-standard-entry)))
+        (gdev-cli--say "Anche l'icona Emacs ordinaria carica GDev: %s" (plist-get entry :entry))
+        (when-let* ((backup (plist-get entry :backup)))
+          (gdev-cli--say "Configurazioni Emacs originali conservate: %s (ripristino.eld)" backup))))
     status))
 
 (defun gdev-cli--git (&rest arguments)
@@ -493,16 +499,19 @@ ARGUMENTS può contenere -u per aggiornare prima tutti i pacchetti."
                  (abbreviate-file-name (gdev-env-file)) (length gdev-env-variables))
   0)
 
-(defun gdev-cli-doctor ()
+(defun gdev-cli-doctor (&optional format)
   "Controlla l'installazione; stato di uscita 1 se manca qualcosa che serve."
-  (gdev-cli--step "Diagnosi dell'ambiente (doctor)")
-  (gdev-cli--read-modules)
-  (gdev-cli--packages-initialize)
-  (gdev-cli--load-core)
-  (gdev-cli--load-modules)
+  (let ((standard-output (if format #'ignore standard-output)))
+    (gdev-cli--step "Diagnosi dell'ambiente (doctor)")
+    (gdev-cli--read-modules)
+    (gdev-cli--packages-initialize)
+    (gdev-cli--load-core)
+    (gdev-cli--load-modules))
   (require 'gdev-doctor)
   (let ((results (gdev-doctor-run)))
-    (princ (gdev-doctor-format results))
+    (if (equal format "--json")
+        (gdev-cli--say "%s" (gdev-doctor-json results))
+      (princ (gdev-doctor-format results)))
     (if (cl-find 'warning results :key #'car) 1 0)))
 
 (defun gdev-cli-compile (&rest arguments)
@@ -529,6 +538,20 @@ Fra gli ARGUMENTS, -w mostra gli avvisi e --native compila anche in nativo."
         (package-quickstart-refresh))
       (if (zerop failed) 0 1))))
 
+(defun gdev-cli-novita ()
+  "Stampa in Markdown le modifiche dalla versione raggiungibile più recente."
+  (let* ((default-directory gdev-config-directory)
+         (tag (with-temp-buffer
+                (when (zerop (process-file "git" nil '(t nil) nil "describe" "--tags" "--abbrev=0"
+                                           "--match" "v[0-9]*"))
+                  (string-trim (buffer-string)))))
+         (entries (process-lines "git" "log" "--no-merges" "--format=%s (%h)"
+                                 (if tag (concat tag "..HEAD") "HEAD") "--")))
+    (gdev-cli--say "# Novità di GDev%s\n" (if tag (concat " da " tag) ""))
+    (if entries (dolist (entry entries) (gdev-cli--say "- %s" entry))
+      (gdev-cli--say "Nessuna modifica registrata dopo %s." tag))
+    0))
+
 (defun gdev-cli-clean ()
   "Elimina il bytecode della copia di lavoro e dei file privati."
   (let ((files (delete-dups
@@ -540,10 +563,42 @@ Fra gli ARGUMENTS, -w mostra gli avvisi e --native compila anche in nativo."
     (gdev-cli--say "File compilati eliminati: %d." (length files))
     0))
 
-(defun gdev-cli-bench (&optional count)
+(defun gdev-cli--bench-flows ()
+  "Esegui il banco su dati isolati e conserva l'ultima misura nel profilo."
+  (let* ((directory (make-temp-file "gdev-bench-" t))
+         (output (expand-file-name "rapporto.eld" directory))
+         (process-environment (copy-sequence process-environment))
+         report)
+    (unwind-protect
+        (progn
+          (setenv "GDEV_PROFILE" nil)
+          (setenv "GDEV_STATE_DIR" (expand-file-name "stato" directory))
+          (setenv "GDEV_USER_DIR" (expand-file-name "profilo" directory))
+          (setenv "GDEV_BENCH_OUTPUT" output)
+          (let ((default-directory directory))
+            (unless (zerop (gdev-cli--run (expand-file-name invocation-name invocation-directory)
+                                          "--batch" "-Q" "-l" (gdev-config-file "early-init.el")
+                                          "--eval" "(package-initialize)" "-l" (gdev-config-file "init.el")
+                                          "-l" (gdev-config-file "bin/gdev-bench-workbench.el")
+                                          "-f" "gdev-bench-workbench"))
+              (user-error "Misura interrotta. Consulta l'errore del processo")))
+          (setq report (car (read-from-string (gdev-read-file-contents output)))))
+      (delete-directory directory t))
+    (gdev-state-db-set "applicazione" "" "misure_workbench" report)
+    (princ (gdev-doctor-format-measures report))
+    (if (seq-some (lambda (row) (when-let* ((limit (plist-get row :limite_ms)))
+                                  (>= (plist-get row :mediana_ms) limit)))
+                  (plist-get report :misure)) 1 0)))
+
+(declare-function gdev-doctor-format-measures "gdev-doctor" (report))
+
+(cl-defun gdev-cli-bench (&optional count)
   "Avvia COUNT volte l'Emacs grafico (5 se omesso).
 Riporta il tempo per caricare la configurazione e quello fino al primo
 momento di inattività."
+  (when (equal count "flussi")
+    (require 'gdev-doctor)
+    (cl-return-from gdev-cli-bench (gdev-cli--bench-flows)))
   (let* ((runs (string-to-number (or count "5")))
          (_ (unless (and (string-match-p "\\`[0-9]+\\'" (or count "5")) (> runs 0))
               (user-error "Indica un numero intero di avvii maggiore di zero")))
@@ -734,6 +789,9 @@ Il nucleo carica da solo, senza moduli né pacchetti."
   "Restituisci non nil se ARGUMENT è un intero positivo in base dieci."
   (string-match-p "\\`[1-9][0-9]*\\'" argument))
 
+(defun gdev-cli--bench-argument-p (argument)
+  (or (equal argument "flussi") (gdev-cli--positive-integer-p argument)))
+
 (defconst gdev-cli-commands
   '(("install" gdev-cli-install)
     ("sync" gdev-cli-sync (:flags "-u" "--no-docs" "--native"))
@@ -741,13 +799,14 @@ Il nucleo carica da solo, senza moduli né pacchetti."
     ("fork-merge" gdev-cli-fork-merge
      (:operands "PACCHETTO BASE NUOVO" 3 3 gdev-cli--operand-p))
     ("rollback" gdev-cli-rollback (:operands "[REVISIONE]" 0 1 gdev-cli--operand-p))
-    ("doctor" gdev-cli-doctor)
+    ("doctor" gdev-cli-doctor (:flags "--json"))
+    ("novita" gdev-cli-novita)
     ("test" gdev-cli-test)
     ("stato" gdev-cli-stato (:operands "verifica [FILE] | copie | copia [FILE] | recupera COPIA NUOVA_CARTELLA" 1 3 gdev-cli--operand-p))
     ("env" gdev-cli-env)
     ("compile" gdev-cli-compile (:flags "-w" "--native"))
     ("clean" gdev-cli-clean)
-    ("bench" gdev-cli-bench (:operands "[N]" 0 1 gdev-cli--positive-integer-p))
+    ("bench" gdev-cli-bench (:operands "[N | flussi]" 0 1 gdev-cli--bench-argument-p))
     ("docs" gdev-cli-docs)
     ("audit" gdev-cli-audit)
     ("assurance" gdev-cli-assurance

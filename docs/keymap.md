@@ -394,6 +394,21 @@ Rigenera questa mappa con `gdev docs` dopo aver modificato le scorciatoie.
 | `C-c t x` | controllo della sintassi |
 | `C-c t z` | modalità concentrazione |
 
+## C-c v — voce
+
+| Scorciatoia | Azione |
+| --- | --- |
+| `C-c v a` | attiva riconoscimento locale |
+| `C-c v c` | comando vocale |
+| `C-c v d` | dettatura |
+| `C-c v i` | scegli voce italiana |
+| `C-c v l` | leggi testo |
+| `C-c v p` | pausa o riprendi lettura |
+| `C-c v r` | memorizza correzione vocale |
+| `C-c v s` | interrompi voce |
+| `C-c v v` | pannello voce |
+| `C-c v x` | comando in italiano |
+
 ## C-c w — finestre e spazi di lavoro
 
 | Scorciatoia | Azione |

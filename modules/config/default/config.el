@@ -271,6 +271,20 @@
                      gdev-debug-restart))
     (put command 'repeat-map 'gdev-debug-map)))
 
+;;;; C-c v  voce
+
+(gdev-bind gdev-voice-map
+           "v" "pannello voce" #'gdev-voice-open
+           "x" "comando in italiano" #'gdev-voice-execute
+           "d" "dettatura" #'gdev-voice-start-dictation
+           "c" "comando vocale" #'gdev-voice-start-command
+           "l" "leggi testo" #'gdev-voice-read
+           "p" "pausa o riprendi lettura" #'gdev-voice-pause
+           "s" "interrompi voce" #'gdev-voice-stop
+           "i" "scegli voce italiana" #'gdev-voice-select-voice
+           "r" "memorizza correzione vocale" #'gdev-voice-learn-correction
+           "a" "attiva riconoscimento locale" #'gdev-voice-prepare)
+
 ;;;; C-c f  file
 
 (gdev-bind gdev-file-map

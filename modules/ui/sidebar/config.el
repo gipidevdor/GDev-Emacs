@@ -1451,14 +1451,19 @@ Con KEEP-FOCUS lascia il fuoco nella finestra chiamante."
         (unless (pos-visible-in-window-p (point) window) (recenter)))
       (select-window window))))
 
+(defun gdev-sidebar-select ()
+  "Mostra Esplora file e porta il fuoco nell'albero dello spazio."
+  (interactive)
+  (if-let* ((window (window-with-parameter 'gdev-sidebar t)))
+      (select-window window)
+    (gdev-sidebar-show (gdev-sidebar--workspace-root))))
+
 (defun gdev-sidebar-focus ()
   "Sposta il fuoco fra l'esplora file persistente e l'editor."
   (interactive)
-  (if-let* ((window (window-with-parameter 'gdev-sidebar t)))
-      (if (eq window (selected-window))
-          (gdev-focus-editor)
-        (select-window window))
-    (gdev-sidebar-show (gdev-sidebar--workspace-root))))
+  (if (window-parameter (selected-window) 'gdev-sidebar)
+      (gdev-focus-editor)
+    (gdev-sidebar-select)))
 
 (defun gdev-sidebar--workspace-root ()
   "Restituisce la cartella dell'albero o del documento attivo."

@@ -11,6 +11,8 @@
   ;; BDD Elisp GDev (originale Buttercup), integrazione locale 2026-11-20.
   (buttercup "1.41" "GPL-3.0-or-later" "https://github.com/jorgenschaefer/emacs-buttercup" "3bcf6cf0e164d558072a484f467169a0e77bd791")
   (cape "2.10" "GPL-3.0-or-later" "https://github.com/minad/cape" "50bc6187daf9af9df1a802fcbbd91fe4b952fc69")
+  ;; Voce GDev (originale Earwig), integrazione italiana 2026-11-21.
+  (earwig "0.2.0" "GPL-3.0-or-later" "https://github.com/thndrbrrr/earwig" "ecfb12505ec72ffb8e45d25390092c0988c3e583")
   ;; casual GDev (originale casual), manutenzione locale 2026-11-19.
   (casual "3.1.0" "GPL-3.0-or-later" "https://github.com/kickingvegas/casual" "d5166240f23e4481a32672cd952f7d117c647a0f")
   (claude-code-ide "0.3.0" "GPL-3.0-or-later" "https://github.com/manzaltu/claude-code-ide.el" "50a3d55262805d7207889ed429ff30da96fbf68b")

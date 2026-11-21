@@ -8,6 +8,12 @@ genera il Makefile o `Build` prima della costruzione e dei test. I moduli
 dei linguaggi si attivano anche senza un sorgente aperto, per il tempo
 richiesto dall'operazione.
 
+In un buffer senza file, come Appunti o la pagina iniziale, vale la cartella
+dello spazio se la cartella ereditata dal buffer appartiene a un altro
+progetto. Una sottocartella dello spazio resta utilizzabile. I documenti
+associati a un file conservano il proprio contesto; «Cambia progetto»
+mantiene la precedenza esplicita della cartella scelta.
+
 **Progetto › Controlla progetto** mostra cartella, sistema, profilo e
 strumento del motore, con azioni per compilare, configurare, eseguire i
 test e recuperare l'ambiente. La vista legge osservazioni locali; aprirla

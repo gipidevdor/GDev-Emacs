@@ -28,6 +28,7 @@
 
 (defvar project--list)
 (declare-function gdev-open-folder "gdev-commands")
+(declare-function gdev-workspace-roots "gdev-workspace-roots" (&optional frame))
 (declare-function project--ensure-read-project-list "project")
 (defvar gdev-dashboard-mode-map)        ; definita più sotto, con la modalità
 
@@ -173,17 +174,32 @@ ICONA è il nome di un file in icons/, senza estensione."
      (concat (format "%s · %s qui" label letter) (when shortcut (format " · %s ovunque" shortcut))))
     (keymap-local-set letter command)))
 
+(defun gdev-dashboard-first-steps ()
+  "Scegli un passo per il primo progetto e apri il comando corrispondente."
+  (interactive)
+  (let* ((has-folder (and (fboundp 'gdev-workspace-roots) (gdev-workspace-roots)))
+         (steps (seq-filter
+                 (lambda (step) (and (commandp (cdr step))
+                                     (or has-folder (eq (cdr step) 'gdev-open-folder))))
+                 '(("Apri una cartella…" . gdev-open-folder)
+                   ("Compila il progetto" . gdev-build)
+                   ("Apri Debug dello spazio" . gdev-project-view-run))))
+         (choice (completing-read (if has-folder "Primi passi: " "Per iniziare: ") steps nil t)))
+    (when-let* ((command (cdr (assoc choice steps))))
+      (call-interactively command))))
+
 (defun gdev-dashboard--insert-projects ()
   "Inserisce i progetti recenti, se ce ne sono."
   (require 'project)
   (project--ensure-read-project-list)
-  (when-let* ((projects (seq-take
+  (if-let* ((projects (seq-take
                          (seq-remove (lambda (root)
                                        (string-prefix-p gdev-state-directory
                                                         (file-name-as-directory (expand-file-name root))))
                                      (mapcar #'car project--list))
                          5)))
-    (insert "\n" (gdev-dashboard--align (- gdev-dashboard--half-width))
+    (progn
+      (insert "\n" (gdev-dashboard--align (- gdev-dashboard--half-width))
             (propertize "Progetti recenti" 'face 'gdev-dashboard-heading) "\n")
     (dolist (root projects)
       (let* ((compact (< gdev-dashboard--half-width 10))
@@ -201,7 +217,10 @@ ICONA è il nome di un file in icons/, senza estensione."
                  (gdev-dashboard--align (- indent gdev-dashboard--half-width))
                  (gdev-ui-fit-text label (- (* 2 gdev-dashboard--half-width) indent)
                                    #'gdev-dashboard--text-width))
-         root (lambda (_) (gdev-open-folder root)) (concat "Apri " path))))))
+         root (lambda (_) (gdev-open-folder root)) (concat "Apri " path)))))
+    (insert "\n")
+    (gdev-dashboard--insert-centered "Il tuo primo progetto" 'gdev-dashboard-heading)
+    (gdev-dashboard--insert-entry "?" "project" "Primi passi…" nil #'gdev-dashboard-first-steps)))
 
 (defun gdev-dashboard--update-selection ()
   "Evidenzia solo il pulsante alla posizione corrente."

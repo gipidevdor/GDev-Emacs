@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/thndrbrrr/earwig",
+  "revision": "ecfb12505ec72ffb8e45d25390092c0988c3e583",
+  "license": "GPL-3.0-or-later",
+  "license_file": "LICENSE",
+  "files": {
+    "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "test/earwig-test.el": "0574bfb55f65293b7afca526b406974985e7d7ff3b8ebbc552e19ff165aa5d7d"
+  }
+}

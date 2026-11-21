@@ -15,6 +15,7 @@ import subprocess
 import tempfile
 import time
 import unittest
+import importlib.util
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -835,6 +836,51 @@ fi
                     self.assertEqual((config / "init.el").read_text(), ";; personale\n")
                     shutil.rmtree(config)
 
+    def test_existing_cli_files_directories_and_foreign_links_are_preserved(self):
+        command = self.home / ".local/bin/gdev"
+        command.parent.mkdir(parents=True)
+        personal = self.directory / "comando personale"
+        personal.write_text("#!/bin/sh\necho personale\n")
+        for kind in ("file", "directory", "link", "broken-link"):
+            with self.subTest(kind=kind):
+                if kind == "file":
+                    command.write_text("comando da conservare\n")
+                elif kind == "directory":
+                    command.mkdir()
+                    (command / "personale").write_text("da conservare\n")
+                else:
+                    command.symlink_to(personal if kind == "link" else self.directory / "assente")
+                before = command.lstat()
+                result = self.bootstrap("--no-launch")
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("esistente conservato; da terminale usa", result.stdout)
+                self.assertIn(str(self.repository / "bin/gdev"), result.stdout)
+                self.assertEqual(command.lstat().st_ino, before.st_ino)
+                if kind == "file":
+                    self.assertEqual(command.read_text(), "comando da conservare\n")
+                elif kind == "directory":
+                    self.assertEqual((command / "personale").read_text(), "da conservare\n")
+                else:
+                    self.assertTrue(command.is_symlink())
+                    self.assertEqual(os.readlink(command), str(personal if kind == "link" else self.directory / "assente"))
+                self.assertEqual(personal.read_text(), "#!/bin/sh\necho personale\n")
+                if kind == "directory":
+                    shutil.rmtree(command)
+                else:
+                    command.unlink()
+
+    def test_correct_cli_link_is_reused_without_replacement(self):
+        command = self.home / ".local/bin/gdev"
+        command.parent.mkdir(parents=True)
+        # Anche un collegamento relativo verso il checkout è già corretto.
+        command.symlink_to(os.path.relpath(self.repository / "bin/gdev", command.parent))
+        before = command.lstat()
+        for _ in range(2):
+            result = self.bootstrap("--no-launch")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(command.lstat().st_ino, before.st_ino)
+            self.assertEqual(command.resolve(), (self.repository / "bin/gdev").resolve())
+
     def test_failed_and_missing_startup_receipts_do_not_report_ready(self):
         for flag in ("GDEV_BOOTSTRAP_TEST_STARTUP", "GDEV_BOOTSTRAP_TEST_SILENT"):
             with self.subTest(flag=flag):
@@ -865,6 +911,12 @@ fi
         self.assertNotIn("--init-directory", args)
         self.assertTrue(Path(args[0].split("=", 1)[1], "init.el").is_file())
         self.assertEqual(args[1:], ["--load", str(ROOT / "bin/gdev-startup-check.el")])
+
+
+_voice_spec = importlib.util.spec_from_file_location("gdev_voice_contracts", ROOT / "test/gdev-voice-contract-test.py")
+_voice_contracts = importlib.util.module_from_spec(_voice_spec)
+_voice_spec.loader.exec_module(_voice_contracts)
+VoiceContracts = _voice_contracts.VoiceContracts
 
 
 if __name__ == "__main__":

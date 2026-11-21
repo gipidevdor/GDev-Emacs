@@ -22,7 +22,7 @@
 (require 'tab-line)
 
 (defconst gdev-activity-views
-  '((explorer "Esplora file" "file" "E" :ui sidebar gdev-sidebar-focus)
+  '((explorer "Esplora file" "file" "E" :ui sidebar gdev-sidebar-select)
     (search "Cerca" "search" "C" :ui workbench gdev-search-show)
     (git "Hit" "git" "H" :tools git gdev-project-view-git)
     (run "Debug dello spazio" "debug" "D" :ui workbench gdev-project-view-run)

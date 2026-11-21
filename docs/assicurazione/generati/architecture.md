@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:b64ceb3756be314197b32b31bcb8ea5f65a9ff0f0a3cd5580832093fa98563ba -->
+<!-- Generato da GDev; non modificare. Fonti sha256:4f354ecd6bf638095bcb2d64d58918c6d5192ee6993eae7ec7944eec19baa0d6 -->
 
 # Architettura
 
@@ -56,6 +56,17 @@ del lavoro: `gdev-workbench-operation-current` legge la registrazione
 aggiornata, mentre l'oggetto restituito all'avvio può essere superato.
 Un'interruzione impedisce l'attivazione automatica anche se il processo
 restituisce un successo tardivo. Il completamento viene pubblicato una volta.
+
+Il lettore dell'ambiente della shell possiede processo, timeout e identità
+del profilo; pubblica valori completi dopo una scrittura riuscita. Il
+rilevamento dei test conserva separatamente richiesta corrente e registro
+diagnostico, rilasciandoli al cambio di progetto o alla chiusura della vista.
+La scelta del runtime JavaScript appartiene a `gdev-project-types` e serve
+sia i comandi sul documento sia il catalogo dei test.
+
+Il checkpoint confronta revisioni delle bozze e metadati dello spazio.
+Legge la disposizione senza ricopiare il testo invariato; movimenti del
+cursore e cronologie di navigazione non provocano scritture periodiche.
 
 Le librerie `gdev-ui` e `gdev-layout` sono primitive condivise, conservate
 nella cartella Workbench e disponibili al nucleo dei comandi anche quando

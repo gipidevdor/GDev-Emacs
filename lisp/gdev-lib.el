@@ -196,12 +196,20 @@ ricorda finché resta eseguibile: ogni chiamata a xcrun costa un processo."
 ;;;; Progetti
 
 (declare-function project-root "project")
+(declare-function gdev-workspace-directory "gdev-workspace-roots" (&optional directory frame))
 
 (defun gdev-default-directory ()
   "Restituisce la cartella da cui parte un comando di progetto.
 Mentre è in corso un comando di «Cambia progetto» è la cartella scelta,
-altrimenti `default-directory'."
-  (or (bound-and-true-p project-current-directory-override) default-directory))
+altrimenti usa la cartella del documento. Per un buffer senza file, una
+cartella estranea allo spazio cede il posto alla cartella dello spazio."
+  (or (bound-and-true-p project-current-directory-override)
+      (and (bound-and-true-p gdev-layout-mode) (not buffer-file-name)
+           (fboundp 'gdev-workspace-directory)
+           (when-let* ((workspace (gdev-workspace-directory default-directory)))
+             (unless (string-prefix-p workspace (file-name-as-directory (expand-file-name default-directory)))
+               workspace)))
+      default-directory))
 
 (defun gdev-project-root (&optional directory)
   "Restituisce la radice del progetto che contiene DIRECTORY, o DIRECTORY.
@@ -448,6 +456,24 @@ il buffer accetta testo in ingresso (comint), utile a un profilatore
 buffer di compilazione."
   (let ((default-directory (or directory (gdev-project-root))))
     (compilation-start command interactive (lambda (_mode) (format "*%s*" name)))))
+
+(defvar gdev-maintenance--process nil "Manutenzione del profilo in corso in questa istanza.")
+
+(defun gdev-maintenance-run (label program &rest arguments)
+  "Esegui PROGRAM con ARGUMENTS nel pannello di compilazione di LABEL."
+  (when (and gdev-maintenance--process (process-live-p gdev-maintenance--process))
+    (user-error "Manutenzione in corso. Consulta %s"
+                (buffer-name (process-buffer gdev-maintenance--process))))
+  (let ((buffer (gdev-compile (apply #'gdev-command-line program arguments) label gdev-config-directory)))
+    (setq gdev-maintenance--process (get-buffer-process buffer))
+    buffer))
+
+(defun gdev-sync ()
+  "Sincronizza il profilo attivo in secondo piano e mostra il registro."
+  (interactive)
+  (let ((process-environment (copy-sequence process-environment)))
+    (setenv "EMACS" (expand-file-name invocation-name invocation-directory))
+    (gdev-maintenance-run "Sincronizzazione GDev" (gdev-config-file "bin/gdev") "sync")))
 
 ;;;; Scelta del programma per esecuzione, debugger e profilatore
 

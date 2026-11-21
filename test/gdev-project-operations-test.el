@@ -6,6 +6,31 @@
 (require 'gdev-project-operations)
 (require 'gdev-launch)
 
+(ert-deftest gdev-test-project-operation-fileless-editor-uses-workspace-and-keeps-explicit-context ()
+  "La cartella estranea di Appunti non deve scegliere un altro progetto."
+  (gdev-make-test--project
+    (let ((workspace (expand-file-name "corrente/" root))
+          (previous (expand-file-name "precedente/" root)))
+      (make-directory (expand-file-name "src/" workspace) t)
+      (make-directory previous t)
+      (with-temp-file (expand-file-name "Makefile" workspace) (insert "all:\n\t@true\n"))
+      (with-temp-file (expand-file-name "Makefile" previous) (insert "all:\n\t@false\n"))
+      (gdev-test--with-layout
+        (gdev-workspace-set-roots (list workspace))
+        (with-temp-buffer
+          (setq default-directory previous)
+          (should (equal workspace (gdev-default-directory)))
+          (should (equal workspace (gdev-build--root)))
+          (setq default-directory (expand-file-name "src/" workspace))
+          (should (equal default-directory (gdev-default-directory)))
+          (should (equal workspace (gdev-build--root)))
+          (setq default-directory previous buffer-file-name (expand-file-name "programma.pl" previous))
+          (should (equal previous (gdev-default-directory)))
+          (should (equal previous (gdev-build--root)))
+          (let ((project-current-directory-override workspace))
+            (should (equal workspace (gdev-default-directory)))
+            (should (equal workspace (gdev-build--root)))))))))
+
 (defun gdev-project-operation-test--execute (action root)
   "Esegui il comando effettivo di ACTION in ROOT, conservandone la diagnosi."
   (let ((default-directory root) (command (gdev-build--command action root)))

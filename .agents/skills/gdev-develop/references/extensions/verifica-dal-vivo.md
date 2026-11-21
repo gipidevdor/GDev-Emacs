@@ -111,6 +111,15 @@ per completare quella verifica.
   caricata. Prova anche la precedenza di configurazioni Emacs già esistenti.
   Non dedurre il successo della finestra dall'esito dell'installazione e non
   spostare file personali per far funzionare un lanciatore esplicito.
+- Per riprodurre l'icona Emacs ordinaria usa `CFBundleExecutable` da
+  `Contents/Info.plist`, non il solo `invocation-name`: alcune app riportano
+  lì un eseguibile interno specifico dell'architettura. Esegui la prova in
+  una HOME temporanea con ingressi oscuranti, verifica il loro backup e
+  togli dall'ambiente di lancio le variabili che l'installatore deve
+  ripristinare dal Dock. Richiedi i percorsi effettivi di `early-init-file`
+  e `user-init-file`, oltre al riscontro del Workbench. In assenza di
+  riscontri conserva log e PID avviato, termina solo quella istanza e
+  controlla l'eseguibile scelto prima di attribuire il problema ai wrapper.
 - Dimostra che una prova di regressione coglie il difetto: ripeti il test
   dopo aver sostituito la funzione corretta con `fset` a `ignore`, o dopo
   aver ripristinato il valore errato, e verifica che fallisca. Per

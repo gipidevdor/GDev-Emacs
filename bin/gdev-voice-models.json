@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "default": "small",
+  "models": {
+    "small": {
+      "file": "ggml-small.bin",
+      "repository": "ggerganov/whisper.cpp",
+      "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+      "size": 487601967,
+      "sha256": "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b",
+      "license": "MIT",
+      "origin": "https://github.com/openai/whisper",
+      "license_file": "../vendor/licenze/Whisper-MIT.txt"
+    }
+  },
+  "engine": {
+    "kind": "whisper.cpp",
+    "repository": "https://github.com/gipidevdor/whisper.cpp.git",
+    "origin": "https://github.com/gipidevdor/whisper.cpp",
+    "revision": "5eaee0cc9024eb9e9a99469199920c8b7f5cb9ec",
+    "version": "1.9.6-dev",
+    "license": "MIT"
+  }
+}

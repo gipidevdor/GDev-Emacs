@@ -17,6 +17,7 @@
 (require 'gdev-layout)
 (require 'gdev-ui)
 (require 'gdev-workspace-state)
+(require 'gdev-workspace-roots)
 (require 'gdev-project-operations)
 
 (declare-function gdev-close-document "gdev-commands" ())
@@ -261,7 +262,9 @@ Una sessione di debug si ferma solo indicandola, dalla vista Operazioni."
     (when detail (insert " · " (propertize detail 'face 'gdev-ui-secondary)))
     (insert "\n")
     (when (gdev-workbench-operations--output-live-p operation)
-      (insert-text-button "Apri dettagli" 'type 'gdev-ui-action 'gdev-operation-control 'details
+      (insert-text-button (if (eq (gdev-workbench-operation-state operation) 'failed)
+                              "Apri il registro" "Apri dettagli")
+                          'type 'gdev-ui-action 'gdev-operation-control 'details
                           'action (lambda (_)
                                     (unless (gdev-workbench-operations--output-live-p operation)
                                       (user-error "I dettagli non sono più disponibili"))
@@ -284,7 +287,13 @@ Una sessione di debug si ferma solo indicandola, dalla vista Operazioni."
     (erase-buffer)
     (insert (propertize "Operazioni dello spazio" 'face 'gdev-ui-view-title) "\n\n")
     (if (not records)
-        (insert (propertize "Nessuna operazione in questo spazio" 'face 'gdev-ui-secondary) "\n")
+        (progn
+          (insert (propertize "Nessuna operazione in questo spazio" 'face 'gdev-ui-secondary) "\n")
+          (let ((command (if (and (gdev-workspace-roots) (commandp 'gdev-project-control-show))
+                             'gdev-project-control-show 'gdev-open-folder)))
+            (insert-text-button (if (eq command 'gdev-open-folder) "Apri cartella…" "Controlla progetto")
+                                'type 'gdev-ui-action 'face 'gdev-ui-action-primary
+                                'action (lambda (_) (call-interactively command)))))
       (dolist (item (append (seq-filter #'gdev-workbench-operations--active-p records)
                             (seq-remove #'gdev-workbench-operations--active-p records)))
         (let ((start (point)))
@@ -296,6 +305,17 @@ Una sessione di debug si ferma solo indicandola, dalla vista Operazioni."
                                start))))))
     (set-window-start window (or start-of-window (point-min)))
     (set-window-point window (or selected (point-min)))))
+
+(defun gdev-workbench-operations-log ()
+  "Descrivi le operazioni dello spazio per il rapporto diagnostico."
+  (vconcat
+   (mapcar (lambda (operation)
+             (let ((state (gdev-workbench-operation-state operation)))
+               (list :livello (if (eq state 'failed) "errore" "info")
+                     :contesto (gdev-workbench-operation-label operation)
+                     :stato (symbol-name state)
+                     :dettaglio (or (gdev-workbench-operation-detail operation) :null))))
+           (gdev-workspace-state-get 'gdev-workbench-operations))))
 
 (defun gdev-workbench-operations-show ()
   "Mostra le operazioni e gli ultimi esiti dello spazio corrente."

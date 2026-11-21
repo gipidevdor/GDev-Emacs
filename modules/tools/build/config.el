@@ -869,7 +869,8 @@ file: la radice della compilazione è la più esterna, non la più vicina."
 
 (defun gdev-build--root ()
   "Restituisce la cartella del progetto scelta dal linguaggio attivo."
-  (or (bound-and-true-p project-current-directory-override)
+  (let ((default-directory (gdev-default-directory)))
+    (or (bound-and-true-p project-current-directory-override)
       ;; Il linguaggio sceglie solo per il documento, non per «Cambia progetto».
       (when-let* ((resolver (gdev-handler :build-root))) (funcall resolver))
       (let* ((project (gdev-project-root))
@@ -878,7 +879,7 @@ file: la radice della compilazione è la più esterna, non la più vicina."
                         ((and workspace (string-prefix-p workspace default-directory)) workspace)
                         ((not (equal project (file-name-as-directory (expand-file-name default-directory))))
                          project))))
-        (gdev-project-operation-root default-directory boundary))))
+        (gdev-project-operation-root default-directory boundary)))))
 
 (defun gdev-build--run (action)
   "Esegue ACTION per il progetto corrente nel suo buffer di compilazione."

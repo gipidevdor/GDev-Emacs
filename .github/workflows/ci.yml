@@ -67,6 +67,9 @@ jobs:
           clang -fsyntax-only -fobjc-arc -I /Applications/Emacs.app/Contents/Resources/include -x objective-c bin/gdev-macos-icon.m
       - name: Test unitari
         run: emacs --batch -Q -l early-init.el -l test/gdev-test.el -f ert-run-tests-batch-and-exit
+      - name: Tempi del Workbench su 30.000 percorsi
+        if: runner.os == 'macOS'
+        run: ./bin/gdev bench flussi
       - name: Copertura delle Preferenze
         if: runner.os == 'macOS'
         run: emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-preferences
@@ -80,14 +83,32 @@ jobs:
         run: |
           emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-assurance
           emacs --batch -Q -l early-init.el -l test/gdev-test.el -l test/gdev-coverage.el -f gdev-coverage-assurance-extensions
-      - name: Installa pacchetti e grammatiche, poi compila
+      - name: Installa pacchetti e grammatiche
+        run: ./bin/gdev sync --no-docs
+      - name: Compila con gli avvisi visibili
+        id: compilation
         shell: bash
         run: |
-          args=(--no-docs)
+          set -o pipefail
+          args=(-w)
           if [[ "$RUNNER_OS" == macOS ]]; then
             args+=(--native)
           fi
-          ./bin/gdev sync "${args[@]}"
+          ./bin/gdev compile "${args[@]}" 2>&1 | tee "$RUNNER_TEMP/gdev-compile.log"
+      - name: Avvio nella finestra nativa macOS
+        id: graphical
+        if: runner.os == 'macOS'
+        timeout-minutes: 3
+        run: python3 test/gdev-gui-startup-test.py --require --build-state "$GDEV_STATE_DIR" --output "$RUNNER_TEMP/gdev-gui-startup" --timeout 90
+      - name: Conserva compilazione e avvio grafico
+        if: always() && (steps.compilation.outcome == 'success' || steps.compilation.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: compilazione-avvio-${{ matrix.os }}-${{ matrix.emacs }}
+          path: |
+            ${{ runner.temp }}/gdev-compile.log
+            ${{ runner.temp }}/gdev-gui-startup
+          if-no-files-found: error
       - name: Mappa dei tasti aggiornata
         if: runner.os == 'macOS'
         run: |
@@ -112,7 +133,9 @@ jobs:
           GDEV_TEST_REQUIRE_BEHAVIORS: "1"
         run: emacs --batch -Q -l early-init.el -l test/gdev-test.el --eval '(ert-run-tests-batch-and-exit "gdev-test-behavior-")'
       - name: Contratti di CLI e MCP
-        run: python3 test/gdev-cli-contract-test.py
+        run: |
+          python3 test/gdev-cli-contract-test.py
+          python3 test/gdev-gui-startup-runner-test.py
       - name: Contratto Git e firme dell'assicurazione
         run: python3 test/gdev-assurance-git-test.py
       - name: Documenti di assicurazione aggiornati

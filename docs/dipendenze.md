@@ -8,6 +8,7 @@ anche il nome originale. Le etichette dell'interfaccia usano il nome GDev.
 
 | Nome GDev | Nome e versione originali | Licenza e modifiche |
 | --- | --- | --- |
+| [Voce GDev](voce.md) | [Earwig 0.2.0](../vendor/elpa/earwig-0.2.0/GDEV.md), revisione ecfb12505ec72ffb8e45d25390092c0988c3e583 | GPL-3.0-or-later. Grammatica e catalogo italiani, sessioni contestuali, annullamento completo e virgolette Unicode compatibili. Contratti originali inclusi nel corpus. Nessun nuovo pacchetto Lisp esterno. |
 | [Cronologia degli annullamenti](../modules/emacs/undo/config.el) | [undo-fu-session 0.8](../vendor/elpa/undo-fu-session-0.8/undo-fu-session.el) | GPL-3.0-or-later. Il fork permette al profilo di conservare gli annullamenti in SQLite. Verifica dimensione e impronta del documento prima del ripristino. |
 | [Hit](../modules/tools/git/config.el) | [Magit 4.7.2](https://github.com/magit/magit/tree/602760478f6d4a67e7064f5bcd2e294aa3f38f8e) | [GPL-3.0-or-later](../vendor/elpa/magit-4.7.2/LICENSE). Fork per il controllo versione in GDev-Emacs, con menu, viste e azioni localizzate. Sorgenti, attribuzioni e manuale inclusi. |
 | Sezioni Hit | [Magit-Section 4.7.2](https://github.com/magit/magit/blob/602760478f6d4a67e7064f5bcd2e294aa3f38f8e/lisp/magit-section.el) | [GPL-3.0-or-later](../vendor/elpa/magit-section-4.7.2/LICENSE). Nomi delle viste e azioni delle sezioni in italiano. |
@@ -30,6 +31,19 @@ comandi compaiono come `hit-…`. Quando il modulo è attivo, `gdev compile` com
 il sorgente del fork incluso nella distribuzione.
 
 ## Registro dei fork locali
+
+Il riconoscimento vocale è facoltativo. [Whisper Small di OpenAI](https://github.com/openai/whisper#license)
+usa codice e pesi MIT; il modello GGML viene dal repository `ggerganov/whisper.cpp`,
+revisione `5359861c739e955e79d9a303bcbc70fb988958b1`. Dimensione e SHA-256
+sono nel [catalogo verificato](../bin/gdev-voice-models.json), l'avviso MIT
+in [vendor/licenze/Whisper-MIT.txt](../vendor/licenze/Whisper-MIT.txt).
+**Whisper GDev (originale whisper.cpp)** usa il
+[fork gipidevdor/whisper.cpp](https://github.com/gipidevdor/whisper.cpp),
+revisione `5eaee0cc9024eb9e9a99469199920c8b7f5cb9ec`, con licenza MIT.
+Il motore si costruisce con CMake solo su attivazione esplicita; il riscontro
+conserva origine, revisione e impronta del binario effettivo. Sox o FFmpeg e curl sono
+riusati se disponibili. Il preparatore usa la libreria standard di Python.
+La lettura macOS usa le voci di sistema, senza modelli aggiuntivi distribuiti.
 
 Il [corpus dei comportamenti](../test/behavior/README.md) conserva separatamente
 fixture da Tree-sitter, GNU Emacs, TypeScript/Fourslash, TypeScript-TmLanguage,

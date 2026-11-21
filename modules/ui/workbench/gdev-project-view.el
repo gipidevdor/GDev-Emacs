@@ -48,6 +48,8 @@ Con nil usa le impostazioni del progetto e quelle predefinite dello strumento."
 (defvar-local gdev-project-view--test-family nil)
 (defvar-local gdev-project-view--lines nil)
 (defvar-local gdev-project-view--process nil)
+(defvar-local gdev-project-view--request nil)
+(defvar-local gdev-project-view--discovery-log nil)
 (defvar-local gdev-project-view--test-run nil)
 (defvar-local gdev-project-view--status nil)
 (defvar-local gdev-project-view--test-dir nil)
@@ -66,8 +68,60 @@ Con nil usa le impostazioni del progetto e quelle predefinite dello strumento."
   (gdev-ui-view-setup 'sidebar)
   (add-hook 'kill-buffer-hook
             (lambda ()
-              (when (process-live-p gdev-project-view--process)
-                (delete-process gdev-project-view--process))) nil t))
+              (gdev-project-view--cancel-request)
+              (gdev-project-view--clear-discovery-log)) nil t))
+
+(defun gdev-project-view--clear-discovery-log ()
+  "Rilascia il registro temporaneo posseduto da questa vista."
+  (when (buffer-live-p gdev-project-view--discovery-log)
+    (kill-buffer gdev-project-view--discovery-log))
+  (setq gdev-project-view--discovery-log nil))
+
+(defun gdev-project-view--cancel-request ()
+  "Invalida la richiesta prima di interrompere il suo processo."
+  (let ((process gdev-project-view--process))
+    (setq gdev-project-view--request nil gdev-project-view--process nil)
+    (when (process-live-p process) (delete-process process))))
+
+(defun gdev-project-view-cancel-discovery ()
+  "Interrompi il rilevamento dei test della vista corrente."
+  (interactive)
+  (unless (and (eq gdev-activity-kind 'test) gdev-project-view--request)
+    (user-error "Nessun rilevamento dei test in corso"))
+  (gdev-project-view--cancel-request)
+  (setq gdev-project-view--status "Rilevamento interrotto")
+  (gdev-project-view--render))
+
+(defun gdev-project-view-discovery-log ()
+  "Apri il registro dell'ultimo rilevamento dei test non riuscito."
+  (interactive)
+  (unless (buffer-live-p gdev-project-view--discovery-log)
+    (user-error "Nessun registro di rilevamento disponibile"))
+  (gdev-layout-show-panel gdev-project-view--discovery-log))
+
+(put 'gdev-project-view-cancel-discovery 'gdev-menu-available
+     (lambda () (and (eq gdev-activity-kind 'test) gdev-project-view--request)))
+(put 'gdev-project-view-discovery-log 'gdev-menu-available
+     (lambda () (buffer-live-p gdev-project-view--discovery-log)))
+
+(defun gdev-project-view--retain-discovery-log (output command directory reason)
+  "Conserva OUTPUT di COMMAND in DIRECTORY con la diagnosi REASON."
+  (let ((detail (with-current-buffer output
+                  (car (split-string (buffer-string) "[\r\n]+" t "[[:blank:]]+")))))
+    (setq gdev-project-view--status
+          (concat reason (when detail (concat "\n" (truncate-string-to-width detail 180 nil nil "…"))))
+          gdev-project-view--discovery-log output)
+    (with-current-buffer output
+      (rename-buffer (format "*Rilevamento test · %s*"
+                             (abbreviate-file-name (directory-file-name directory))) t)
+      (goto-char (point-min))
+      (insert "Rilevamento dei test\n\nCartella: " directory "\nComando: "
+              (gdev-command-line (car command) (cdr command)) "\nEsito: " reason "\n\n")
+      (compilation-mode)
+      (gdev-ui-view-setup 'native)
+      (setq-local default-directory directory)
+      (goto-char (point-min))
+      (set-buffer-modified-p nil))))
 
 (defun gdev-project-view--run-command (command)
   "Esegui COMMAND dal gruppo di modifica attivo."
@@ -99,7 +153,14 @@ Con nil usa le impostazioni del progetto e quelle predefinite dello strumento."
     (gdev-project-view--button
      "Esegui test del documento" (lambda (_) (gdev-project-view--run-command #'gdev-test-dwim))
      'test-document))
-  (gdev-project-view--button "Rileva test" (lambda (_) (gdev-project-view-refresh)) 'discover)
+  (gdev-project-view--button
+   (if (buffer-live-p gdev-project-view--discovery-log) "Riprova" "Rileva test")
+   (lambda (_) (gdev-project-view-refresh)) 'discover)
+  (when (buffer-live-p gdev-project-view--discovery-log)
+    (gdev-project-view--button "Apri registro" (lambda (_) (gdev-project-view-discovery-log)) 'discovery-log))
+  (when gdev-project-view--request
+    (gdev-project-view--button "Interrompi rilevamento"
+                              (lambda (_) (gdev-project-view-cancel-discovery)) 'discovery-stop))
   (gdev-project-view--button "Esegui test al cursore" (lambda (_) (gdev-project-view-test-at-point)) 'test-point)
   (when gdev-project-view--lines
     (gdev-project-view--button "Esegui tutti i test" (lambda (_) (gdev-project-view-test-all)) 'test-all t)
@@ -230,8 +291,9 @@ Con nil usa le impostazioni del progetto e quelle predefinite dello strumento."
       (insert (propertize gdev-project-view--status 'face 'gdev-ui-secondary) "\n\n"))
     (pcase gdev-activity-kind
       ('git
-       (gdev-project-view--button "Apri Hit" (lambda (_) (gdev-project-view--run-command #'gdev-git-status)))
-       (gdev-project-view--button "Aggiorna modifiche" (lambda (_) (gdev-project-view-refresh)))
+       (gdev-project-view--button "Apri Hit" (lambda (_) (gdev-project-view--run-command #'gdev-git-status))
+                                  'git-open t)
+       (gdev-project-view--button "Aggiorna modifiche" (lambda (_) (gdev-project-view-refresh)) 'git-refresh)
        (insert "\n")
        (dolist (entry gdev-project-view--lines)
          (pcase-let ((`(,status . ,file) entry))
@@ -294,9 +356,8 @@ Con nil usa le impostazioni del progetto e quelle predefinite dello strumento."
             (setq gdev-project-view--context context
                   gdev-project-view--test-family family)
             (when reset
-              (let ((process gdev-project-view--process))
-                (setq gdev-project-view--process nil)
-                (when (process-live-p process) (delete-process process)))
+              (gdev-project-view--cancel-request)
+              (gdev-project-view--clear-discovery-log)
               (setq default-directory root
                     gdev-project-view--root root gdev-project-view--lines nil
                     gdev-project-view--test-dir nil gdev-project-view--test-run nil
@@ -318,32 +379,54 @@ ACCEPTED-STATUSES contiene i codici di uscita ammessi."
     (user-error "Comando non disponibile: %s" (car command)))
   (let ((view (current-buffer))
         (default-directory directory)
-        (output (generate-new-buffer " *gdev attività*")))
-    (when (process-live-p gdev-project-view--process)
-      (let ((old gdev-project-view--process))
-        (setq gdev-project-view--process nil)
-        (delete-process old)))
+        (output (generate-new-buffer " *gdev attività*"))
+        (request (list command directory)))
+    (gdev-project-view--cancel-request)
+    (gdev-project-view--clear-discovery-log)
+    ;; L'identità precede make-process, che può già consegnare la sentinella.
+    (setq gdev-project-view--request request)
     (condition-case err
-        (setq gdev-project-view--process
-              (make-process
+        (let ((process
+               (make-process
                :name "gdev-attività" :buffer output :command command :noquery t
                :sentinel (lambda (process _event)
                            (when (memq (process-status process) '(exit signal))
-                             (unwind-protect
-                                 (when (and (buffer-live-p view) (buffer-live-p output))
-                                   (with-current-buffer view
-                                     (when (eq process gdev-project-view--process)
-                                       (setq gdev-project-view--process nil)
-                                       (condition-case problem
-                                           (if (and (eq (process-status process) 'exit)
-                                                    (memq (process-exit-status process)
-                                                          (or accepted-statuses '(0))))
-                                               (funcall callback (with-current-buffer output (buffer-string)))
-                                             (setq gdev-project-view--status "Comando non riuscito"))
-                                         (error (setq gdev-project-view--status (error-message-string problem))))
-                                       (gdev-project-view--render))))
-                               (when (buffer-live-p output) (kill-buffer output)))))))
-      (error (kill-buffer output) (signal (car err) (cdr err))))))
+                             (let (retained)
+                               (unwind-protect
+                                   (when (and (buffer-live-p view) (buffer-live-p output))
+                                     (with-current-buffer view
+                                       (when (eq request gdev-project-view--request)
+                                         (setq gdev-project-view--process nil gdev-project-view--request nil)
+                                         (condition-case problem
+                                             (if (and (eq (process-status process) 'exit)
+                                                      (memq (process-exit-status process)
+                                                            (or accepted-statuses '(0))))
+                                                 (funcall callback (with-current-buffer output (buffer-string)))
+                                               (setq gdev-project-view--status
+                                                     (format "Comando non riuscito (uscita %d)"
+                                                             (process-exit-status process)))
+                                               (when (eq gdev-activity-kind 'test)
+                                                 (gdev-project-view--retain-discovery-log
+                                                  output command directory
+                                                  (format "Rilevamento non riuscito (uscita %d)"
+                                                          (process-exit-status process)))
+                                                 (setq retained t)))
+                                           (error
+                                            (setq gdev-project-view--status (error-message-string problem))
+                                            (when (eq gdev-activity-kind 'test)
+                                              (gdev-project-view--retain-discovery-log
+                                               output command directory (error-message-string problem))
+                                              (setq retained t))))
+                                         (gdev-project-view--render))))
+                                 (unless retained
+                                   (when (buffer-live-p output) (kill-buffer output))))))))))
+          (when (eq request gdev-project-view--request)
+            (setq gdev-project-view--process process))
+          process)
+      (error
+       (setq gdev-project-view--request nil gdev-project-view--process nil)
+       (when (buffer-live-p output) (kill-buffer output))
+       (signal (car err) (cdr err))))))
 
 (defun gdev-project-view--git-parse (output)
   "Leggi da OUTPUT lo stato Git in formato porcelain con separatori NUL."
@@ -392,18 +475,17 @@ ACCEPTED-STATUSES contiene i codici di uscita ammessi."
 
 (defun gdev-project-view--test-root (language root directory)
   "Trova la radice annidata di LANGUAGE sopra DIRECTORY, entro ROOT."
-  (let ((candidate (unless (or (file-remote-p root) (file-remote-p directory))
-                     (if (eq language 'python)
-                         (gdev-python-root directory)
-                       (let ((markers (if language '("deno.json" "deno.jsonc" "package.json")
-                                        '("deno.json" "deno.jsonc" "package.json"
-                                          "pyproject.toml" "pytest.ini" "setup.cfg"))))
-                         (locate-dominating-file
-                          directory (lambda (dir)
-                                      (apply #'gdev-project-file-exists-p dir markers))))))))
-    (if (and candidate (file-in-directory-p candidate root))
-        (file-name-as-directory (expand-file-name candidate))
-      root)))
+  (if (eq language 'javascript)
+      (gdev-project-javascript-root directory root)
+    (let* ((predicate (lambda (dir)
+                        (or (gdev-project-javascript-runtime dir)
+                            (gdev-project-file-exists-p dir "pyproject.toml" "pytest.ini" "setup.cfg"))))
+           (candidate (unless (or (file-remote-p root) (file-remote-p directory))
+                        (if (eq language 'python) (gdev-python-root directory)
+                          (locate-dominating-file directory predicate)))))
+      (if (and candidate (file-in-directory-p candidate root))
+          (file-name-as-directory (expand-file-name candidate))
+        root))))
 
 (defun gdev-project-view--test-refresh (&optional ctest-context callback)
   "Rileva i test, riusa CTEST-CONTEXT e consegna il catalogo a CALLBACK."
@@ -460,7 +542,8 @@ ACCEPTED-STATUSES contiene i codici di uscita ammessi."
                                            (format "Nessun test · %s" title)))
          (when callback (funcall callback))))
      (pcase provider ('pytest '(0 5)) ((or 'deno 'node) '(0 1))))
-    (setq gdev-project-view--status (format "Rilevamento dei test · %s…" title))
+    (when gdev-project-view--request
+      (setq gdev-project-view--status (format "Rilevamento dei test · %s…" title)))
     (gdev-project-view--render)))
 
 (defun gdev-project-view-refresh ()

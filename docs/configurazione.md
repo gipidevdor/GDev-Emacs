@@ -12,7 +12,26 @@ cd GDev-Emacs
 
 Se hai già i sorgenti, esegui solo l’ultimo comando dalla radice del repository. Il programma prepara Emacs e gli strumenti di sviluppo, installa `gdev` in `~/.local/bin` e crea **GDev-Emacs.app** in `~/Applications`. Poi apre GDev e attende il riscontro della finestra e del banco di lavoro prima di dichiarare l’avvio verificato. Non devi inserire alcuna directory: il lanciatore ricava il checkout automaticamente.
 
-Per le aperture successive usa **GDev-Emacs.app**, che puoi aggiungere al Dock, oppure `./bin/gdev emacs` dalla cartella dei sorgenti. Le configurazioni Emacs preesistenti vengono conservate. Il collegamento `~/.config/emacs` viene creato soltanto se assente; l’app dedicata sceglie questa distribuzione anche quando esistono `~/.emacs`, `~/.emacs.el` o `~/.emacs.d`. L’icona della normale applicazione Emacs continua a seguire le proprie regole di configurazione.
+Per le aperture successive usa l'icona **Emacs** oppure **GDev-Emacs.app**,
+che puoi aggiungere al Dock. Da terminale usa `./bin/gdev emacs` dalla
+cartella dei sorgenti. Dopo la sincronizzazione riuscita, l'installazione
+prepara un ingresso gestito in `~/.emacs.d`: anche l'applicazione Emacs
+ordinaria carica il checkout GDev e i percorsi scelti, senza dipendere
+dall'ambiente del terminale.
+
+I file preesistenti `~/.emacs`, `~/.emacs.el`, `~/.emacs.elc` e
+`~/.emacs.d` vengono conservati in
+`~/.gdev-emacs-backups/installazione-…/`. Il programma stampa la cartella
+effettiva; `ripristino.eld` e `LEGGIMI.txt` descrivono come ripristinare i
+percorsi originali. La configurazione XDG esistente resta intatta. Un
+ingresso GDev già identico viene riusato, senza nuovi spostamenti.
+Il collegamento `~/.config/emacs` viene creato soltanto se assente.
+
+Se un'installazione precedente apre ancora Emacs standard dall'icona,
+aggiorna il checkout ed esegui `./bin/gdev install`, poi riapri Emacs.
+La procedura prepara entrambi gli ingressi grafici anche senza rieseguire
+l'intero bootstrap. Un comando personale `~/.local/bin/gdev` preesistente
+resta conservato: in quel caso usa l'ingresso dalla cartella dei sorgenti.
 
 Puoi rieseguire il bootstrap dopo un’interruzione. Per controllare l’installazione usa `./bin/gdev doctor`. L’opzione `--no-launch`, destinata alle installazioni automatiche, salta l’apertura e dichiara esplicitamente che la finestra non è stata verificata. `GDEV_APPLICATIONS_DIR` permette di scegliere una posizione diversa per l’app dedicata.
 
@@ -202,6 +221,12 @@ desiderati copiandone le voci da [templates/init.el](../templates/init.el).
 | Aggiornare l'ambiente di Emacs quando lo apri dal Dock | `gdev env` |
 | Misurare i tempi di avvio | `gdev bench` |
 | Rigenerare la mappa dei tasti | `gdev docs` |
+
+Da Emacs, `M-x gdev-env-refresh` aggiorna l'ambiente in secondo piano.
+La lettura della shell scade dopo cinque secondi; fino a un risultato
+completo restano attivi i valori precedenti. `M-x gdev-env-refresh-cancel`
+annulla l'aggiornamento. Anche un avvio dal Dock senza ambiente salvato
+lascia disponibile l'editor durante la lettura.
 
 GDev usa fino a quattro processi per la compilazione nativa e per le
 grammatiche indipendenti. Imposta `GDEV_JOBS=1` per eseguire queste operazioni

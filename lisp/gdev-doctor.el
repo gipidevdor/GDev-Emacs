@@ -25,6 +25,72 @@
 (declare-function gdev-env-saved-p "gdev-env")
 (declare-function gdev-state-db-inspect "gdev-state-db-maintenance" (file &optional full))
 
+(declare-function eglot-current-server "eglot" ())
+(declare-function eglot-managed-p "eglot" ())
+(declare-function gdev-debug-workspace-connections "../modules/tools/debugger/config" (owner))
+(declare-function gdev-workspace-state-id "gdev-workspace-state" (&optional frame))
+(declare-function gdev-layout-editor "../modules/ui/workbench/gdev-layout" (&optional frame))
+(declare-function gdev-workspace-directory "gdev-workspace-roots" (&optional directory frame))
+
+(defun gdev-doctor-last-measures ()
+  "Leggi l'ultima misura se l'archivio del profilo è disponibile."
+  (when (and (file-readable-p (gdev-state-db-file))
+             (not (bound-and-true-p gdev-state-startup-issue)))
+    (condition-case nil
+        (cdar (gdev-state-db-entries "applicazione" "" "misure_workbench"))
+      (error nil))))
+
+(defun gdev-doctor-format-measures (report)
+  "Formatta le misure del banco REPORT in millisecondi."
+  (if (not (eq (plist-get report :versione) 1))
+      "\nPrestazioni · esegui gdev bench flussi per ottenere una misura.\n"
+    (concat (format "\nPrestazioni · %s · Emacs %s · %s · %s percorsi\n"
+                    (plist-get report :data) (plist-get report :emacs)
+                    (plist-get report :ambiente) (plist-get report :percorsi))
+            (mapconcat
+             (lambda (row)
+               (let ((limit (plist-get row :limite_ms)) (ms (plist-get row :mediana_ms)))
+                 (format "  %s · %.2f ms%s\n" (plist-get row :nome) ms
+                         (if limit (format " · obiettivo < %d ms%s" limit
+                                           (if (< ms limit) "" " · superato")) ""))))
+             (plist-get report :misure) ""))))
+
+(defun gdev-doctor--session ()
+  "Descrivi i servizi osservati nell'editor corrente, senza avviarli."
+  (when (and (not noninteractive) (bound-and-true-p gdev-layout-mode))
+    (let* ((editor (gdev-layout-editor))
+           (owner (gdev-workspace-state-id))
+           (debug (and owner (fboundp 'gdev-debug-workspace-connections)
+                       (gdev-debug-workspace-connections owner))))
+      (format "\nSpazio di lavoro · %s\n  LSP nel documento attivo · %s\n  Connessioni di debug nello spazio · %d\n"
+              (or (gdev-workspace-directory) "senza cartella")
+              (if (and (window-live-p editor) (featurep 'eglot)
+                       (with-current-buffer (window-buffer editor)
+                         (and (eglot-managed-p) (eglot-current-server))))
+                  "connesso" "inattivo")
+              (length debug)))))
+
+(declare-function gdev-workbench-operations-log "gdev-workbench-operations" ())
+
+(defun gdev-doctor-json (results)
+  "Rendi RESULTS e le misure del profilo in JSON per il supporto."
+  (let* ((live (and (not noninteractive) (bound-and-true-p gdev-layout-mode)))
+         (report (copy-tree (gdev-doctor-last-measures) t)))
+    (seq-doseq (row (plist-get report :misure))
+      (unless (plist-get row :limite_ms) (plist-put row :limite_ms :null)))
+    (decode-coding-string
+     (json-serialize
+      (list :versione 1 :contesto (if live "editor" "terminale")
+            :profilo (or gdev-active-profile "predefinito")
+            :spazio (or (and live (gdev-workspace-directory)) :null)
+            :operazioni (if (and live (fboundp 'gdev-workbench-operations-log))
+                            (gdev-workbench-operations-log) :null)
+            :controlli (vconcat (mapcar (pcase-lambda (`(,level ,label ,hint))
+                                         (list :livello (symbol-name level) :voce label :rimedio hint))
+                                       results))
+            :prestazioni (or report :null))
+      :null-object :null) 'utf-8-unix)))
+
 (defun gdev-doctor--core-checks ()
   "Restituisce i controlli che non dipendono dai moduli."
   (append
@@ -105,17 +171,23 @@ STATUS è `ok', `warning' o `note'."
                           notes "")))
      (when fine
        (concat "\nA posto:\n"
-               (mapconcat (pcase-lambda (`(,_ ,label ,_)) (format "  ✓ %s\n" label)) fine ""))))))
+               (mapconcat (pcase-lambda (`(,_ ,label ,_)) (format "  ✓ %s\n" label)) fine "")))
+     (gdev-doctor--session)
+     (gdev-doctor-format-measures (gdev-doctor-last-measures)))))
 
 ;;;###autoload
 (defun gdev-doctor ()
   "Controlla l'installazione e mostra cosa manca, con il rimedio."
   (interactive)
-  (let ((text (gdev-doctor-format (gdev-doctor-run))))
+  (let* ((results (gdev-doctor-run))
+         (text (gdev-doctor-format results))
+         (report (gdev-doctor-json results)))
     (with-current-buffer (get-buffer-create "*gdev-doctor*")
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (insert text))
+        (insert text "\n")
+        (insert-text-button "Copia rapporto JSON" 'follow-link t
+                            'action (lambda (_) (kill-new report) (message "Rapporto copiato"))))
       (special-mode)
       (goto-char (point-min))
       (pop-to-buffer (current-buffer)))))

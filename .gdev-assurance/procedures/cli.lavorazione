@@ -7,6 +7,20 @@
         "file": "test/gdev-cli-contract-test.py",
         "argomenti": "[]"
       }
+    },
+    {
+      "azione": "progetto-test-python",
+      "argomenti": {
+        "file": "test/gdev-gui-startup-runner-test.py",
+        "argomenti": "[]"
+      }
+    },
+    {
+      "azione": "progetto-test-python",
+      "argomenti": {
+        "file": "test/gdev-voice-contract-test.py",
+        "argomenti": "[]"
+      }
     }
   ]
 }

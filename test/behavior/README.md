@@ -12,6 +12,7 @@ selezione della modalità nelle prove successive.
 
 | Area | Fonte e adattamento | Prove |
 | --- | --- | --- |
+| Voce italiana | [Earwig 0.2.0](../../vendor/elpa/earwig-0.2.0/upstream-tests.json) e adattamento GDev; [voice.feature](voice.feature) | 74 contratti originali, grammatica e sessioni ERT, 7 scenari BDD; contratti offline del modello facoltativo inclusi nella suite CLI |
 | Parsing e recupero incrementale | Corpus originali Tree-sitter JavaScript, Python e JSON; alberi, campi dichiarati e nodi mancanti confrontati con il parser Emacs | 233 sezioni, ciascuna con confronto iniziale e dopo una modifica |
 | Evidenziazione | Marcatori Tree-sitter delle parole chiave; baseline TextMate TypeScript per commenti, stringhe e parole chiave, tradotto nelle facce semantiche Emacs | 3 test con asserzioni sui caratteri dei token |
 | Comportamenti nativi | Selezione esplicita dai test GNU Emacs 30.1 di Electric Pair, JavaScript e Python | 25 test, con oracoli originali |

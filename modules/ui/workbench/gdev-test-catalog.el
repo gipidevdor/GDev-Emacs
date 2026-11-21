@@ -15,6 +15,7 @@
 (require 'subr-x)
 (require 'xml)
 (require 'gdev-lib)
+(require 'gdev-project-types)
 
 (declare-function gdev-python--interpreter "../../lang/python/config" (root))
 (declare-function libxml-parse-region "xml")
@@ -33,12 +34,9 @@
   "Scegli il catalogo per MODE e ROOT, usando CTEST-DIRECTORY se disponibile."
   (let ((language (gdev-test-catalog-language mode)))
     (cond ((eq language 'python) 'pytest)
-          ((eq language 'javascript)
-           (if (gdev-project-file-exists-p root "deno.json" "deno.jsonc") 'deno
-             (if (gdev-project-file-exists-p root "package.json") 'node 'deno)))
+          ((eq language 'javascript) (or (gdev-project-javascript-runtime root) 'deno))
           (ctest-directory 'ctest)
-          ((gdev-project-file-exists-p root "deno.json" "deno.jsonc") 'deno)
-          ((gdev-project-file-exists-p root "package.json") 'node)
+          ((gdev-project-javascript-runtime root))
           ((and (fboundp 'gdev-python--interpreter)
                 (gdev-project-file-exists-p root "pyproject.toml" "pytest.ini" "setup.cfg")) 'pytest))))
 

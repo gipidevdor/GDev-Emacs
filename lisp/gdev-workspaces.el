@@ -254,7 +254,7 @@ e chiave."
            when key collect (cons buffer key)))
 
 (defvar gdev-workspaces--checkpoint-signature nil
-  "Identità e revisione delle bozze incluse nell'ultimo salvataggio periodico.")
+  "Revisioni delle bozze e metadati dell'ultimo salvataggio periodico.")
 
 (defvar gdev-workspaces--checkpoint-file nil
   "File dell'ultimo salvataggio periodico completato.")
@@ -308,29 +308,60 @@ e chiave."
     (gdev-workspaces-restore source)
     (when (stringp source) (delete-file source))))
 
-(defun gdev-workspaces--write-checkpoint (_file drafts revisions)
+(defun gdev-workspaces--checkpoint-window-key (node)
+  "Descrivi la disposizione NODE senza movimenti del cursore o cronologie."
+  (when node
+    (cons (car node)
+          (cl-loop for entry in (cdr node)
+                   unless (memq (car entry) '(prev-buffers next-buffers))
+                   collect (pcase (car entry)
+                             ('buffer (list 'buffer (cadr entry)
+                                            (assq 'selected (cddr entry))))
+                             ((or 'leaf 'hc 'vc) (gdev-workspaces--checkpoint-window-key entry))
+                             (_ entry))))))
+
+(defun gdev-workspaces--checkpoint-metadata (session)
+  "Descrivi gli spazi di SESSION senza leggere o conservare il testo delle bozze."
+  (list (plist-get session :active)
+        (mapcar (lambda (record)
+                  (let ((copy (copy-tree record))
+                        (windows (plist-get record :windows)))
+                    (plist-put copy :windows
+                               (when windows
+                                 (cons (car windows)
+                                       (gdev-workspaces--checkpoint-window-key (cdr windows)))))))
+                (plist-get session :tabs))
+        (copy-tree (gdev-scoped-options-session))))
+
+(defun gdev-workspaces--session-populated-p (session)
+  "Indica se SESSION contiene uno spazio da conservare anche senza bozze."
+  (let ((records (plist-get session :tabs)))
+    (or (cdr records) (plist-get (car records) :files)
+        (plist-get (car records) :root) (plist-get (car records) :folder)
+        (plist-get (car records) :folders) (plist-get (car records) :project))))
+
+(defun gdev-workspaces--write-checkpoint (_file _drafts revisions session)
   "Salva la sessione e riusa le bozze già raccolte alla stessa revisione."
   (let* ((next (make-hash-table :test #'eq))
-         (remaining gdev-workspaces--checkpoint-cache-limit)
-         (session
-          (gdev-workspaces--session
-           (tab-bar-tabs) drafts
-           (lambda (buffer key)
-             (let* ((revision (gethash buffer revisions))
-                    (old (and gdev-workspaces--checkpoint-cache
-                              (gethash buffer gdev-workspaces--checkpoint-cache)))
-                    (entry (if (equal (car old) revision) old
-                             (cons revision (cons key (gdev-drafts--snapshot buffer)))))
-                    (bytes (string-bytes (plist-get (cddr entry) :text))))
-               (when (<= bytes remaining)
-                 (puthash buffer entry next)
-                 (cl-decf remaining bytes))
-               (cdr entry))))))
+         (remaining gdev-workspaces--checkpoint-cache-limit))
+    (setf (plist-get session :drafts)
+          (mapcar (pcase-lambda (`(,key . ,buffer))
+                    (let* ((revision (gethash buffer revisions))
+                           (old (and gdev-workspaces--checkpoint-cache
+                                     (gethash buffer gdev-workspaces--checkpoint-cache)))
+                           (entry (if (equal (car old) revision) old
+                                    (cons revision (cons key (gdev-drafts--snapshot buffer)))))
+                           (bytes (string-bytes (plist-get (cddr entry) :text))))
+                      (when (<= bytes remaining)
+                        (puthash buffer entry next)
+                        (cl-decf remaining bytes))
+                      (cdr entry)))
+                  (plist-get session :drafts)))
     (gdev-workspaces--write session)
     next))
 
 (defvar gdev-workspaces--checkpoint-timer nil
-  "Salvataggio delle bozze in attesa della prossima pausa nella scrittura.")
+  "Salvataggio dello spazio in attesa della prossima pausa nella scrittura.")
 
 (defconst gdev-workspaces--checkpoint-pause 2
   "Secondi di inattività prima di scrivere le bozze dovute.")
@@ -345,23 +376,28 @@ digitazione il salvataggio attende, se Emacs è già inattivo parte subito."
                                #'gdev-workspaces-checkpoint))))
 
 (defun gdev-workspaces-checkpoint ()
-  "Conserva le bozze modificate periodicamente per il recupero."
+  "Conserva periodicamente bozze, cartelle e disposizione degli spazi."
   (let* ((drafts (when gdev-drafts-hot-exit
                    (sort (gdev-workspaces--drafts)
                          :key (lambda (entry) (buffer-name (car entry)))
                          :lessp #'string-lessp)))
          (file (gdev-state-db-file))
          (revisions (make-hash-table :test #'eq))
-         (signature (mapcar (pcase-lambda (`(,buffer . ,key))
-                              (cons buffer (puthash buffer
-                                                    (gdev-workspaces--draft-revision buffer key)
-                                                    revisions)))
-                            drafts)))
-    (when (or (not (equal signature gdev-workspaces--checkpoint-signature))
-              (and drafts (not (equal file gdev-workspaces--checkpoint-file))))
+         (session (gdev-workspaces--session
+                   (tab-bar-tabs) drafts (lambda (buffer key) (cons key buffer))))
+         (signature (cons (mapcar (pcase-lambda (`(,buffer . ,key))
+                                   (cons buffer (puthash buffer
+                                                         (gdev-workspaces--draft-revision buffer key)
+                                                         revisions)))
+                                 drafts)
+                          (gdev-workspaces--checkpoint-metadata session))))
+    (when (and (or drafts gdev-workspaces--session-active
+                   (gdev-workspaces--session-populated-p session))
+               (or (not (equal signature gdev-workspaces--checkpoint-signature))
+                   (not (equal file gdev-workspaces--checkpoint-file))))
       (with-demoted-errors "Salvataggio delle bozze: %S"
         (setq gdev-workspaces--checkpoint-cache
-              (gdev-workspaces--write-checkpoint file drafts revisions)
+              (gdev-workspaces--write-checkpoint file drafts revisions session)
               gdev-workspaces--checkpoint-file file
               gdev-workspaces--checkpoint-signature signature
               gdev-workspaces--session-active t)))))
@@ -373,12 +409,8 @@ Le bozze si includono quando `gdev-drafts-hot-exit' è attivo."
   (let* ((session (gdev-workspaces--session
                    (tab-bar-tabs) (when gdev-drafts-hot-exit
                                     (gdev-workspaces--drafts))))
-         (records (plist-get session :tabs)))
-    (when (or (not on-exit) gdev-workspaces--session-active (cdr records)
-              (plist-get (car records) :files) (plist-get (car records) :root)
-              (plist-get (car records) :folder)
-              (plist-get (car records) :folders)
-              (plist-get (car records) :project))
+         (populated (gdev-workspaces--session-populated-p session)))
+    (when (or (not on-exit) gdev-workspaces--session-active populated)
       (gdev-workspaces--write session))))
 
 (defun gdev-workspaces--write (session)

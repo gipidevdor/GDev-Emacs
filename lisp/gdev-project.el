@@ -8,6 +8,7 @@
 (require 'gdev-taxonomy)
 (require 'gdev-trace)
 (require 'gdev-graph)
+(require 'gdev-project-catalog)
 
 (defconst gdev-project-manifest ".gdev-assurance/project.eld")
 (defconst gdev-project-categories
@@ -68,7 +69,8 @@
   (gdev-project--plist data '(:version :id :name :purpose :scope :owner :stakeholders :profile
                              :criticality :context :constraints :risks :standards :requirements
                              :procedures :snippets :artifacts :verification :validation
-                             :configuration :release :maintenance :source-roots :source-files))
+                             :configuration :release :maintenance :source-roots :source-files :catalogs))
+  (gdev-project-catalog-validate (plist-get data :catalogs))
   (unless (and (eq 1 (plist-get data :version)) (gdev-project--id-p (plist-get data :id))
                (gdev-project--text-p (plist-get data :name))
                (memq (plist-get data :profile) gdev-process-profiles)
@@ -242,6 +244,10 @@
           (missing "Compila %s" (nth 1 field))))
       (unless (plist-get data :requirements) (missing "Definisci almeno un requisito verificabile"))
       (unless (plist-get data :standards) (missing "Dichiara gli standard e il loro perimetro"))
+      (dolist (catalog (plist-get data :catalogs))
+        (let ((view (gdev-project-catalog-data root catalog)))
+          (unless (equal "CURRENT" (alist-get 'status view))
+            (missing "%s: %s" (plist-get catalog :id) (alist-get 'problem view)))))
       (dolist (path (and (memq stage '(VERIFYING REVIEWING APPROVED BASELINED)) (plist-get data :source-files)))
         (unless (file-regular-p (gdev-project-file root path)) (missing "Sorgente dichiarata assente: %s" path)))
       (dolist (path (and (memq stage '(VERIFYING REVIEWING APPROVED BASELINED)) (plist-get data :source-roots)))
@@ -308,6 +314,8 @@
 (defun gdev-project-inputs (root data)
   "Fissa manifesto, sorgenti, piani e input espliciti di DATA in ROOT."
   (let ((chunks (list (cons gdev-project-manifest (plist-get data :source-files)))))
+    (dolist (catalog (plist-get data :catalogs))
+      (push (cons (plist-get catalog :path) (gdev-project-catalog-paths root catalog)) chunks))
     (dolist (row (plist-get data :requirements)) (push (plist-get row :sources) chunks))
     (dolist (row (plist-get data :procedures))
       (dolist (step (plist-get row :steps))
@@ -383,6 +391,7 @@ Bytecode, uscite e ricevute non entrano nel contesto delle sorgenti."
          `((schema_version . 1) (project . ,(gdev-project-json data))
            (status . ,(if problems "INCOMPLETE" "DEFINED")) (problems . ,(vconcat problems))
            (inputs . ,(gdev-project-inputs root data))
+           (catalogs . ,(vconcat (mapcar (lambda (row) (gdev-project-catalog-data root row)) (plist-get data :catalogs))))
            (fields . ,(vconcat (mapcar (lambda (field)
                                         `((key . ,(substring (symbol-name (car field)) 1))
                                           (title . ,(nth 1 field)) (due_from . ,(symbol-name (nth 2 field)))

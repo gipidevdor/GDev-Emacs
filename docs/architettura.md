@@ -51,6 +51,17 @@ aggiornata, mentre l'oggetto restituito all'avvio può essere superato.
 Un'interruzione impedisce l'attivazione automatica anche se il processo
 restituisce un successo tardivo. Il completamento viene pubblicato una volta.
 
+Il lettore dell'ambiente della shell possiede processo, timeout e identità
+del profilo; pubblica valori completi dopo una scrittura riuscita. Il
+rilevamento dei test conserva separatamente richiesta corrente e registro
+diagnostico, rilasciandoli al cambio di progetto o alla chiusura della vista.
+La scelta del runtime JavaScript appartiene a `gdev-project-types` e serve
+sia i comandi sul documento sia il catalogo dei test.
+
+Il checkpoint confronta revisioni delle bozze e metadati dello spazio.
+Legge la disposizione senza ricopiare il testo invariato; movimenti del
+cursore e cronologie di navigazione non provocano scritture periodiche.
+
 Le librerie `gdev-ui` e `gdev-layout` sono primitive condivise, conservate
 nella cartella Workbench e disponibili al nucleo dei comandi anche quando
 il modulo grafico è disattivato. Questa dipendenza intenzionale è distinta

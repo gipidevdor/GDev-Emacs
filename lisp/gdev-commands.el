@@ -25,6 +25,18 @@
 (require 'isearch)
 (require 'project)
 
+(autoload 'gdev-voice-open "gdev-voice-view" nil t)
+(autoload 'gdev-voice-execute "gdev-voice" nil t)
+(autoload 'gdev-voice-learn-correction "gdev-voice" nil t)
+(autoload 'gdev-voice-start-dictation "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-start-command "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-read "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-pause "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-stop "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-select-voice "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-prepare "gdev-voice-audio" nil t)
+(autoload 'gdev-voice-diagnostics "gdev-voice-backend" nil t)
+
 (defvar gdev-user-directory)            ; early-init.el
 (defvar imenu-auto-rescan)
 (defvar imenu-flatten)

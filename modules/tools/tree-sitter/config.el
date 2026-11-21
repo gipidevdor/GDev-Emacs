@@ -163,12 +163,30 @@ inclusa; queste versioni fissate funzionano con Emacs 30.")
           (when (buffer-live-p (process-buffer process)) (kill-buffer (process-buffer process)))))
       (delete-directory scratch t))))
 
-(defun gdev-treesit-install-grammars (&optional jobs)
+(defun gdev-treesit-install-grammars (&optional jobs background)
   "Installa le grammatiche mancanti, con JOBS processi se richiesto.
 Le ricette locali usano il programma di installazione ordinario.
-Richiede git e un compilatore C. Restituisce i linguaggi non installati."
-  (interactive)
+Richiede git e un compilatore C. Restituisce i linguaggi non installati.
+Con BACKGROUND restituisce il buffer del processo, come dal menu."
+  (interactive (list nil t))
   (require 'treesit)
+  (if background
+      (gdev-maintenance-run
+       "Grammatiche dei linguaggi" (expand-file-name invocation-name invocation-directory)
+       "--batch" "-Q" "-l" (gdev-config-file "early-init.el")
+       "-L" (gdev-config-file "lisp") "-l" (gdev-config-file "modules/tools/tree-sitter/config.el")
+       "--eval" (prin1-to-string
+                 `(progn
+                    (require 'treesit)
+                    (let ((gdev-treesit-languages ',gdev-treesit-languages)
+                          (treesit-language-source-alist ',treesit-language-source-alist)
+                          (treesit-extra-load-path ',treesit-extra-load-path)
+                          (exec-path ',exec-path))
+                      (kill-emacs (if (gdev-treesit--install-grammars) 1 0))))))
+    (gdev-treesit--install-grammars jobs)))
+
+(defun gdev-treesit--install-grammars (&optional jobs)
+  "Installa con JOBS processi e restituisci le grammatiche ancora assenti."
   (let ((parallel (and jobs (> jobs 1)
                        (not (memq system-type '(windows-nt cygwin)))
                        (not (file-remote-p user-emacs-directory))
@@ -188,8 +206,7 @@ Richiede git e un compilatore C. Restituisce i linguaggi non installati."
           (gdev-treesit--install-workers (nreverse recipes) jobs)
         (file-error (message "Grammatiche: %s" (error-message-string problem)))))
     (let ((failed (seq-remove #'treesit-language-available-p (nreverse missing))))
-      (when (called-interactively-p 'interactive)
-        (message (if failed (format "Non installate: %s" failed) "Tutte le grammatiche sono installate")))
+      (when failed (message "Grammatiche mancanti: %s. Consulta il registro e riprova." failed))
       failed)))
 
 ;;; config.el ends here

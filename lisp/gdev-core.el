@@ -319,6 +319,20 @@ beneficia.")
 
 ;;;; Documentazione al cursore e riferimenti incrociati (integrati)
 
+(defvar gdev-core--xref-search-program-auto nil
+  "Ultimo programma scelto automaticamente per la ricerca dei riferimenti.")
+
+(defun gdev-core--refresh-xref-search-program ()
+  "Risolvi di nuovo la ricerca automatica dopo l'arrivo dell'ambiente shell.
+Conserva un programma scelto dalla configurazione o da Customize."
+  (when (and (eq xref-search-program gdev-core--xref-search-program-auto)
+             (not (get 'xref-search-program 'saved-value))
+             (not (get 'xref-search-program 'customized-value)))
+    (setq gdev-core--xref-search-program-auto (if (executable-find "rg") 'ripgrep 'grep)
+          xref-search-program gdev-core--xref-search-program-auto)))
+
+(add-hook 'gdev-env-after-refresh-hook #'gdev-core--refresh-xref-search-program)
+
 (setq eldoc-echo-area-use-multiline-p nil ; una riga: l'area messaggi non salta
       ;; Il valore di Emacs: con Eglot ogni pausa invia descrizione, firma,
       ;; evidenziazione e azioni al server; una pausa più breve li manda
@@ -326,7 +340,8 @@ beneficia.")
       eldoc-idle-delay 0.5
       ;; Ogni finestra ha la sua cronologia di M-, come la scheda di un editor.
       xref-history-storage #'xref-window-local-history
-      xref-search-program (if (executable-find "rg") 'ripgrep 'grep))
+      xref-search-program (setq gdev-core--xref-search-program-auto
+                               (if (executable-find "rg") 'ripgrep 'grep)))
 
 ;;;; Strumenti locali al progetto in ogni file aperto
 

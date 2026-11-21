@@ -63,6 +63,23 @@
   "Manifesti dei motori distribuiti, in ordine di precedenza.
 Il catalogo è condiviso dal riconoscimento e dalla ricerca delle radici.")
 
+(defun gdev-project-javascript-runtime (root)
+  "Restituisci il motore JavaScript dichiarato in ROOT, oppure nil.
+I manifesti Deno prevalgono su package.json. La scelta non dipende dagli
+eseguibili installati: un motore mancante va preparato, non sostituito."
+  (cond ((gdev-project-file-exists-p root "deno.json" "deno.jsonc") 'deno)
+        ((gdev-project-file-exists-p root "package.json") 'node)))
+
+(defun gdev-project-javascript-root (directory boundary)
+  "Trova il pacchetto JavaScript sopra DIRECTORY, entro BOUNDARY.
+Senza un manifesto annidato conserva BOUNDARY. Non interroga host remoti."
+  (let ((candidate
+         (unless (or (file-remote-p directory) (file-remote-p boundary))
+           (locate-dominating-file directory #'gdev-project-javascript-runtime))))
+    (if (and candidate (or (equal candidate boundary) (file-in-directory-p candidate boundary)))
+        (file-name-as-directory (expand-file-name candidate))
+      boundary)))
+
 (defun gdev-project-build-marked-p (root)
   "Indica se ROOT dichiara un sistema di progetto conosciuto.
 Non richiede un repository Git o il caricamento del linguaggio."

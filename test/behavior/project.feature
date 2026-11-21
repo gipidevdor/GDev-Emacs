@@ -44,3 +44,9 @@ Funzionalità: Operazioni automatiche del progetto
     Allora la compilazione termina con successo
     E esiste il prodotto ".venv/pyvenv.cfg"
     E esiste il prodotto "strumenti-pronti"
+
+  Scenario: Dalla cartella Perl alla chiusura dello spazio dopo il debug
+    Dato un progetto operativo "Programma Perl"
+    Quando apro la cartella, compilo, ispeziono il programma nel debugger e chiudo lo spazio
+    Allora il debugger ha letto il valore dal programma
+    E sono tornato allo spazio iniziale
