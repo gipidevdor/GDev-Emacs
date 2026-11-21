@@ -49,7 +49,7 @@ fi
 
 if [ "${1:-}" = "emacs" ]; then
     shift
-    exec "$EMACS" --init-directory "$root" "$@"
+    exec "$EMACS" "--init-directory=$root" --load "$root/bin/gdev-startup-check.el" "$@"
 fi
 
 if [ "${1:-}" = "agent" ] || [ "${1:-}" = "agente" ]; then

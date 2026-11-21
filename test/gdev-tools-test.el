@@ -181,9 +181,9 @@
     (unwind-protect
         (cl-letf (((symbol-function 'gdev-python-root) (lambda () root)))
           (let ((gdev-trusted-projects nil))
-            ;; Senza ambiente: il suggerimento è crearlo.
+            ;; L'installazione automatica richiede prima l'autorizzazione.
             (should-not (gdev-python--venv-exists-p root))
-            (should (string-search "Crea prima"
+            (should (string-search "gdev-trust-project"
                                    (cadr (should-error (gdev-python-install-tools) :type 'user-error))))
             ;; Con l'ambiente ma senza fiducia: il suggerimento è autorizzare la cartella.
             (make-directory (expand-file-name ".venv/bin" root) t)

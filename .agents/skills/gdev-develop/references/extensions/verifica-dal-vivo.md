@@ -105,6 +105,12 @@ per completare quella verifica.
   verifica con un timer breve e richiedi esplicitamente i moduli caricati
   solo all'apertura delle viste. La sonda deve produrre un esito e terminare
   l'istanza isolata; un messaggio di avvio non dimostra che sia stata eseguita.
+- Per il primo avvio verifica l'ingresso distribuito (`gdev emacs` e l'app
+  dedicata), con profilo e stato vuoti. Richiedi il riscontro dell'istanza
+  sul checkout, gli errori d'inizializzazione e l'interfaccia effettivamente
+  caricata. Prova anche la precedenza di configurazioni Emacs già esistenti.
+  Non dedurre il successo della finestra dall'esito dell'installazione e non
+  spostare file personali per far funzionare un lanciatore esplicito.
 - Dimostra che una prova di regressione coglie il difetto: ripeti il test
   dopo aver sostituito la funzione corretta con `fset` a `ignore`, o dopo
   aver ripristinato il valore errato, e verifica che fallisca. Per

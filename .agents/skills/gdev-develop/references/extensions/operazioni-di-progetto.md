@@ -30,6 +30,18 @@ secondo: il test deve cambiare il sorgente subito e rilevarne gli errori.
 Per la CLI di test controlla anche che gli hook di chiusura finiscano prima
 della rimozione dello stato temporaneo.
 
+Per la preparazione Python verifica il comando esplicito da una cartella
+senza `.venv`, poi ripetilo con l'ambiente esistente e con una cartella
+incompleta da conservare. Le prove possono fornire un modulo `pip.py`
+locale alla fixture per registrare l'interprete effettivo senza rete.
+Non usare questa sostituzione nei progetti reali.
+
+La configurazione usa `gdev-compilation-configure` per aggiornare l'ambiente
+dopo l'uscita zero. Verifica anche un processo già terminato al ritorno
+dell'avvio, un errore del fornitore e un documento passato a un'altra radice.
+Per le attività del pannello lascia attivo uno spazio diverso: il contesto
+esplicito deve prevalere e l'ambiente deve essere pronto prima del catalogo.
+
 ## Catene asincrone e contesto di esecuzione
 
 1. Avvia attraverso i tasti e il riquadro con lo stesso profilo. Usa un

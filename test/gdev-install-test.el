@@ -1,0 +1,95 @@
+;;; gdev-install-test.el --- Primo ingresso esplicito e riscontro -*- lexical-binding: t; -*-
+;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Commentary:
+;; Il lanciatore sceglie il checkout; soltanto l'istanza avviata può confermarne
+;; il caricamento. Queste prove includono profili estranei ed esiti negativi.
+;;; Code:
+(require 'ert)
+(require 'gdev-install)
+(load (gdev-config-file "bin/gdev-startup-check.el") nil t t)
+
+(ert-deftest gdev-test-install-launcher-keeps-checkout-profile-and-arguments ()
+  (let* ((directory (make-temp-file "gdev-ingresso-" t))
+         (gdev-config-directory (expand-file-name "checkout con spazi è '" directory))
+         (process-environment (copy-sequence process-environment))
+         app)
+    (unwind-protect
+        (progn
+          (make-directory (expand-file-name "bin" gdev-config-directory) t)
+          (with-temp-file (expand-file-name "bin/gdev" gdev-config-directory)
+            (insert "#!/bin/sh\nprintf '%s\\n' \"$GDEV_USER_DIR\" \"${GDEV_STATE_DIR:-assente}\" \"$GDEV_STARTUP_REQUIRE_WORKBENCH\" \"$GDEV_STARTUP_REQUIRE_GRAPHICAL\" \"$@\"\n"))
+          (set-file-modes (expand-file-name "bin/gdev" gdev-config-directory) #o700)
+          (setenv "GDEV_USER_DIR" "profilo con spazi è ' $nessuna_espansione")
+          (setenv "GDEV_STATE_DIR" nil)
+          (setq app (gdev-install-macos-application directory))
+          (should (equal app (gdev-install-macos-application directory)))
+          ;; Un ambiente ereditato da un'altra sessione non cambia il profilo.
+          (setenv "GDEV_USER_DIR" "altro profilo")
+          (setenv "GDEV_STATE_DIR" "altro stato")
+          (with-temp-buffer
+            (should (zerop (call-process (expand-file-name "Contents/MacOS/gdev" app)
+                                         nil t nil "documento con spazi è.txt")))
+            (should (equal (buffer-string)
+                           "profilo con spazi è ' $nessuna_espansione\nassente\n1\n1\nemacs\ndocumento con spazi è.txt\n"))))
+      (delete-directory directory t))))
+
+(ert-deftest gdev-test-install-launcher-preserves-unrelated-apps-and-links ()
+  (let* ((directory (make-temp-file "gdev-ingresso-" t))
+         (app (expand-file-name "GDev-Emacs.app" directory))
+         (personal (expand-file-name "personale" app)))
+    (unwind-protect
+        (progn
+          (make-directory app)
+          (with-temp-file personal (insert "da conservare"))
+          (should-error (gdev-install-macos-application directory) :type 'user-error)
+          (should (equal "da conservare" (gdev-read-file-contents personal)))
+          (delete-directory app t)
+          (make-symbolic-link "destinazione-assente" app)
+          (should-error (gdev-install-macos-application directory) :type 'user-error)
+          (should (file-symlink-p app))
+          (delete-file app)
+          (gdev-install-macos-application directory)
+          (delete-directory (expand-file-name "Contents/MacOS" app) t)
+          (make-symbolic-link "destinazione-assente" (expand-file-name "Contents/MacOS" app))
+          (should-error (gdev-install-macos-application directory) :type 'user-error)
+          (should (file-symlink-p (expand-file-name "Contents/MacOS" app))))
+      (delete-directory directory t))))
+
+(ert-deftest gdev-test-install-startup-receipt-rejects-errors-and-missing-interface ()
+  (let ((feature-query (symbol-function 'featurep))
+        (init-file-had-error nil)
+        (gdev-state-startup-issue nil)
+        (gdev-modules-private-errors nil)
+        (gdev-failed-modules nil)
+        (gdev-layout-mode t)
+        (process-environment (copy-sequence process-environment))
+        (directory (make-temp-file "gdev-riscontro-" t)))
+    (unwind-protect
+        (cl-letf (((symbol-function 'display-graphic-p) (lambda (&optional _) t))
+                  ((symbol-function 'featurep)
+                   (lambda (feature &optional subfeature)
+                     (or (eq feature 'gdev-core) (funcall feature-query feature subfeature)))))
+          (setenv "GDEV_STARTUP_REQUIRE_WORKBENCH" "1")
+          (setenv "GDEV_STARTUP_REQUIRE_GRAPHICAL" "1")
+          (setenv "GDEV_STARTUP_CHECK_DIR" directory)
+          (should (eq t (alist-get 'ok (gdev-startup-check-run))))
+          (should (equal "ready\n" (gdev-read-file-contents (expand-file-name "status" directory))))
+          (let ((gdev-layout-mode nil))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-run))))
+            (should (equal "failed\n" (gdev-read-file-contents (expand-file-name "status" directory)))))
+          (let ((gdev-config-directory directory))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-inspect t t)))))
+          (let ((init-file-had-error t))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-inspect t t)))))
+          (let ((gdev-state-startup-issue 'invalid))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-inspect t t)))))
+          (let ((gdev-modules-private-errors '(config)))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-inspect t t)))))
+          (let ((gdev-failed-modules '(workbench)))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-inspect t t)))))
+          (cl-letf (((symbol-function 'display-graphic-p) (lambda (&optional _) nil)))
+            (should (eq :false (alist-get 'ok (gdev-startup-check-inspect t t))))))
+      (delete-directory directory t))))
+
+(provide 'gdev-install-test)
+;;; gdev-install-test.el ends here

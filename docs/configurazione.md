@@ -10,9 +10,13 @@ cd GDev-Emacs
 ./bin/gdev-bootstrap-macos
 ```
 
-Se hai già i sorgenti, esegui solo l’ultimo comando dalla radice del repository. Il programma prepara Emacs e gli strumenti di sviluppo, collega il checkout a `~/.config/emacs` e installa `gdev` in `~/.local/bin`. Puoi rieseguirlo dopo un’interruzione. Per controllare l’installazione usa `gdev doctor`.
+Se hai già i sorgenti, esegui solo l’ultimo comando dalla radice del repository. Il programma prepara Emacs e gli strumenti di sviluppo, installa `gdev` in `~/.local/bin` e crea **GDev-Emacs.app** in `~/Applications`. Poi apre GDev e attende il riscontro della finestra e del banco di lavoro prima di dichiarare l’avvio verificato. Non devi inserire alcuna directory: il lanciatore ricava il checkout automaticamente.
 
-1. Apri Emacs. Dal cruscotto scegli **Nuovo progetto…** (`C-c p n`) per creare un progetto oppure **Apri cartella…** (`⇧⌘O`) per lavorare su file esistenti.
+Per le aperture successive usa **GDev-Emacs.app**, che puoi aggiungere al Dock, oppure `./bin/gdev emacs` dalla cartella dei sorgenti. Le configurazioni Emacs preesistenti vengono conservate. Il collegamento `~/.config/emacs` viene creato soltanto se assente; l’app dedicata sceglie questa distribuzione anche quando esistono `~/.emacs`, `~/.emacs.el` o `~/.emacs.d`. L’icona della normale applicazione Emacs continua a seguire le proprie regole di configurazione.
+
+Puoi rieseguire il bootstrap dopo un’interruzione. Per controllare l’installazione usa `./bin/gdev doctor`. L’opzione `--no-launch`, destinata alle installazioni automatiche, salta l’apertura e dichiara esplicitamente che la finestra non è stata verificata. `GDEV_APPLICATIONS_DIR` permette di scegliere una posizione diversa per l’app dedicata.
+
+1. Nel cruscotto GDev scegli **Nuovo progetto…** (`C-c p n`) per creare un progetto oppure **Apri cartella…** (`⇧⌘O`) per lavorare su file esistenti.
 2. Premi `⌘P`, scrivi parte del nome di un file e aprilo.
 3. In un progetto C o C++, premi `F7` per compilare. I risultati compaiono sotto il codice. Con `F8` raggiungi il problema successivo.
 

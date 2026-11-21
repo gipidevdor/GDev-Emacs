@@ -13,7 +13,7 @@
 #   5. ~/.config/emacs -> questa copia di lavoro, ~/.local/bin/gdev -> bin/gdev
 #   6. gdev install: configurazione privata, ambiente, pacchetti, grammatiche
 #
-# Opzioni:  --skip-brew  --skip-perl  --skip-lisp  (saltano i passi 2, 3, 4)
+# Opzioni: --skip-brew --skip-perl --skip-lisp --no-launch
 #
 # Nessun segreto viene letto o scritto: le chiavi API vanno a mano nel
 # Portachiavi (Keychain); le istruzioni sono alla fine dei messaggi.
@@ -24,11 +24,13 @@ root=$(cd "$(dirname "$0")/.." && pwd -P)
 skip_brew=no
 skip_perl=no
 skip_lisp=no
+launch=yes
 for argument in "$@"; do
     case $argument in
         --skip-brew) skip_brew=yes ;;
         --skip-perl) skip_perl=yes ;;
         --skip-lisp) skip_lisp=yes ;;
+        --no-launch) launch=no ;;
         -h | --help)
             sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
@@ -103,7 +105,8 @@ elif [ -d "$HOME/quicklisp/dists/quicklisp/software" ] &&
     ls -d "$HOME"/quicklisp/dists/quicklisp/software/clhs-* >/dev/null 2>&1; then
     note "già installati in ~/quicklisp"
 else
-    installer=$(mktemp -d)/quicklisp.lisp
+    installer_directory=$(mktemp -d)
+    installer=$installer_directory/quicklisp.lisp
     if [ ! -f "$HOME/quicklisp/setup.lisp" ]; then
         note "scaricamento dell'installatore di Quicklisp da beta.quicklisp.org"
         curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o "$installer"
@@ -113,6 +116,7 @@ else
     sbcl --non-interactive --load "$HOME/quicklisp/setup.lisp" \
         --eval '(ql:quickload "clhs" :silent t)' >/dev/null
     note "Quicklisp installato in ~/quicklisp, con la HyperSpec locale (offline)"
+    rm -rf "$installer_directory"
 fi
 
 # 4b. SF Mono -------------------------------------------------------------------
@@ -137,16 +141,16 @@ fi
 step "Collegamenti"
 config_home=${XDG_CONFIG_HOME:-$HOME/.config}
 mkdir -p "$config_home" "$HOME/.local/bin"
-if [ -L "$config_home/emacs" ] && [ "$(cd "$config_home/emacs" && pwd -P)" = "$root" ]; then
+if [ -L "$config_home/emacs" ] && [ -d "$config_home/emacs" ] && [ "$(cd "$config_home/emacs" && pwd -P)" = "$root" ]; then
     note "$config_home/emacs -> $root"
-elif [ -e "$config_home/emacs" ]; then
-    fail "$config_home/emacs esiste e non è questa copia di lavoro: spostalo altrove e riesegui."
+elif [ -e "$config_home/emacs" ] || [ -L "$config_home/emacs" ]; then
+    note "$config_home/emacs esistente conservato; usa l'ingresso grafico GDev-Emacs dedicato"
 else
     ln -s "$root" "$config_home/emacs"
     note "collegato $config_home/emacs -> $root"
 fi
 for shadow in "$HOME/.emacs" "$HOME/.emacs.el" "$HOME/.emacs.d"; do
-    [ -e "$shadow" ] && note "attenzione: $shadow esiste e ha la precedenza su ~/.config/emacs; spostalo altrove"
+    [ -e "$shadow" ] && note "$shadow conservato; GDev usa --init-directory e non dipende da questa precedenza"
 done
 ln -sf "$root/bin/gdev" "$HOME/.local/bin/gdev"
 note "collegato ~/.local/bin/gdev -> bin/gdev"
@@ -165,7 +169,9 @@ fi
 
 cat <<'EOF'
 
-Pronto.  Avvia Emacs dal Dock o da Spotlight.
+Installazione completata. L'ingresso grafico dedicato è GDev-Emacs.app
+in ~/Applications (oppure GDEV_APPLICATIONS_DIR). Puoi aggiungerlo al Dock.
+Da terminale usa gdev emacs: seleziona esplicitamente questa distribuzione.
 
 I segreti non vanno mai nei file.  Salva ciascuno, una volta sola, nel
 Portachiavi (Keychain):
@@ -177,3 +183,30 @@ L'opzione -w senza valore chiede il segreto senza mostrarlo.
 Claude Code (C-c a c) usa un proprio accesso: esegui `claude' una volta in un
 terminale.
 EOF
+
+if [ "$launch" = no ]; then
+    note "Avvio non richiesto (--no-launch): la finestra GDev non è stata verificata."
+    exit 0
+fi
+
+step "Primo avvio di GDev"
+startup_directory=$(mktemp -d)
+note "Attendo il riscontro dell'interfaccia dalla nuova istanza..."
+GDEV_STARTUP_CHECK_DIR="$startup_directory" GDEV_STARTUP_REQUIRE_WORKBENCH=1 \
+    GDEV_STARTUP_REQUIRE_GRAPHICAL=1 nohup "$root/bin/gdev" emacs >"$startup_directory/emacs.log" 2>&1 </dev/null &
+startup_pid=$!
+remaining=90
+while [ ! -f "$startup_directory/status" ] && [ "$remaining" -gt 0 ]; do
+    kill -0 "$startup_pid" 2>/dev/null || break
+    sleep 1
+    remaining=$((remaining - 1))
+done
+if [ -f "$startup_directory/status" ] && [ "$(cat "$startup_directory/status")" = ready ]; then
+    cat "$startup_directory/result.json"
+    rm -rf "$startup_directory"
+    note "GDev avviato e interfaccia verificata da questa copia di lavoro."
+else
+    [ ! -f "$startup_directory/result.json" ] || cat "$startup_directory/result.json" >&2
+    tail -n 30 "$startup_directory/emacs.log" >&2
+    fail "Avvio GDev non verificato. Riscontro in $startup_directory. Controlla la finestra Emacs e *Warnings*."
+fi

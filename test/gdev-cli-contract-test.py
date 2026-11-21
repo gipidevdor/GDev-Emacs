@@ -31,7 +31,7 @@ class CliContracts(unittest.TestCase):
         (self.user / "snippets").mkdir(parents=True)
         self.state.mkdir()
         self.env = dict(os.environ, EMACS=EMACS, GDEV_USER_DIR=str(self.user),
-                        GDEV_STATE_DIR=str(self.state))
+                        GDEV_STATE_DIR=str(self.state), GDEV_APPLICATIONS_DIR=str(self.directory / "Applications"))
         for variable in ("GDEV_PROFILE", "GDEV_DEBUG"):
             self.env.pop(variable, None)
 
@@ -763,6 +763,108 @@ class CliContracts(unittest.TestCase):
             self.assertEqual(self.payload(cleared)["document"]["cursors"], [])
             self.assertTrue(self.payload(saved)["ok"])
             self.assertEqual(json.loads(plan_file.read_text(encoding="utf-8")), plan)
+
+
+class MacosBootstrapContracts(unittest.TestCase):
+    """Primo ingresso: dipendenze simulate, argomenti e profili reali su disco."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix="gdev-bootstrap-")
+        self.addCleanup(temporary.cleanup)
+        self.directory = Path(temporary.name)
+        self.home = self.directory / "utente"
+        self.home.mkdir()
+        self.repository = self.directory / "checkout con spazi è"
+        (self.repository / "bin").mkdir(parents=True)
+        self.commands = self.directory / "comandi"
+        self.commands.mkdir()
+        self.log = self.directory / "argomenti"
+        self.env = dict(os.environ, HOME=str(self.home), TMPDIR=str(self.directory),
+                        PATH=str(self.commands) + os.pathsep + os.environ["PATH"],
+                        GDEV_BOOTSTRAP_TEST_LOG=str(self.log))
+        for name in ("XDG_CONFIG_HOME", "GDEV_USER_DIR", "GDEV_STATE_DIR", "GDEV_PROFILE"):
+            self.env.pop(name, None)
+        shutil.copy2(ROOT / "bin/gdev-bootstrap-macos", self.repository / "bin/gdev-bootstrap-macos")
+        self.script("uname", "echo Darwin\n")
+        self.script("xcode-select", "echo /strumenti-di-prova\n")
+        self.script("brew", "echo /homebrew-di-prova\n")
+        self.script("sleep", "/bin/sleep 0.01\n")
+        self.script("gdev", """printf '%s\\n' "$@" >> "$GDEV_BOOTSTRAP_TEST_LOG"
+if [ "$1" = install ]; then exit "${GDEV_BOOTSTRAP_TEST_INSTALL_STATUS:-0}"; fi
+if [ -n "${GDEV_STARTUP_CHECK_DIR:-}" ] && [ "${GDEV_BOOTSTRAP_TEST_SILENT:-0}" != 1 ]; then
+  printf '{"ok":true}\\n' > "$GDEV_STARTUP_CHECK_DIR/result.json"
+  printf '%s\\n' "${GDEV_BOOTSTRAP_TEST_STARTUP:-ready}" > "$GDEV_STARTUP_CHECK_DIR/status"
+fi
+""", self.repository / "bin/gdev")
+
+    def script(self, name, content, destination=None):
+        destination = destination or self.commands / name
+        destination.write_text("#!/bin/sh\nset -eu\n" + content)
+        destination.chmod(0o700)
+
+    def bootstrap(self, *options):
+        return subprocess.run([str(self.repository / "bin/gdev-bootstrap-macos"),
+                               "--skip-brew", "--skip-perl", "--skip-lisp", *options],
+                              env=self.env, text=True, capture_output=True, timeout=15)
+
+    def test_first_launch_waits_for_the_running_interface(self):
+        result = self.bootstrap()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("interfaccia verificata", result.stdout)
+        self.assertEqual(self.log.read_text().splitlines(), ["install", "emacs"])
+        self.assertEqual((self.home / ".config/emacs").resolve(), self.repository.resolve())
+
+    def test_existing_and_broken_configurations_are_preserved(self):
+        for broken in (False, True):
+            with self.subTest(broken=broken):
+                config = self.home / ".config/emacs"
+                config.parent.mkdir(exist_ok=True)
+                if broken:
+                    config.symlink_to(self.directory / "cartella-assente")
+                else:
+                    config.mkdir()
+                    (config / "init.el").write_text(";; personale\n")
+                (self.home / ".emacs.el").write_text(";; da conservare\n")
+                result = self.bootstrap()
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual((self.home / ".emacs.el").read_text(), ";; da conservare\n")
+                if broken:
+                    self.assertTrue(config.is_symlink())
+                    config.unlink()
+                else:
+                    self.assertEqual((config / "init.el").read_text(), ";; personale\n")
+                    shutil.rmtree(config)
+
+    def test_failed_and_missing_startup_receipts_do_not_report_ready(self):
+        for flag in ("GDEV_BOOTSTRAP_TEST_STARTUP", "GDEV_BOOTSTRAP_TEST_SILENT"):
+            with self.subTest(flag=flag):
+                self.env[flag] = "failed" if flag.endswith("STARTUP") else "1"
+                result = self.bootstrap()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn("interfaccia verificata", result.stdout)
+                self.env.pop(flag)
+
+    def test_no_launch_and_failed_install_never_claim_a_verified_window(self):
+        result = self.bootstrap("--no-launch")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("interfaccia verificata", result.stdout)
+        self.assertEqual(self.log.read_text().splitlines(), ["install"])
+        self.env["GDEV_BOOTSTRAP_TEST_INSTALL_STATUS"] = "7"
+        result = self.bootstrap()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("emacs", self.log.read_text().splitlines())
+
+    def test_editor_entry_supplies_a_complete_init_directory_argument(self):
+        self.script("emacs-argomenti", 'printf "%s\\n" "$@" > "$GDEV_BOOTSTRAP_TEST_LOG"\n')
+        self.env["EMACS"] = str(self.commands / "emacs-argomenti")
+        result = subprocess.run([str(ROOT / "bin/gdev"), "emacs"], env=self.env,
+                                text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        args = self.log.read_text().splitlines()
+        self.assertEqual(args[0], "--init-directory=" + str(ROOT))
+        self.assertNotIn("--init-directory", args)
+        self.assertTrue(Path(args[0].split("=", 1)[1], "init.el").is_file())
+        self.assertEqual(args[1:], ["--load", str(ROOT / "bin/gdev-startup-check.el")])
 
 
 if __name__ == "__main__":

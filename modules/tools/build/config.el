@@ -188,9 +188,9 @@ Imposta le attività nel config.el privato."
 (defun gdev-build-configured-tasks (root)
   "Leggi le attività personali di ROOT senza interrogare programmi."
   (copy-tree
-                (cdr (seq-find (lambda (entry)
-                                 (equal (expand-file-name (file-name-as-directory (car entry))) root))
-                               gdev-project-tasks))))
+   (cdr (seq-find (lambda (entry)
+                    (equal (expand-file-name (file-name-as-directory (car entry))) root))
+                  gdev-project-tasks))))
 
 (defun gdev-build-project-tasks (root)
   "Leggi le attività personali e quelle dichiarate dal motore di ROOT.
@@ -211,27 +211,29 @@ Con REPEAT usa l'ultima attività eseguita in questo progetto."
          (directory (or (gdev-workspace-directory)
                         (and editor (buffer-local-value 'default-directory (window-buffer editor)))
                         default-directory))
-         (root (gdev-project-operation-root directory
-                                            (unless (equal (gdev-project-root directory) directory)
-                                              (gdev-project-root directory))))
-         (key (file-name-as-directory (abbreviate-file-name root)))
-         (tasks (gdev-build-project-tasks root)))
-    (unless tasks
-      (user-error "Nessuna attività rilevata in %s. Usa Configura compilazione o le Preferenze del progetto" key))
-    (let* ((last (gdev-build--get :last-task root))
-           (name (if repeat
-                     (or last (user-error "Scegli prima un'attività in questo progetto"))
-                   (completing-read "Esegui attività: " tasks nil t nil 'gdev-project-task-history
-                                    (and (assoc last tasks) last))))
-           (command (cdr (assoc name tasks)))
-           (output (format "%s · %s" name key)))
-      (unless command
-        (user-error (if repeat "L'ultima attività non è più configurata: %s"
-                      "Scegli un'attività del progetto: %s") name))
-      (when (process-live-p (get-buffer-process (format "*%s*" output)))
-        (user-error "L'attività «%s» è già in esecuzione" name))
-      (prog1 (gdev-build-compile command output root (gdev-build-scope root nil))
-        (gdev-build--put :last-task name root)))))
+         (root (or (bound-and-true-p project-current-directory-override)
+                   (gdev-project-operation-context-root directory)))
+         (default-directory root)
+         (key (file-name-as-directory (abbreviate-file-name root))))
+    (gdev-use-project-tools root)
+    (gdev-require-project-environment)
+    (let ((tasks (gdev-build-project-tasks root)))
+      (unless tasks
+	(user-error "Nessuna attività rilevata in %s. Usa Configura compilazione o le Preferenze del progetto" key))
+      (let* ((last (gdev-build--get :last-task root))
+             (name (if repeat
+                       (or last (user-error "Scegli prima un'attività in questo progetto"))
+                     (completing-read "Esegui attività: " tasks nil t nil 'gdev-project-task-history
+                                      (and (assoc last tasks) last))))
+             (command (cdr (assoc name tasks)))
+             (output (format "%s · %s" name key)))
+	(unless command
+          (user-error (if repeat "L'ultima attività non è più configurata: %s"
+			"Scegli un'attività del progetto: %s") name))
+	(when (process-live-p (get-buffer-process (format "*%s*" output)))
+          (user-error "L'attività «%s» è già in esecuzione" name))
+	(prog1 (gdev-build-compile command output root (gdev-build-scope root nil))
+          (gdev-build--put :last-task name root))))))
 
 (defun gdev-repeat-project-task ()
   "Esegui di nuovo l'ultima attività di questo progetto."
@@ -355,8 +357,8 @@ Restituisci nil quando una macro non è risolvibile."
                        (cons "generator" (and preset (or generator "")))
                        (cons "fileDir" (directory-file-name (file-local-name (file-name-directory file))))
                        (cons "hostSystemName" (pcase system-type
-                                               ('darwin "Darwin") ('gnu/linux "Linux")
-                                               ('windows-nt "Windows")))
+						('darwin "Darwin") ('gnu/linux "Linux")
+						('windows-nt "Windows")))
                        (cons "dollar" "$") (cons "pathListSep" path-separator))))
     (cl-labels
         ((expand-value (text visited)
@@ -434,7 +436,7 @@ Con ASK chiedi conferma quando non c'è una scelta univoca o PREFERRED."
                 (ask (completing-read
                       (format "Preimpostazione CMake per %s: "
                               (pcase kind ("configure" "la configurazione")
-                                ("build" "la compilazione") ("test" "i test")))
+                                     ("build" "la compilazione") ("test" "i test")))
                       candidates nil t)))))
     (if (and ask choice) (gdev-build--put key choice root) choice)))
 
@@ -466,7 +468,7 @@ Con ASK chiedi conferma quando non c'è una scelta univoca o PREFERRED."
                 (list :configure name :type type :directory
                       (file-name-as-directory
                        (expand-file-name (if (and (file-remote-p root) (file-name-absolute-p folder)
-                                                 (not (file-remote-p folder)))
+                                                  (not (file-remote-p folder)))
                                              (concat (file-remote-p root) folder) folder)
                                          root))))))
         (when (and context name (not type))
@@ -640,8 +642,8 @@ il valore predefinito è quella di `gdev-build--root'."
          (list "--preset" preset)
        (list "--test-dir" (file-local-name (plist-get context :directory))))
      (when-let* ((configuration (or (plist-get context :type)
-                                   (plist-get context :test-configuration)
-                                   (plist-get context :build-configuration))))
+                                    (plist-get context :test-configuration)
+                                    (plist-get context :build-configuration))))
        (list "-C" configuration)))))
 
 (defun gdev-cmake--command (action root context)
@@ -811,10 +813,10 @@ Il valore predefinito di ROOT è la radice di `gdev-build--root'."
          (`(make ,(or 'build 'test 'clean)) (gdev-make-command root action))
          (`(perl-make ,_)
           (gdev-build--generated-command root action "Makefile" "perl Makefile.PL"
-                                          (unless (eq action 'configure) (gdev-make-command root action))))
+                                         (unless (eq action 'configure) (gdev-make-command root action))))
          (`(perl-build ,_)
           (gdev-build--generated-command root action "Build" "perl Build.PL"
-                                          (pcase action ('build "./Build") ('test "./Build test") ('clean "./Build clean"))))
+                                         (pcase action ('build "./Build") ('test "./Build test") ('clean "./Build clean"))))
          (`(perl-prove test) (gdev-command-line "prove" "-lr" "-j" jobs "t"))
          (`(perl-prove build) "find lib -name '*.pm' -exec perl -Ilib -c {} \\;")
          (`(deno build) "deno task build")
@@ -890,7 +892,10 @@ file: la radice della compilazione è la più esterna, non la più vicina."
      (lambda ()
        (pcase-let ((`(,command . ,scope) (gdev-build--command-scope action root)))
          (setq-local compile-command command)
-         (gdev-build-start command root scope (eq action 'build) profile))))))
+         (let ((start (lambda () (gdev-build-start command root scope (eq action 'build) profile))))
+           (if (eq action 'configure)
+               (gdev-compilation-configure root start)
+             (funcall start))))))))
 
 (defun gdev-build-configure (&optional choose-preset from-user)
   "Configura il progetto.
@@ -1058,7 +1063,7 @@ identificata da NAME, o dal nome del programma."
     (puthash key arguments gdev--last-program)
     (save-buffer)
     (gdev-compile (concat (apply #'gdev-command-line
-                                (append interpreter-arguments (list (file-local-name file))))
+                                 (append interpreter-arguments (list (file-local-name file))))
                           " " arguments)
                   (or name (format "Esecuzione · %s" (abbreviate-file-name file)))
                   directory t)))

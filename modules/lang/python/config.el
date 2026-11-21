@@ -57,6 +57,9 @@
 (declare-function gdev-run-file-with "../../tools/build/config")
 (declare-function gdev-format-with-program "../../editor/format/config")
 (declare-function gdev-profile--output "../../tools/profiler/config")
+(autoload 'gdev-build-compile "gdev-compilation")
+(autoload 'gdev-build-scope "gdev-compilation")
+(autoload 'gdev-compilation-configure "gdev-compilation")
 
 (defconst gdev-python-modes '(python-mode python-ts-mode)
   "Modalità principali del codice Python.")
@@ -355,22 +358,36 @@ PREFIX avvia il modulo dei test tramite uno strumento come coverage."
   "Crea un ambiente virtuale .venv nel progetto."
   (interactive)
   (let ((root (gdev-python-root)))
-    (gdev-compile (gdev-python-project-command 'configure root)
-                  (gdev-python--output-name "build-venv" root) root)))
+    (gdev-use-project-tools root)
+    (gdev-require-project-environment)
+    (gdev-compilation-configure
+     root #'gdev-build-compile (gdev-python-project-command 'configure root)
+     (gdev-python--output-name "build-venv" root) root (gdev-build-scope root nil))))
 
 (defun gdev-python-install-tools ()
-  "Installa gli strumenti di sviluppo nell'ambiente .venv del progetto."
+  "Prepara .venv e installa gli strumenti di sviluppo al suo interno.
+Crea l'ambiente quando manca; un errore interrompe la catena. Una cartella
+esistente incompleta viene conservata e segnalata, senza sovrascriverla."
   (interactive)
   (let* ((root (gdev-python-root))
-         (bin (or (gdev-python--venv-bin root)
-                  (if (gdev-python--venv-exists-p root)
-                      (user-error "L'ambiente .venv c'è, ma la cartella non è autorizzata: usa M-x gdev-trust-project")
-                    (user-error "Crea prima l'ambiente del progetto con C-c l v"))))
-         (python (expand-file-name
-                  (if (string-suffix-p "/Scripts/" bin) "python.exe" "python") bin)))
-    (gdev-compile (gdev-command-line (file-local-name python) "-m" "pip" "install"
-                                    "pytest" "coverage" "debugpy" "build")
-                  (gdev-python--output-name "build-strumenti" root) root)))
+         (venv (expand-file-name ".venv/" root)))
+    (unless (or (file-remote-p root) (gdev-project-trusted-p root))
+      (user-error "Autorizza prima la cartella con M-x gdev-trust-project"))
+    (gdev-use-project-tools root)
+    (gdev-require-project-environment)
+    (let* ((bin (gdev-python--venv-bin root))
+           (windows (if bin (string-suffix-p "/Scripts/" bin)
+                      (and (eq system-type 'windows-nt) (not (file-remote-p root)))))
+           (python (expand-file-name (if windows "python.exe" "python")
+                                     (or bin (expand-file-name (if windows "Scripts/" "bin/") venv))))
+           (install (gdev-command-line (file-local-name python) "-m" "pip" "install"
+                                       "pytest" "coverage" "debugpy" "build")))
+      (when (and (or (file-exists-p venv) (file-symlink-p (directory-file-name venv))) (not bin))
+        (user-error "L'ambiente .venv è incompleto: controlla la cartella prima di ricrearlo"))
+      (gdev-compilation-configure
+       root #'gdev-build-compile
+       (if bin install (concat (gdev-python-project-command 'configure root) " && " install))
+       (gdev-python--output-name "build-strumenti" root) root (gdev-build-scope root nil)))))
 
 ;;;; Esecuzione passo passo e misure
 
@@ -587,13 +604,13 @@ già raccolti compare lo stesso, e la compilazione risulta comunque fallita."
 (gdev-set-popup-rule "\\`\\*Python\\[.*\\]\\*\\'" :select t)
 
 (gdev-localleader python python-base-mode-map
-  "a" "applica le correzioni sicure" #'gdev-python-fix
-  "b" "genera i pacchetti distribuibili" #'gdev-python-build
-  "i" "riordina le importazioni" #'gdev-python-organize-imports
-  "s" "installa gli strumenti Python" #'gdev-python-install-tools
-  "t" "esegui il test sotto il cursore" #'gdev-python-test-at-point
-  "v" "crea l'ambiente virtuale" #'gdev-python-create-venv
-  "T" "esegui i test del progetto" #'gdev-python-test-project)
+		  "a" "applica le correzioni sicure" #'gdev-python-fix
+		  "b" "genera i pacchetti distribuibili" #'gdev-python-build
+		  "i" "riordina le importazioni" #'gdev-python-organize-imports
+		  "s" "installa gli strumenti Python" #'gdev-python-install-tools
+		  "t" "esegui il test sotto il cursore" #'gdev-python-test-at-point
+		  "v" "crea l'ambiente virtuale" #'gdev-python-create-venv
+		  "T" "esegui i test del progetto" #'gdev-python-test-project)
 
 (gdev-doctor-executable "python3" "brew install python3")
 (gdev-doctor-executable "ruff" "brew install ruff" 'note)

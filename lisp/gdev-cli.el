@@ -398,6 +398,9 @@ ARGUMENTS può contenere -u per aggiornare prima tutti i pacchetti."
   (gdev-cli-env)
   (let ((status (gdev-cli-sync)))
     (gdev-cli-doctor)
+    (when (and (zerop status) (eq system-type 'darwin))
+      (require 'gdev-install)
+      (gdev-cli--say "Ingresso grafico: %s" (gdev-install-macos-application)))
     status))
 
 (defun gdev-cli--git (&rest arguments)

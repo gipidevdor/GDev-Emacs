@@ -112,6 +112,8 @@
             (setq output (gdev-compile "exec sleep 8" "Prova interruzione")
                   process (get-buffer-process output))
             (should (process-live-p process))
+            (should (equal (gdev-workbench-operation-id (process-get process 'gdev-workbench-operation))
+                           (gdev-workbench-operation-id (car (gdev-workspace-state-get 'gdev-workbench-operations)))))
             (tab-bar-new-tab)
             (should-error (gdev-workbench-operation-cancel) :type 'user-error)
             (should (process-live-p process))

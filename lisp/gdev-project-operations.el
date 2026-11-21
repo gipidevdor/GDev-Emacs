@@ -53,9 +53,8 @@ FRESH nil scarta una risposta asincrona di un contesto superato."
 
 (defun gdev-project-operation-result (status code stopping)
   "Classifica l'esito reale STATUS e CODE, includendo STOPPING."
-  (cond ((or (and (eq status 'exit) (= code 130))
-             (and (eq status 'signal) (= code 2))
-             (and stopping (not (= code 0)))) 'cancelled)
+  (cond ((or stopping (and (eq status 'exit) (= code 130))
+             (and (eq status 'signal) (= code 2))) 'cancelled)
         ((and (eq status 'exit) (= code 0)) 'completed)
         (t 'failed)))
 
@@ -123,6 +122,9 @@ profilo parziale e non viene sostituita da deduzioni silenziose."
         (dolist (stopping '(nil t))
           (cl-incf cases)
           (let ((state (gdev-project-operation-result status code stopping)))
+            (when (and stopping (not (eq state 'cancelled)))
+              (push `((property . "late-success-after-stop") (status . ,(symbol-name status))
+                      (code . ,code)) failures))
             (when (and (eq state 'completed) (not (and (eq status 'exit) (= code 0))))
               (push `((property . "false-success") (status . ,(symbol-name status))
                       (code . ,code) (stopping . ,(if stopping t :false))) failures))))))

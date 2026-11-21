@@ -36,6 +36,14 @@
        (with-temp-file "lib/Fixture.pm" (insert "package Fixture; our $VERSION='0.01'; sub value {42} 1;\n"))
        (with-temp-file "Makefile.PL" (insert "use ExtUtils::MakeMaker; WriteMakefile(NAME=>'Fixture',VERSION_FROM=>'lib/Fixture.pm');\n"))
        (with-temp-file "t/basic.t" (insert "use Test::More tests=>1; use Fixture; is(Fixture::value(),42);\n")))
+      ("Dichiarato"
+       (with-temp-file gdev-project-operations-file
+         (prin1 '(:version 1 :profiles (("Locale" :configure ("sh" "-c" "touch configurato")))) (current-buffer))))
+      ("Strumenti Python"
+       (should (executable-find "python3"))
+       (with-temp-file "requirements.txt" (insert "# libreria standard\n"))
+       (with-temp-file "pip.py"
+         (insert "import pathlib, sys\npathlib.Path('strumenti-pronti').write_text(sys.prefix)\n")))
       ("Python"
        (should (executable-find "python3"))
        (with-temp-file "requirements.txt" (insert "# libreria standard\n"))
@@ -50,12 +58,15 @@
          (gdev-launch-profiles nil) (gdev-launch--standalone-selections nil)
          (gdev-launch--project-profiles (make-hash-table :test #'equal))
          (gdev-launch--native-profiles (make-hash-table :test #'equal))
+         (gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
          (process-environment (copy-sequence process-environment))
          buffer process)
     (setenv "PYTHONPYCACHEPREFIX" (expand-file-name "bytecode" root))
     (with-temp-buffer
       (setq default-directory (expand-file-name "src/nested/" root))
-      (setq buffer (funcall action)))
+      (let ((compilation-start-hook
+             (cons (lambda (process) (setq buffer (process-buffer process))) compilation-start-hook)))
+        (funcall action)))
     (puthash 'output buffer (cadr context))
     (should (buffer-live-p buffer))
     (setq process (get-buffer-process buffer))
@@ -71,6 +82,11 @@
  `(("un progetto operativo \"\\([^\"]+\\)\"" . ,#'gdev-project-bdd--prepare)
    ("compilo dalla sottocartella senza aprire un sorgente" . ,(lambda (context) (gdev-project-bdd--operate context #'gdev-build)))
    ("eseguo tutti i test dalla cartella" . ,(lambda (context) (gdev-project-bdd--operate context #'gdev-build-test)))
+   ("configuro dalla sottocartella senza aprire un sorgente" . ,(lambda (context) (gdev-project-bdd--operate context #'gdev-build-configure)))
+   ("preparo gli strumenti Python dalla cartella" . ,(lambda (context)
+                                                       (gdev-project-bdd--operate
+							context (lambda () (gdev-auto-modules-call-for-project
+                                                                            (car context) #'gdev-python-install-tools)))))
    ("la compilazione termina con successo" . ,(lambda (context) (should (zerop (gethash 'code (cadr context))))))
    ("la compilazione segnala un errore" . ,(lambda (context) (should-not (zerop (gethash 'code (cadr context))))))
    ("esiste il prodotto \"\\([^\"]+\\)\"" . ,(lambda (context name) (should (file-regular-p (expand-file-name name (car context))))))

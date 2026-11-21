@@ -1,4 +1,4 @@
-<!-- Generato da GDev; non modificare. Fonti sha256:08d0d68390ec8ef3ae0450c857ef34ac8804ccb05a3d42e05356b6e2c386277b -->
+<!-- Generato da GDev; non modificare. Fonti sha256:048b6e1c333bb056d5688bd59cdc6635d4ae222939547cc8f5d054cec812de44 -->
 
 # GDev-Emacs
 
@@ -31,7 +31,7 @@ Stato della definizione: DEFINED. Approvazione umana: NOT_VERIFIED. Nessuna cert
 | GDEV-P12 | Valori strutturati, precedenza degli ambiti, impostazioni tardive, cronologie e sessioni sopravvivono alla riapertura. Il progetto attivo determina le preferenze applicate. | test | GDEV-VERIFY |
 | GDEV-Q08 | Un profilo vuoto si inizializza senza archivi preesistenti e conserva i valori al secondo avvio, anche con percorsi non ASCII e primi scrittori concorrenti. Articolo legge un profilo precedente dopo la migrazione. Errori SQL, lock, copie corrotte e pubblicazioni interrotte preservano i dati recuperabili. Il ripristino in un nuovo profilo è ripetibile. | test | GDEV-VERIFY |
 | GDEV-P13 | La scoperta indica il progetto formale. La CLI funziona senza editor e conserva il tipo agente nell'audit. Un nome utente non concede autorizzazioni. I passaggi su mandato riportano la decisione effettiva della persona e l'esecutore. Cache temporanee rimosse dopo successo ed errore; codici persistiti stabili e nomi italiani condivisi. | test | GDEV-VERIFY |
-| GDEV-P14 | Cartelle senza Git e sottocartelle usano la radice corretta. Make conserva il proprio obiettivo predefinito, espone attività e variabili senza riscrivere i sorgenti. Perl prepara e costruisce prima dei test; Python costruisce pacchetti o bytecode. Il controllo comune è passivo e offre recupero; il modello finito rileva falsi successi e fornitori privi di contratto. | test | GDEV-VERIFY |
+| GDEV-P14 | Cartelle senza Git e sottocartelle usano la radice corretta. Make conserva il proprio obiettivo predefinito, espone attività e variabili senza riscrivere i sorgenti. Le attività rispettano il contesto esplicito e attendono l'ambiente prima del catalogo. Perl prepara e costruisce prima dei test; Python costruisce pacchetti o bytecode e prepara gli strumenti creando .venv quando manca. Dopo una configurazione riuscita si aggiorna l'ambiente dei documenti della stessa radice. Il controllo comune è passivo e offre recupero; il modello finito rileva falsi successi e fornitori privi di contratto. Il bootstrap sceglie il checkout senza domande sul percorso, conserva le configurazioni Emacs e attende il riscontro della finestra GDev. | test | GDEV-VERIFY |
 
 ## Standard e copertura
 
@@ -61,7 +61,7 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | .gdev-assurance/procedures/reliability.lavorazione | a27c887bb8a0d031ceec8aad16d599de819bcef8c7d46d81cb59f144d12cd87d |
 | .gdev-assurance/procedures/report.lavorazione | 94e25f7ca453bd2e3ab0d8c521ee5533cbd9e61091b94182e1f19809586996ef |
 | .gdev-assurance/procedures/verify.lavorazione | bf32cbe2d2dadf344adeaf4618449a7af7fea78056d296f3e369ec9b0e5990a8 |
-| .gdev-assurance/project.eld | 72f74e9f6ec8ea82beda79d171a49407a49b8348cb0b368efe593f09ded4a36d |
+| .gdev-assurance/project.eld | bafcf09289ecc14594e9c5cd0a671ad73eb703fb3b955325fc546dac86c19a9c |
 | .gdev-assurance/self-check.eld | f0767277ab2135acbfbbf9d327d3e2bcc4e66cadf1c6f8df46d68dabc70d3467 |
 | .gdev-assurance/snippets/configuration.tmpl | 4c215718ce36097f4c0babfd4b6953f76e4548a2d72a34e2a738182874ffc495 |
 | .gdev-assurance/snippets/documentation.tmpl | e7dad1613b67b1be991a666e5b111e9a6b1a0f318129143d491f1d2d09522695 |
@@ -77,15 +77,17 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | AGENTS.md | 9c1661033c9d17da360dc670ba3dab74f0ff20bb79d5d679e36975539e6c41b2 |
 | LICENSE | 3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986 |
 | README.md | 7b535a74b53420a7f235c18f6a7fbe27b6db88aef2a8a504fc12611e5505bcf9 |
-| bin/gdev | e7f888f293dbdb43ebfec2d94336d5e4e11e7bb746c9ba4d79c04d5b7c2b357c |
+| bin/gdev | 9f31aeb95151c06e9c361281722c74cb6faeb4b0ff57ae0388d2de6d0683c054 |
 | bin/gdev-agent-entry.el | 880b33c88684d1de4b4270a4b94a34877144dac2cb152edbc8fcad803466ec66 |
+| bin/gdev-bootstrap-macos | a1d3b88752570e93678afb4d6229f7b1727e262f930f51afecd6ab1f03b6d4ef |
 | bin/gdev-cli-entry.el | 7cd8be8c6b9bc83415d2fed861c005b1925489091b7b3537b41c3478ec3ce410 |
+| bin/gdev-startup-check.el | 8b276b6fdffdc5b4e85e5d30f3d90a5598e4af7ae662e1dda8bb37ffcc5d415f |
 | bin/gdev-taxonomy-import.py | e873866d1ec6acd6860ebb7eb647713182f771e2dcd064e8f35b87baae2edfbb |
 | docs/agenti.md | bb026d3a83c7df2aa73627e19297729642f2561294014786228b891733839ca6 |
 | docs/algoritmi-e-visualizzazione.md | 40b38a4e89a13db4c3cf8b8935274ef74ea66e8f9db24f928755874933c32bbd |
 | docs/architettura.md | a45b2b89d6c7e5681489eb509db6dbae13b0a657693b96826c3a7e649a03ca28 |
 | docs/assicurazione/standard/indici-fonti.json | fe79879f1fac46479adef672e8407d0b41fded47c0d888d51549d8432d373446 |
-| docs/operazioni-progetto.md | dd8cf823419e2d50d67c6237fadc2040d2743a9f6c74f53046d768feb57c7cc2 |
+| docs/operazioni-progetto.md | eee4f32ac0c6e3452ba204a92e3afed61c8d164cab84f9a8cf0e2a5a0becaa64 |
 | early-init.el | 4addcf3c39159d1686d10a819fad915c8efc5d1e7d56f652b91be6c2f306024a |
 | init.el | 77e763a0814c1c5ae4bd7559a24c341a35e654a6bce75822e8f1ac76f68f57e6 |
 | lisp/gdev-agent-interface.el | 0010b6f3f3ebe818d4efdde7ffe1c825c7bacc161dea24f971fa60aba76708f3 |
@@ -97,22 +99,24 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-assurance.el | 6ba411ab3efba064142b474a7bcfbccbbdf6a804a8994ea639431f70587c04ef |
 | lisp/gdev-auto-modules.el | 721f5131485c82f3f1b6d716c3e6795f009c5fadf062e0fde145821282592795 |
 | lisp/gdev-capability.el | aeee58454258091d21b8ed49c37b25195cf97bb79f88eec3159caf89b83689ba |
-| lisp/gdev-cli.el | 061254aa286bad7afe50b4464965d81003beda82837995587eacc4410e577faf |
+| lisp/gdev-cli.el | 6568a42bbc8aed7f1bd2ba975d4b76f49b76b107a431508a6a15b4b17dfcb491 |
 | lisp/gdev-commands.el | 15a645503f68f6bb36bb55da13069b13c64a24edca888bfc73350886d9b69254 |
+| lisp/gdev-compilation.el | 4e769449ff5a6695e8b87611eb29bc368ba7b024499cf260efeedeb61486249e |
 | lisp/gdev-custom-db.el | 2b14e9553a8c0f91d9729a79e488e4c1280a351e94966a8f3132efc934f1b88e |
 | lisp/gdev-documents.el | 440e155c94a6c4ec62312d451509d83741a20877bf772ddf925163cd4be10dfc |
 | lisp/gdev-evidence.el | 8b629159cedd0922c0b918f2e6c7f9ab5d20cfed8b1011099a08a124ebc661ba |
 | lisp/gdev-formal.el | ac02087c8f5eecf7bcfcf5686500410438a2b4d98a290769e7df814ead0bdd6d |
 | lisp/gdev-graph.el | 6c2d6348c545020ee07d5324dcb1310d77da782989464b5d1d40e8f97bdef6fd |
 | lisp/gdev-handlers.el | 54cd9cf409d74985c6006e23df2b8f4a4b4fa3b657798f12d7aca2a6bf540d01 |
+| lisp/gdev-install.el | c911f2cc6ac7eb80a7ff50b534d96f5ef05e735dcc074e3836a2b812affade57 |
 | lisp/gdev-language-modes.el | ef6697764721789f2cccb5a301291756ff1b1ee56089ab78f82c1762433c9737 |
-| lisp/gdev-launch.el | e1d78a3c6c0701c2674dd05b2d6d3ed84690b1fa4858717bbfeb34a4162ffa02 |
+| lisp/gdev-launch.el | ea08d3ea9ba59933fbdba5c0da8242de137bc795fd4858282ad62526fc678c4f |
 | lisp/gdev-lib.el | 0c5dadcf4ffb11e4e9908a402dcdc0dfc2f986727f4c7766d830c316353981a6 |
 | lisp/gdev-modules.el | 1f6c1e852f8953d889f0f28a1c90614855c4731e04382f57ca7ef1c4bd36f203 |
 | lisp/gdev-native-state.el | 96d23002263f0004fc3da1cb2a4d12d4ef0a8ea8cb8dc4cb84324ddc6f733928 |
 | lisp/gdev-procedures.el | 8f7cd8e85185b894de536652435cdbf40fc5ae7da4f19d0f711bc9ed57e58cd1 |
 | lisp/gdev-process.el | 8a1cadc7a453f78a7137d40e6d0a62b75581f30ad1134910b961fb1aced25492 |
-| lisp/gdev-project-operations.el | 758cf2b81432b1ccf4fc33706b787bce0c869214f057f8084208e72b87b6c56e |
+| lisp/gdev-project-operations.el | af1e6b8464b99cbe6903421caa77e348ae086ce1f24291faf54fac7eaa5d1368 |
 | lisp/gdev-project-report.el | 534de66da534cfd83efa20baccf1ecab91661d9eb9189136d65dbe175cfef671 |
 | lisp/gdev-project-store.el | 7261336c2d75602f73e92798c8ee5eab03772c89c489f533b2e2f12506b13dab |
 | lisp/gdev-project-templates.el | 1d17957f16dcb98462097d10e890a0457e90beb894c445c12a18402d2629536f |
@@ -129,9 +133,9 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | lisp/gdev-workspaces.el | 15f024bfeb1f908c3b98c99af6d4703eaeb73c9939b73b0552c044b03debeb07 |
 | lisp/gdev-xcode.el | eb92cd5cc5e44147609ad96560161196b719aeb40c68f9044df66d3fd7a68ef4 |
 | modules/emacs/ibuffer/config.el | 1850b66d2cd7e635d30dbf8233d2952b05afaffc36f18a79279b056048f96b2f |
-| modules/lang/python/config.el | e2e76e6edd1b0b6a99c6c35b3d6ca736cfd2a857c5e381341dbfa395185530df |
+| modules/lang/python/config.el | b456ae00d0326ce30e594552ae64ffffc7e61baba91f753c4e8d75cbb12ec10a |
 | modules/lang/swift/config.el | 459629313911aef6008b33b93782c26c0a0e3d4e77986cc9dd14ac4222064b6e |
-| modules/tools/build/config.el | 98a53a9ad80c3517ab8d69ebd7b9a837fc7eb9302d8628fec1043bbf6d183007 |
+| modules/tools/build/config.el | 520e6e148755de74db1f8678fca5054e54a828e7a9a4a7ba8dadab9d54f520b6 |
 | modules/tools/build/gdev-make.el | 6ae2078fb6628c42892ffcfaf322c797b8077cfbb4beee78ec6b87346e6de40f |
 | modules/tools/build/gdev-mise.el | bdbe85a0ab7aee703d0b8e4fe267023ceec7b2b3130d9302dc82a348dbcbfdbb |
 | modules/tools/build/gdev-project-control.el | 7fd7e13c6fdb40258bc475955ed7e2daade2e9228a8545340ff7835c39f03305 |
@@ -143,9 +147,10 @@ I campi dovuti sono compilati. Questo non attesta l'esecuzione delle verifiche.
 | modules/ui/workbench/gdev-preferences.el | c3b02b2d75ce4811812349c5f62f15a5fb9762fbcfefa740b2f45dae6cd4e2c0 |
 | modules/ui/workbench/gdev-project-workbench.el | 33bce7a69351da62d0820b49abb625729ccfeb8ecb331eb75e56fd15c3e34329 |
 | modules/ui/workbench/gdev-search.el | d258f452e41e92ed27e96da5a0d445f9b36d735624d83127a23338e16fd8caa5 |
+| modules/ui/workbench/gdev-workbench-operations.el | 1abaf059321df22c93d8caf15ff33636c9b4428604ff8fd3e500725d47cc4eeb |
 | templates/assurance/catalog.eld | 755eb786cf469f677074359db2cc59a91f5ac185f98301d1312921ac05c979a2 |
-| test/behavior/project.feature | 68a6b530dd0ee51541c23b8ec7d1f47ac7ce3c55ebfc30ebff136d57b7caa729 |
-| test/gdev-project-bdd-test.el | 44f1f247b85bd9bcfccc5a8110c8e997df133edc3d5f2920ba11ab0ef0380a7f |
+| test/behavior/project.feature | 6039ebff6e3bd8e7f77e0818d79d780954d05cbf2559e90dfab6b62c43cb220f |
+| test/gdev-project-bdd-test.el | cefaabdaaa43cb91cc20c166d95864fabba98d3c231875174bd13bd8ec187b41 |
 | test/gdev-reliability-test.py | 1903c98796ef047fbdce5b541cbe939a0093a52c316d3162938b851928ac682b |
 | test/gdev-reliability-worker.el | 9abc5583b4e4a3496ed2b5da42ac7654c1dc005e7b5f0b40062b31dc2b439907 |
 | test/gdev-self-assurance-test.el | 683a8b099a392fe2a65f973c1fb70973cea5b74b3699b3c61eb9a7e6588707a1 |

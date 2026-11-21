@@ -26,6 +26,10 @@ assegnamenti `NOME=VALORE`, conservati per progetto in SQLite. Per esempio:
 CC=clang CXX=clang++ 'CXXFLAGS=-O2 -g'
 ```
 
+Le attività richiamate da un controllo già aperto conservano la cartella
+indicata, anche quando lo spazio attivo appartiene a un altro progetto.
+Prima di interrogare il catalogo, attendono che l'ambiente sia pronto.
+
 I Makefile esistenti restano di proprietà del progetto. GDev delega
 include, variabili e dipendenze a Make. Per CMake, Meson e MakeMaker, il
 generatore produce e aggiorna i propri file: GDev avvia la preparazione
@@ -60,8 +64,10 @@ data al secondo. I test usano pytest quando disponibile, altrimenti unittest.
 [Compilazione del bytecode](https://docs.python.org/3/library/compileall.html).
 
 **Configura compilazione** crea `.venv`; **Prepara gli strumenti Python…**
-nel controllo installa gli strumenti nell'ambiente autorizzato. Queste
-azioni sono esplicite. L'apertura di una cartella non installa pacchetti.
+nel controllo crea l'ambiente quando manca e installa gli strumenti al suo
+interno, in un solo passaggio esplicito. Una `.venv` valida viene riusata;
+una cartella incompleta viene segnalata e conservata. Se la creazione
+fallisce, l'installazione si arresta. L'apertura di una cartella non installa pacchetti.
 Un compilatore incrociato richiesto dal progetto deve essere disponibile:
 GDev conserva la toolchain dichiarata e permette di impostarne i percorsi
 tramite configurazione del progetto o variabili Make.
@@ -101,6 +107,12 @@ e ripristina le variabili rimosse. Un ambiente in preparazione o fallito
 impedisce di avviare processi con strumenti incompleti. L'aggiornamento
 conserva autorizzazioni e configurazione privata.
 
+Dopo una configurazione riuscita GDev aggiorna automaticamente l'ambiente
+dei documenti ancora appartenenti alla stessa radice, anche se nel frattempo
+è cambiato lo spazio visibile. Il seguito comune vale per i motori nativi,
+i profili dichiarati e la preparazione Python. Errori e interruzioni non
+attivano il seguito; le cartelle richiedono sempre l'autorizzazione prevista.
+
 ## Contratto tematico e modello finito
 
 `gdev-project-operation-contracts` copre tutti i motori e linguaggi
@@ -119,8 +131,10 @@ gli stessi predicati del controllo operativo e del registro degli esiti.
 
 Gli invarianti impongono che un'osservazione superata venga scartata, che
 la prontezza richieda tutti i prerequisiti e che il successo derivi solo
-da un processo terminato con codice zero. I test alterano deliberatamente
-i predicati per verificare che il controllo produca controesempi
+da un processo terminato con codice zero senza annullamenti. Una richiesta
+di interruzione prevale anche sull'uscita zero tardiva: il registro conserva
+l'annullamento e nessun seguito viene avviato. I test alterano deliberatamente
+i predicati, compreso questo caso, per verificare che il controllo produca controesempi
 serializzabili. Con i 364 casi del ciclo formale, `model-check` esplora
 522 casi. Le prove di integrazione verificano separatamente radici,
 precedenze, isolamento, concorrenza e prodotti reali.

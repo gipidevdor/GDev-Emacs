@@ -31,3 +31,16 @@ Funzionalità: Operazioni automatiche del progetto
     Quando compilo dalla sottocartella senza aprire un sorgente
     Allora la compilazione segnala un errore
     E offre il controllo del progetto
+
+  Scenario: Configurazione condivisa dalla sottocartella
+    Dato un progetto operativo "Dichiarato"
+    Quando configuro dalla sottocartella senza aprire un sorgente
+    Allora la compilazione termina con successo
+    E esiste il prodotto "configurato"
+
+  Scenario: Preparazione Python senza ambiente preliminare
+    Dato un progetto operativo "Strumenti Python"
+    Quando preparo gli strumenti Python dalla cartella
+    Allora la compilazione termina con successo
+    E esiste il prodotto ".venv/pyvenv.cfg"
+    E esiste il prodotto "strumenti-pronti"

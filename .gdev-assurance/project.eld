@@ -367,16 +367,18 @@
                 "gdev-agent-interface-headless-procedure-failure-is-an-error"
                 "gdev-agent-interface-process-labels-are-italian-and-codes-stable"
                 "test/gdev-cli-contract-test.py"))
-   (:id "GDEV-P14" :version 2
+   (:id "GDEV-P14" :version 3
         :statement "Le operazioni di progetto devono riconoscere il contesto dai manifesti, attivare gli adattatori necessari e preparare gli artefatti richiesti prima dell'esecuzione effettiva. Le scelte esplicite prevalgono sulle deduzioni; errori, annullamenti e risposte superate non producono un successo."
         :origin "Mandato dell'utente sull'ergonomia e l'autoconfigurazione per ogni tipo di progetto, inclusi Cpp, Perl e Python"
         :rationale "Governare l'integrazione automatica con un contratto tematico comune ed esiti osservabili"
         :category functional :priority must :criticality high :owner "Manutentori di GDev"
         :status accepted :applicability applicable :method test :procedure "GDEV-VERIFY"
-        :acceptance "Cartelle senza Git e sottocartelle usano la radice corretta. Make conserva il proprio obiettivo predefinito, espone attività e variabili senza riscrivere i sorgenti. Perl prepara e costruisce prima dei test; Python costruisce pacchetti o bytecode. Il controllo comune è passivo e offre recupero; il modello finito rileva falsi successi e fornitori privi di contratto."
+        :acceptance "Cartelle senza Git e sottocartelle usano la radice corretta. Make conserva il proprio obiettivo predefinito, espone attività e variabili senza riscrivere i sorgenti. Le attività rispettano il contesto esplicito e attendono l'ambiente prima del catalogo. Perl prepara e costruisce prima dei test; Python costruisce pacchetti o bytecode e prepara gli strumenti creando .venv quando manca. Dopo una configurazione riuscita si aggiorna l'ambiente dei documenti della stessa radice. Il controllo comune è passivo e offre recupero; il modello finito rileva falsi successi e fornitori privi di contratto. Il bootstrap sceglie il checkout senza domande sul percorso, conserva le configurazioni Emacs e attende il riscontro della finestra GDev."
         :sources ("lisp/gdev-project-types.el" "lisp/gdev-project-operations.el"
-                  "lisp/gdev-auto-modules.el" "lisp/gdev-launch.el" "lisp/gdev-lib.el"
+                  "lisp/gdev-auto-modules.el" "lisp/gdev-launch.el" "lisp/gdev-lib.el" "lisp/gdev-compilation.el"
+                  "modules/ui/workbench/gdev-workbench-operations.el"
                   "lisp/gdev-cli.el" "bin/gdev-cli-entry.el"
+                  "bin/gdev" "bin/gdev-bootstrap-macos" "bin/gdev-startup-check.el" "lisp/gdev-install.el"
                   "modules/tools/build/config.el" "modules/tools/build/gdev-make.el"
                   "modules/tools/build/gdev-project-control.el" "modules/tools/build/gdev-mise.el"
                   "modules/lang/python/config.el" ".gdev-project.eld"
@@ -393,11 +395,26 @@
                 "gdev-test-project-operation-model-detects-false-readiness-and-success"
                 "gdev-test-project-operation-model-detects-an-unclassified-provider"
                 "gdev-test-project-operation-control-is-passive-and-actions-retain-root"
+                "gdev-test-project-operation-task-keeps-the-explicit-project"
+                "gdev-test-project-operation-task-waits-before-reading-the-catalog"
+                "gdev-test-project-operation-python-prepares-tools-in-one-step"
+                "gdev-test-project-operation-python-preparation-stops-and-preserves-incomplete-environments"
+                "gdev-test-project-operation-configure-refreshes-native-and-declared-projects"
+                "gdev-test-project-operation-configure-handles-fast-processes-and-empty-starts"
+                "gdev-test-project-operation-configure-keeps-failures-and-changed-contexts"
+                "gdev-test-project-operation-cancellation-prevents-success-followups"
+                "gdev-test-project-operation-model-rejects-late-success-after-stop"
+                "gdev-test-install-launcher-keeps-checkout-profile-and-arguments"
+                "gdev-test-install-launcher-preserves-unrelated-apps-and-links"
+                "gdev-test-install-startup-receipt-rejects-errors-and-missing-interface"
+                "test/gdev-cli-contract-test.py"
                 "gdev-test-behavior-project-compilazione-cpp-senza-git-e-con-obiettivo-predefinito"
                 "gdev-test-behavior-project-preparazione-automatica-dei-test-perl"
                 "gdev-test-behavior-project-compilazione-dei-sorgenti-python"
                 "gdev-test-behavior-project-test-python-dalla-cartella-senza-un-documento-aperto"
-                "gdev-test-behavior-project-un-errore-di-compilazione-conserva-il-percorso-di-recupero")))
+                "gdev-test-behavior-project-un-errore-di-compilazione-conserva-il-percorso-di-recupero"
+                "gdev-test-behavior-project-configurazione-condivisa-dalla-sottocartella"
+                "gdev-test-behavior-project-preparazione-python-senza-ambiente-preliminare")))
 	  :procedures
 	  ((:id "PROC-FEATURE" :version 1 :title "Feature" :types
 		("feature") :requirements nil :snippets nil :outputs

@@ -27,6 +27,17 @@
   (let ((gdev-project-build-file-markers (cons '(new-system "new.file") gdev-project-build-file-markers)))
     (should (eq :false (alist-get 'ok (gdev-project-operation-model-check))))))
 
+(ert-deftest gdev-test-project-operation-model-rejects-late-success-after-stop ()
+  (let ((original (symbol-function 'gdev-project-operation-result)))
+    (cl-letf (((symbol-function 'gdev-project-operation-result)
+               (lambda (status code stopping)
+                 (if (and (eq status 'exit) (= code 0)) 'completed
+                   (funcall original status code stopping)))))
+      (let ((report (gdev-project-operation-model-check)))
+        (should (eq :false (alist-get 'ok report)))
+        (should (seq-find (lambda (row) (equal "late-success-after-stop" (alist-get 'property row)))
+                          (alist-get 'counterexamples report)))))))
+
 (ert-deftest gdev-test-project-operation-declarations-are-data-and-atomic ()
   (gdev-make-test--project
    (let ((file (expand-file-name gdev-project-operations-file root)))
@@ -155,20 +166,20 @@
 (ert-deftest gdev-test-project-operation-python-aliases-use-venv-and-preserve-explicit-interpreters ()
   (gdev-make-test--load)
   (gdev-make-test--project
-    (load (gdev-module-file :lang 'python ".el") nil t t)
-    (make-directory ".venv/bin" t)
-    (with-temp-file ".venv/pyvenv.cfg" (insert "# Ambiente della fixture\n"))
-    (with-temp-file ".venv/bin/python") (set-file-modes ".venv/bin/python" #o700)
-    (with-temp-file "interprete-personale") (set-file-modes "interprete-personale" #o700)
-    (let ((gdev-trusted-projects (list (file-name-as-directory (file-truename root)))))
-      (dolist (name '("python" "python3"))
-        (with-temp-buffer
-          (let ((python-shell-interpreter name))
-            (should (equal (gdev-python--interpreter root) (expand-file-name ".venv/bin/python" root))))))
-      (let ((python-shell-interpreter (expand-file-name "interprete-personale" root)))
-        (load (gdev-module-file :lang 'python ".el") nil t t)
-        (should (equal python-shell-interpreter (expand-file-name "interprete-personale" root)))
-        (should (equal (gdev-python--interpreter root) python-shell-interpreter))))))
+   (load (gdev-module-file :lang 'python ".el") nil t t)
+   (make-directory ".venv/bin" t)
+   (with-temp-file ".venv/pyvenv.cfg" (insert "# Ambiente della fixture\n"))
+   (with-temp-file ".venv/bin/python") (set-file-modes ".venv/bin/python" #o700)
+   (with-temp-file "interprete-personale") (set-file-modes "interprete-personale" #o700)
+   (let ((gdev-trusted-projects (list (file-name-as-directory (file-truename root)))))
+     (dolist (name '("python" "python3"))
+       (with-temp-buffer
+         (let ((python-shell-interpreter name))
+           (should (equal (gdev-python--interpreter root) (expand-file-name ".venv/bin/python" root))))))
+     (let ((python-shell-interpreter (expand-file-name "interprete-personale" root)))
+       (load (gdev-module-file :lang 'python ".el") nil t t)
+       (should (equal python-shell-interpreter (expand-file-name "interprete-personale" root)))
+       (should (equal (gdev-python--interpreter root) python-shell-interpreter))))))
 
 (ert-deftest gdev-test-project-operation-make-tasks-merge-with-personal-overrides ()
   (skip-unless (executable-find "make"))
@@ -244,6 +255,207 @@
     (setenv "GDEV_PROJECT_TEST" "precedente")
     (gdev-env--apply '(("GDEV_PROJECT_TEST" . nil)))
     (should-not (getenv "GDEV_PROJECT_TEST"))))
+
+(defun gdev-project-operation-test--wait (buffer)
+  "Attendi il processo di BUFFER e la pubblicazione del suo esito."
+  (let ((process (get-buffer-process buffer))
+        (deadline (+ (float-time) 30)) done)
+    (should process)
+    (gdev-compilation-on-finish buffer (lambda (_) (setq done t)))
+    (while (and (not done) (< (float-time) deadline))
+      (accept-process-output process 0.03))
+    (should done)
+    (process-exit-status process)))
+
+(ert-deftest gdev-test-project-operation-task-keeps-the-explicit-project ()
+  (skip-unless (executable-find "make"))
+  (gdev-make-test--load)
+  (require 'gdev-project-control (gdev-config-file "modules/tools/build/gdev-project-control"))
+  (gdev-make-test--project
+   (let ((other (expand-file-name "altro/" root)) output
+         (windows (current-window-configuration)))
+     (make-directory other t)
+     (dolist (directory (list root other))
+       (with-temp-file (expand-file-name "Makefile" directory)
+         (insert "azione:\n\t@pwd > eseguita\n")))
+     (unwind-protect
+         (cl-letf (((symbol-function 'gdev-workspace-directory) (lambda (&rest _) other))
+                   ((symbol-function 'completing-read) (lambda (&rest _) "azione")))
+           (gdev-project-control--call (lambda () (setq output (gdev-run-project-task))) root nil)
+           (should (zerop (gdev-project-operation-test--wait output)))
+           (should (file-regular-p (expand-file-name "eseguita" root)))
+           (should-not (file-exists-p (expand-file-name "eseguita" other))))
+       (when (buffer-live-p output) (kill-buffer output))
+       (set-window-configuration windows)))))
+
+(ert-deftest gdev-test-project-operation-task-waits-before-reading-the-catalog ()
+  (gdev-make-test--load)
+  (gdev-make-test--project
+   (let ((project-current-directory-override root)
+         (gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
+         (gdev-project-environment-functions
+          (list (lambda (_) (setq-local gdev-project-environment-status 'pending)))))
+     (cl-letf (((symbol-function 'gdev-build-project-tasks)
+                (lambda (_) (ert-fail "Catalogo interrogato prima dell'ambiente"))))
+       (should-error (gdev-run-project-task) :type 'user-error)))))
+
+(ert-deftest gdev-test-project-operation-python-prepares-tools-in-one-step ()
+  (skip-unless (executable-find "python3"))
+  (gdev-make-test--load)
+  (load (gdev-module-file :lang 'python ".el") nil t t)
+  (gdev-make-test--project
+   (with-temp-file "requirements.txt" (insert "# libreria standard\n"))
+   ;; Modulo di prova locale: registra l'installazione senza accedere alla rete.
+   (with-temp-file "pip.py"
+     (insert "import pathlib, sys\n"
+             "pathlib.Path('strumenti-preparati').write_text(sys.prefix)\n"))
+   (let ((gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
+         (python-shell-interpreter (executable-find "python3"))
+         (process-environment (copy-sequence process-environment))
+         (windows (current-window-configuration)) output)
+     (setenv "PYTHONPYCACHEPREFIX" (expand-file-name "bytecode" root))
+     (unwind-protect
+         (progn
+           (setq output (gdev-python-install-tools))
+           (should (zerop (gdev-project-operation-test--wait output)))
+           (should (file-readable-p ".venv/pyvenv.cfg"))
+           (should (file-equal-p (string-trim (gdev-read-file-contents "strumenti-preparati"))
+                                 (expand-file-name ".venv" root)))
+           ;; Il secondo passaggio usa l'ambiente esistente, senza ricrearlo.
+           (let ((python-shell-interpreter (expand-file-name "base-non-disponibile" root)))
+             (setq output (gdev-python-install-tools))
+             (should (zerop (gdev-project-operation-test--wait output)))))
+       (when (buffer-live-p output) (kill-buffer output))
+       (set-window-configuration windows)))))
+
+(ert-deftest gdev-test-project-operation-configure-refreshes-native-and-declared-projects ()
+  (gdev-make-test--load)
+  (dolist (declared '(nil t))
+    (gdev-make-test--project
+     (let ((gdev-layout-mode nil)
+           (gdev-launch-profiles nil)
+           (gdev-launch--project-profiles (make-hash-table :test #'equal))
+           (gdev-launch--native-profiles (make-hash-table :test #'equal))
+           (gdev-launch--standalone-selections nil)
+           (gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
+           (gdev-project-environment-refresh-functions nil)
+           (gdev-project-environment-functions
+            (list (lambda (directory)
+                    (setq-local process-environment (copy-sequence process-environment))
+                    (setenv "GDEV_CONFIG_READY" (if (file-exists-p (expand-file-name "configurato" directory)) "sì" "no")))))
+           (windows (current-window-configuration)) output)
+       (if declared
+           (with-temp-file gdev-project-operations-file
+             (prin1 '(:version 1 :profiles (("Fixture" :configure ("sh" "-c" "touch configurato")))) (current-buffer)))
+         (with-temp-file "CMakeLists.txt" (insert "# fixture\n")))
+       (unwind-protect
+           (with-temp-buffer
+             (setq default-directory root)
+             (cl-letf (((symbol-function 'gdev-build--command-scope)
+                        (lambda (_action directory)
+                          (cons "touch configurato" (gdev-build-scope directory nil)))))
+               (let ((compilation-start-hook
+                      (cons (lambda (process) (setq output (process-buffer process))) compilation-start-hook)))
+                 (gdev-build-configure)))
+             (should (zerop (gdev-project-operation-test--wait output)))
+             (should (equal "sì" (getenv "GDEV_CONFIG_READY"))))
+         (when (buffer-live-p output) (kill-buffer output))
+         (set-window-configuration windows))))))
+
+(ert-deftest gdev-test-project-operation-configure-handles-fast-processes-and-empty-starts ()
+  (gdev-make-test--load)
+  (gdev-make-test--project
+   (let ((gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
+         (windows (current-window-configuration)) output seen)
+     (should (eq :no-process (gdev-compilation-configure root (lambda () :no-process))))
+     (unwind-protect
+         (cl-letf (((symbol-function 'gdev-refresh-project-environment) (lambda (directory) (push directory seen))))
+           (setq output
+                 (gdev-compilation-configure
+                  root (lambda ()
+                         (let* ((buffer (gdev-compile "true" "gdev-configurazione-rapida" root))
+                                (process (get-buffer-process buffer))
+                                (deadline (+ (float-time) 5)))
+                           (while (and (get-buffer-process buffer) (< (float-time) deadline))
+                             (accept-process-output process 0.03))
+                           buffer))))
+           (should (equal seen (list root))))
+       (when (buffer-live-p output) (kill-buffer output))
+       (set-window-configuration windows)))))
+
+(ert-deftest gdev-test-project-operation-cancellation-prevents-success-followups ()
+  (gdev-make-test--load)
+  (gdev-make-test--project
+   (dolist (state '(running completed stopping cancelled failed nil))
+     (let ((gdev-layout-mode nil)
+           (gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
+           (windows (current-window-configuration)) output refreshed child)
+       (unwind-protect
+           (cl-letf (((symbol-function 'gdev-workbench-operation-current)
+                      (lambda (_) (when state (make-gdev-workbench-operation :state state))))
+                     ((symbol-function 'gdev-refresh-project-environment) (lambda (_) (setq refreshed t))))
+             (let ((compilation-start-hook
+                    (cons (lambda (process) (setq child process) (process-put process 'gdev-workbench-operation 'fixture)) compilation-start-hook)))
+               (setq output (gdev-compilation-configure root #'gdev-compile "true" "gdev-configurazione-interruzione" root)))
+             (should (zerop (gdev-project-operation-test--wait output)))
+             (ert-info ((format "Stato %S, processo %S, proprietà %S, predicato %S"
+                                state child (process-get child 'gdev-workbench-operation) (gdev-compilation-succeeded-p child)))
+               (should (eq (and refreshed t) (and (memq state '(running completed)) t)))))
+         (when (buffer-live-p output) (kill-buffer output))
+         (set-window-configuration windows))))))
+
+(ert-deftest gdev-test-project-operation-configure-keeps-failures-and-changed-contexts ()
+  (gdev-make-test--load)
+  (gdev-make-test--project
+   (dolist (kind '(failed signal untrusted refresh-error changed-context))
+     (let ((gdev-trusted-projects (unless (eq kind 'untrusted) (list (file-name-as-directory (file-truename root)))))
+           (windows (current-window-configuration)) output refreshed)
+       (unwind-protect
+           (with-temp-buffer
+             (setq default-directory root)
+             (cl-letf (((symbol-function 'gdev-refresh-project-environment)
+                        (lambda (_directory) (setq refreshed t) (error "Fornitore non disponibile"))))
+               (setq output (gdev-compilation-configure
+                             root #'gdev-compile (pcase kind ('failed "exit 23") ('signal "kill -TERM $$") (_ "true"))
+                             "gdev-configurazione-esiti" root))
+               (when (eq kind 'changed-context) (setq default-directory temporary-file-directory))
+               (let ((code (gdev-project-operation-test--wait output)))
+                 (if (memq kind '(failed signal)) (should (> code 0)) (should (zerop code))))
+               (should (eq (and refreshed t) (and (memq kind '(refresh-error changed-context)) t)))
+               (if (eq kind 'refresh-error)
+                   (progn (should (eq 'failed gdev-project-environment-status))
+                          (should (equal "Fornitore non disponibile" gdev-project-environment-detail)))
+                 (should-not gdev-project-environment-status))))
+         (when (buffer-live-p output) (kill-buffer output))
+         (set-window-configuration windows))))))
+
+(ert-deftest gdev-test-project-operation-python-preparation-stops-and-preserves-incomplete-environments ()
+  (gdev-make-test--load)
+  (load (gdev-module-file :lang 'python ".el") nil t t)
+  (gdev-make-test--project
+   (with-temp-file "requirements.txt" (insert "# fixture\n"))
+   (with-temp-file "python-fallisce" (insert "#!/bin/sh\nexit 19\n"))
+   (set-file-modes "python-fallisce" #o700)
+   (with-temp-file "pip.py" (insert "raise AssertionError('Installazione dopo un errore')\n"))
+   (let ((python-shell-interpreter (expand-file-name "python-fallisce" root))
+         (gdev-trusted-projects (list (file-name-as-directory (file-truename root))))
+         (windows (current-window-configuration)) output)
+     (unwind-protect
+         (progn
+           (setq output (gdev-python-install-tools))
+           (should (= 19 (gdev-project-operation-test--wait output)))
+           (should-not (file-exists-p ".venv"))
+           (make-directory ".venv")
+           (with-temp-file ".venv/da-conservare" (insert "personale"))
+           (should-error (gdev-python-install-tools) :type 'user-error)
+           (should (equal "personale" (gdev-read-file-contents ".venv/da-conservare")))
+           (delete-directory ".venv" t)
+           (make-symbolic-link "destinazione-assente" ".venv")
+           (should-error (gdev-python-install-tools) :type 'user-error)
+           (should (file-symlink-p ".venv"))
+           (should-not (file-exists-p "destinazione-assente")))
+       (when (buffer-live-p output) (kill-buffer output))
+       (set-window-configuration windows)))))
 
 (provide 'gdev-project-operations-test)
 ;;; gdev-project-operations-test.el ends here

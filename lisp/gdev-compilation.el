@@ -17,6 +17,10 @@
 (require 'gdev-lib)
 (require 'gdev-workspace-state)
 
+(autoload 'gdev-project-operation-result "gdev-project-operations")
+(declare-function gdev-workbench-operation-current "../modules/ui/workbench/gdev-workbench-operations" (operation))
+(declare-function gdev-workbench-operation-state "../modules/ui/workbench/gdev-workbench-operations" (operation))
+
 (defun gdev-build--output-name (root)
   "Identifica il pannello di compilazione di ROOT."
   (format "Compilazione · %s" (abbreviate-file-name (directory-file-name root))))
@@ -104,6 +108,49 @@ Se la sentinella ha già consegnato il risultato, chiama subito CALLBACK."
                              (funcall callback output))))
             (add-hook 'compilation-finish-functions finish nil t))
         (funcall callback buffer)))))
+
+(defun gdev-compilation-succeeded-p (process)
+  "Ammetti un seguito soltanto dopo il successo di PROCESS e del suo registro.
+Una richiesta di interruzione o la chiusura dello spazio prevalgono anche
+su un'uscita zero tardiva. Il registro resta posseduto dal Workbench."
+  (let* ((operation (process-get process 'gdev-workbench-operation))
+         (current (and operation (fboundp 'gdev-workbench-operation-current)
+                       (gdev-workbench-operation-current operation))))
+    (eq 'completed
+        (gdev-project-operation-result
+         (process-status process) (process-exit-status process)
+         (and operation (or (null current)
+                            (not (memq (gdev-workbench-operation-state current) '(running completed)))))))))
+
+(defun gdev-compilation-configure (root starter &rest arguments)
+  "Avvia STARTER con ARGUMENTS e aggiorna l'ambiente di ROOT dopo un successo.
+Conserva il processo effettivo anche se termina prima del ritorno di STARTER.
+L'aggiornamento riguarda soltanto i documenti ancora appartenenti a ROOT;
+non concede autorizzazioni e non dipende dallo spazio visibile alla fine."
+  (let* ((source (current-buffer)) starts
+         (buffer (let ((compilation-start-hook
+                        (cons (lambda (process) (push (cons (process-buffer process) process) starts))
+                              compilation-start-hook)))
+                   (apply starter arguments)))
+         (process (cdr (assq buffer (nreverse starts)))))
+    (when process
+      (gdev-compilation-on-finish
+       buffer
+       (lambda (_output)
+         (when (and (gdev-compilation-succeeded-p process)
+                    (gdev-project-trusted-p root))
+           (condition-case failure
+               (gdev-refresh-project-environment root)
+             (error
+              (when (and (buffer-live-p source)
+                         (with-current-buffer source
+                           (file-equal-p root (gdev-project-operation-context-root))))
+                (with-current-buffer source
+                  (setq-local gdev-project-environment-status 'failed
+                              gdev-project-environment-detail (error-message-string failure))))
+              (message "Configurazione terminata; aggiornamento dell'ambiente non riuscito: %s"
+                       (error-message-string failure))))))))
+    buffer))
 
 (defun gdev-build--plans ()
   "Leggi gli ultimi piani di compilazione del contesto corrente."

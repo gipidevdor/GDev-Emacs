@@ -344,8 +344,7 @@ ENVIRONMENT contiene gli assegnamenti delle due fasi."
     (gdev-compilation-on-finish
      output
      (lambda (_buffer)
-       (when (and (eq (process-status process) 'exit)
-                  (zerop (process-exit-status process)))
+       (when (gdev-compilation-succeeded-p process)
          (gdev-launch--in-workspace
           frame owner
           (lambda ()
@@ -427,7 +426,7 @@ Con ASK-OPTIONS modifica gli argomenti per questa operazione."
             (user-error "Cartella del profilo non disponibile: %s" directory))
           (when (and ask-options
                      (not (and debugging (equal (plist-get (plist-get debug :options) :request)
-                                               "attach"))))
+						"attach"))))
             (setq argv (gdev-launch--read-arguments argv))
             (when debugging
               (setq debug (plist-put (copy-sequence debug) :args argv))))
@@ -443,6 +442,8 @@ Con ASK-OPTIONS modifica gli argomenti per questa operazione."
                             directory environment :name name
                             :scope (and (not input) (gdev-build-scope root nil))
                             :build (eq phase 'build) :profile (car profile))))))
+            (when (eq phase 'configure)
+              (setq start (apply-partially #'gdev-compilation-configure root start)))
             (when input (gdev-compilation-check-idle name))
             (if (memq phase (plist-get options :build-before))
                 (gdev-launch--build-before (plist-get options :build) root directory environment

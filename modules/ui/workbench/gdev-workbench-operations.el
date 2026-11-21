@@ -172,6 +172,7 @@ Dopo una richiesta di interruzione l'esito è sempre «Interrotta»."
               ((buffer-live-p buffer))
               (label (string-trim (buffer-name buffer) "\\*" "\\*"))
               (operation (gdev-workbench-operation-start label buffer t)))
+    (process-put process 'gdev-workbench-operation operation)
     (if (not (process-live-p process))
         (gdev-workbench-operations--finish-process operation process "Processo terminato")
       (with-current-buffer buffer

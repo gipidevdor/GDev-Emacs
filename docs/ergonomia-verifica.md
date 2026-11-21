@@ -1,5 +1,50 @@
 # Verifica di ergonomia e reattività
 
+## Iterazione del 21 novembre 2026
+
+La nuova iterazione di `GT-0006` riproduce tre difetti prima della
+correzione: un'attività del controllo eseguita nell'altro progetto,
+lettura del catalogo prima della disponibilità dell'ambiente e preparazione
+Python ferma sulla richiesta di creare prima `.venv`.
+
+Il contesto esplicito ora prevale per le attività. La preparazione Python
+crea o riusa l'ambiente autorizzato e arresta la catena al primo errore;
+cartelle incomplete e collegamenti interrotti vengono conservati. Il seguito
+`gdev-compilation-configure` aggiorna l'ambiente dopo l'uscita zero dei motori
+nativi e dei profili dichiarati. Conserva il processo effettivo anche quando
+termina prima del ritorno del comando. Un errore del fornitore è visibile e
+blocca il documento d'origine, se appartiene ancora alla stessa radice.
+
+Nove regressioni mirate verificano questi percorsi, il riuso dell'ambiente,
+gli errori e il cambio di contesto. Due scenari BDD aggiungono configurazione
+condivisa dalla sottocartella e preparazione Python senza ambiente preliminare.
+Le fixture di installazione registrano l'interprete tramite un modulo `pip.py`
+locale e non scaricano pacchetti. La copertura dei flussi mantiene tutte le
+righe strumentabili del coordinatore e dell'avvio. Il predicato comune dei
+seguiti consulta anche il registro: una richiesta di interruzione o la chiusura
+dello spazio prevalgono sull'uscita zero tardiva, anche nell'avvio dopo compilazione.
+Le nuove modifiche non introducono dipendenze di terzi.
+
+Il primo avvio macOS ora ha un ingresso esplicito: `GDev-Emacs.app` conserva
+checkout e opzioni del profilo, e `gdev emacs` passa il percorso completo
+senza chiedere directory. Il bootstrap attende un riscontro dell'istanza:
+checkout corretto, nucleo caricato, nessun errore d'inizializzazione,
+banco di lavoro e finestra grafica. Un errore o un mancato riscontro
+impediscono la dichiarazione di avvio verificato e conservano la diagnosi.
+Le configurazioni Emacs preesistenti, comprese cartelle e collegamenti
+interrotti, non vengono sovrascritte.
+
+Tre prove ERT e cinque contratti del bootstrap verificano ingresso,
+argomenti, percorsi con spazi e accenti, conservazione e casi negativi.
+L'eseguibile dell'app generata è stato avviato su macOS con profilo e stato
+vuoti: l'istanza ha confermato checkout, nucleo, banco di lavoro e display
+grafico. È una verifica d'integrazione su questo Mac con strumenti già
+installati; non sostituisce una prova su un Mac fisicamente nuovo.
+
+L'accesso grafico è stato tentato nella finestra nativa: lo strumento segnala
+ancora il Mac bloccato. Questa iterazione conserva la verifica grafica finale
+come non eseguita; le prove automatiche non attestano puntatore e resa visiva.
+
 Rilevazione del 19 novembre 2026 su macOS, con Emacs 31.1 e il profilo
 distribuito. La scheda versionata è
 [ergonomics.eld](../.gdev-assurance/work/ergonomics.eld); i criteri appartengono
